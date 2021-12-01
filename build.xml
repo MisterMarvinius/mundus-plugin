@@ -1,0 +1,23 @@
+<project default="jar">
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="build/classes"/>
+        <javac includeantruntime="false" srcdir="src" destdir="build/classes">
+            <classpath>
+                <fileset dir="lib">
+                    <include name="patched_1.17.1.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile">
+        <javac includeantruntime="false" srcdir="src" destdir="build/classes"/>
+        <jar destfile="build/KajetansPlugin.jar" basedir="build/classes">
+            <fileset file="src/resources/plugin.yml"/>
+        </jar>
+    </target>
+</project>
