@@ -9,6 +9,7 @@
             <classpath>
                 <fileset dir="lib">
                     <include name="patched_1.17.1.jar"/>
+                    <include name="SnuviScriptRecoded.jar"/>
                 </fileset>
             </classpath>
         </javac>
@@ -17,6 +18,9 @@
     <target name="jar" depends="compile">
         <javac includeantruntime="false" srcdir="src" destdir="build/classes"/>
         <jar destfile="build/KajetansPlugin.jar" basedir="build/classes">
+            <manifest>
+                <attribute name="Class-Path" value="lib/SnuviScriptRecoded.jar"/>
+            </manifest>
             <fileset file="src/resources/plugin.yml"/>
         </jar>
     </target>
