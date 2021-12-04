@@ -1,52 +1,33 @@
-/*package me.km.snuviscript.commands;
+package me.hammerle.kp.snuviscript.commands;
 
-import me.hammerle.snuviscript.code.ScriptManager;
-import me.km.utils.ReflectionUtils;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.GameRules.RuleKey;
-import net.minecraft.world.World;
+import org.bukkit.GameRule;
+import org.bukkit.World;
+import me.hammerle.kp.KajetansPlugin;
 
 public class GameRuleCommands {
-    private static GameRules.RuleKey<?> ruleKey = null;
-
-    public static void registerFunctions(ScriptManager sm, MinecraftServer server) {
-        sm.registerFunction("gamerule.getkey", (sc, in) -> {
-            String name = in[0].getString(sc);
-            ruleKey = null;
-            GameRules.visitAll(new GameRules.IRuleEntryVisitor() {
-                @Override
-                public <T extends GameRules.RuleValue<T>> void visit(GameRules.RuleKey<T> key,
-                        GameRules.RuleType<T> type) {
-                    if(key.getName().equals(name)) {
-                        ruleKey = key;
-                    }
-                }
-            });
-            return ruleKey;
+    @SuppressWarnings("unchecked")
+    public static void registerFunctions() {
+        KajetansPlugin.scriptManager.registerFunction("gamerule.getkey", (sc, in) -> {
+            return GameRule.getByName(in[0].getString(sc));
         });
-        sm.registerFunction("gamerule.getvalue", (sc, in) -> {
-            return ((World) in[0].get(sc)).getGameRules().get((RuleKey<?>) in[1].get(sc));
+        KajetansPlugin.scriptManager.registerFunction("gamerule.getvalue", (sc, in) -> {
+            World w = (World) in[0].get(sc);
+            GameRule<?> rule = (GameRule<?>) in[1].get(sc);
+            Object o = w.getGameRuleValue(rule);
+            if(o instanceof Number) {
+                return ((Number) o).doubleValue();
+            }
+            return o;
         });
-        sm.registerFunction("gamerule.isbool", (sc, in) -> {
-            return in[0].get(sc) instanceof GameRules.BooleanValue;
+        KajetansPlugin.scriptManager.registerConsumer("gamerule.setbool", (sc, in) -> {
+            World w = (World) in[0].get(sc);
+            GameRule<Boolean> rule = (GameRule<Boolean>) in[1].get(sc);
+            w.setGameRule(rule, in[2].getBoolean(sc));
         });
-        sm.registerFunction("gamerule.isint", (sc, in) -> {
-            return in[0].get(sc) instanceof GameRules.IntegerValue;
-        });
-        sm.registerFunction("gamerule.getbool", (sc, in) -> {
-            return ((GameRules.BooleanValue) in[0].get(sc)).get();
-        });
-        sm.registerFunction("gamerule.getint", (sc, in) -> {
-            return (double) ((GameRules.IntegerValue) in[0].get(sc)).get();
-        });
-        sm.registerConsumer("gamerule.setbool", (sc, in) -> {
-            ((GameRules.BooleanValue) in[0].get(sc)).set(in[1].getBoolean(sc), server);
-        });
-        sm.registerConsumer("gamerule.setint", (sc, in) -> {
-            ReflectionUtils.setIntegerValue((GameRules.IntegerValue) in[0].get(sc),
-                    in[1].getInt(sc));
+        KajetansPlugin.scriptManager.registerConsumer("gamerule.setint", (sc, in) -> {
+            World w = (World) in[0].get(sc);
+            GameRule<Integer> rule = (GameRule<Integer>) in[1].get(sc);
+            w.setGameRule(rule, in[2].getInt(sc));
         });
     }
 }
-*/

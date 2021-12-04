@@ -1,7 +1,12 @@
 package me.hammerle.kp.snuviscript.commands;
 
 import java.util.UUID;
+import java.util.function.Consumer;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import me.hammerle.snuviscript.code.Script;
+import net.kyori.adventure.text.Component;
 
 public class CommandUtils {
     private final static UUID SERVER_UUID = new UUID(0, 0);
@@ -17,64 +22,29 @@ public class CommandUtils {
         return UUID.fromString(o.toString());
     }
 
-    /*public static ITextComponent concat(Script sc, int start, String pre, InputProvider... ob)
-            throws Exception {
-        StringTextComponent text = new StringTextComponent(pre);
-        Object o;
-        for(int i = start; i < ob.length; i++) {
-            o = ob[i].get(sc);
-            if(o instanceof ITextComponent) {
-                text.append((ITextComponent) o);
-            } else {
-                text.appendString(String.valueOf(o));
-            }
+    public static void sendMessageToGroup(Object group, Script sc, Component text) {
+        doForGroup(group, sc, p -> p.sendMessage(text));
+    }
+
+    public static void doForGroup(Object group, Script sc, Consumer<CommandSender> c) {
+        if(!(group instanceof String)) {
+            c.accept((Player) group);
+            return;
         }
-        return text;
-    }
-    
-    public static void sendMessageToGroup(MinecraftServer server, Scripts scripts,
-            Permissions perms, Object group, Script sc, ITextComponent text) {
-        doForGroup(server, scripts, perms, group, sc, p -> p.sendMessage(text, Util.DUMMY_UUID));
-    }
-    
-    public static void doForGroup(MinecraftServer server, Scripts scripts, Permissions perms,
-            Object group, Script sc, Consumer<ICommandSource> c) {
-        if(group instanceof String) {
-            switch(group.toString().toLowerCase()) {
-                case "online":
-                    if(server.getPlayerList() != null) {
-                        server.getPlayerList().getPlayers().forEach(p -> c.accept(p));
+        switch(group.toString().toLowerCase()) {
+            case "online":
+                Bukkit.getOnlinePlayers().forEach(p -> c.accept(p));
+                return;
+            case "dev":
+                Bukkit.getOnlinePlayers().forEach(p -> {
+                    if(p.hasPermission("script.error")) {
+                        c.accept(p);
                     }
-                    return;
-                case "dev":
-                    if(server.getPlayerList() != null) {
-                        server.getPlayerList().getPlayers().stream()
-                                .filter(p -> perms.has(p, "script.error")).forEach(c);
-                    }
-                    return;
-                case "server":
-                    c.accept(server);
-                    return;
-            }
+                });
+                return;
+            case "server":
+                c.accept(Bukkit.getServer().getConsoleSender());
+                return;
         }
-        c.accept((PlayerEntity) group);
     }
-    
-    public static int getId(IPlayerBank bank, Object o) {
-        if(o instanceof ModEntityPlayerMP) {
-            return ((ModEntityPlayerMP) o).getId();
-        } else if(o instanceof Double) {
-            return ((Double) o).intValue();
-        }
-        UUID uuid = getUUID(o);
-        return bank.getId(uuid);
-    }
-    
-    public static Class<?> getNamedClass(String s) throws ClassNotFoundException {
-        return Class.forName(s);
-    }
-    
-    public static BlockState getBlockState(Location l) {
-        return l.getWorld().getBlockState(l.getBlockPos());
-    }*/
 }

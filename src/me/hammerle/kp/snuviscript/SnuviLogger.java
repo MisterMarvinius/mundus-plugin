@@ -74,13 +74,13 @@ public class SnuviLogger implements ISnuviLogger {
             if(printDebugToConsole) {
                 KajetansPlugin.log(msg);
             }
-            sendToPlayers(msg, "kp.script.debug");
+            sendToPlayers(msg, "script.debug");
         } else {
             errorHistory.add(msg);
             if(printErrorToConsole) {
                 KajetansPlugin.log(msg);
             }
-            sendToPlayers(msg, "kp.script.error");
+            sendToPlayers(msg, "script.error");
         }
     }
 }

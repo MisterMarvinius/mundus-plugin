@@ -1,336 +1,337 @@
-/*package me.km.snuviscript.commands;
+package me.hammerle.kp.snuviscript.commands;
 
-import com.mojang.authlib.GameProfile;
 import java.util.ArrayList;
-import me.hammerle.snuviscript.code.ScriptManager;
+import java.util.Collection;
+import java.util.HashMap;
+import org.bukkit.Bukkit;
+import org.bukkit.FluidCollisionMode;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.util.RayTraceResult;
+import me.hammerle.kp.KajetansPlugin;
+import me.hammerle.kp.NMS;
 import me.hammerle.snuviscript.code.SnuviUtils;
-import me.km.inventory.InventoryUtils;
-import me.km.overrides.ModEntityPlayerMP;
-import me.km.permissions.Permissions;
-import me.km.playerbank.IPlayerBank;
-import me.km.scheduler.SnuviScheduler;
-import me.km.snuviscript.Scripts;
-import static me.km.snuviscript.commands.CommandUtils.*;
-import me.km.utils.Location;
-import me.km.utils.ReflectionUtils;
-import me.km.utils.Utils;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EnderChestInventory;
-import net.minecraft.inventory.container.ChestContainer;
-import net.minecraft.inventory.container.SimpleNamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.ThreadQuickExitException;
-import net.minecraft.network.play.client.CChatMessagePacket;
-import net.minecraft.network.play.client.CClientStatusPacket;
-import net.minecraft.network.play.server.SPlayerListItemPacket;
-import net.minecraft.network.play.server.SWorldSpawnChangedPacket;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.SkullTileEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.GameType;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.kyori.adventure.text.Component;
 
 public class PlayerCommands {
-    @SuppressWarnings("unchecked")
-    public static void registerFunctions(ScriptManager sm, Scripts scripts, Permissions perms,
-            SnuviScheduler scheduler, MinecraftServer server, IPlayerBank playerBank) {
-        sm.registerFunction("player.getitemamount",
-                (sc, in) -> (double) InventoryUtils.searchInventoryFor(
-                        ((PlayerEntity) in[0].get(sc)).inventory, (ItemStack) in[2].get(sc),
-                        in[1].getBoolean(sc)));
-        sm.registerFunction("player.removeitem", (sc, in) -> {
-            ItemStack stack = ((ItemStack) in[1].get(sc)).copy();
-            stack.setCount(InventoryUtils
-                    .removeFromInventory(((PlayerEntity) in[0].get(sc)).inventory, stack));
-            return stack;
-        });
-        sm.registerFunction("player.giveitem", (sc, in) -> {
-            ItemStack stack = ((ItemStack) in[1].get(sc)).copy();
-            stack.setCount(
-                    InventoryUtils.addToInventory(((PlayerEntity) in[0].get(sc)).inventory, stack));
-            return stack;
-        });
-        sm.registerConsumer("player.respawn", (sc, in) -> {
-            final ServerPlayerEntity p = ((ServerPlayerEntity) in[0].get(sc));
-            scheduler.scheduleTask("player.respawn", () -> {
-                try {
-                    p.connection.processClientStatus(
-                            new CClientStatusPacket(CClientStatusPacket.State.PERFORM_RESPAWN));
-                } catch(ThreadQuickExitException ex) {
-                    // Minecraft needs this for canceling and queueing into main thread
+    public static void registerFunctions() {
+        KajetansPlugin.scriptManager.registerFunction("player.getitemamount", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            boolean useData = in[1].getBoolean(sc);
+            ItemStack stack = (ItemStack) in[2].get(sc);
+            if(stack.getAmount() == 0) {
+                return 0;
+            }
+            int counter = 0;
+            ItemStack[] stacks = p.getInventory().getContents();
+            if(useData) {
+                for(int i = 0; i < stacks.length; i++) {
+                    if(stacks[i].isSimilar(stack)) {
+                        counter += stacks[i].getAmount();
+                    }
                 }
-            });
-        });
-        sm.registerConsumer("player.clearinventory",
-                (sc, in) -> ((PlayerEntity) in[0].get(sc)).inventory.clear());
-        sm.registerFunction("player.inventorytolist",
-                (sc, in) -> ((PlayerEntity) in[1].get(sc)).inventory.mainInventory);
-        sm.registerFunction("player.getnearest", (sc, in) -> {
-            Location l = (Location) in[0].get(sc);
-            return l.getWorld().getClosestPlayer(l.getX(), l.getY(), l.getZ(), -1, p -> true);
-        });
-        sm.registerConsumer("player.say", (sc, in) -> {
-            try {
-                ((ServerPlayerEntity) in[0].get(sc)).connection
-                        .processChatMessage(new CChatMessagePacket(SnuviUtils.connect(sc, in, 1)));
-            } catch(ThreadQuickExitException ex) {
-                // Minecraft needs this for canceling and queueing into main thread
+            } else {
+                for(int i = 0; i < stacks.length; i++) {
+                    if(stacks[i].getType() == stack.getType()) {
+                        counter += stacks[i].getAmount();
+                    }
+                }
             }
+            return counter;
         });
-        sm.registerConsumer("player.setcompass", (sc, in) -> {
-            ((ServerPlayerEntity) in[0].get(sc)).connection.sendPacket(
-                    new SWorldSpawnChangedPacket(((Location) in[1].get(sc)).getBlockPos(),
-                            in.length > 2 ? in[2].getFloat(sc) : 0.0f));
+        KajetansPlugin.scriptManager.registerFunction("player.removeitem", (sc, in) -> {
+            ItemStack stack = ((ItemStack) in[1].get(sc)).clone();
+            Player p = (Player) in[0].get(sc);
+            HashMap<Integer, ItemStack> left = p.getInventory().removeItemAnySlot(stack);
+            int count = 0;
+            for(int c : left.keySet()) {
+                count += c;
+            }
+            stack.setAmount(count);
+            return stack;
         });
-        sm.registerFunction("player.gethunger",
-                (sc, in) -> (double) ((PlayerEntity) in[0].get(sc)).getFoodStats().getFoodLevel());
-        sm.registerConsumer("player.sethunger", (sc, in) -> {
-            ((PlayerEntity) in[0].get(sc)).getFoodStats().setFoodLevel(in[1].getInt(sc));
+        KajetansPlugin.scriptManager.registerFunction("player.giveitem", (sc, in) -> {
+            ItemStack stack = ((ItemStack) in[1].get(sc)).clone();
+            Player p = (Player) in[0].get(sc);
+            HashMap<Integer, ItemStack> left = p.getInventory().addItem(stack);
+            int count = 0;
+            for(int c : left.keySet()) {
+                count += c;
+            }
+            stack.setAmount(count);
+            return stack;
         });
-        sm.registerFunction("player.getsaturation", (sc,
-                in) -> (double) ((PlayerEntity) in[0].get(sc)).getFoodStats().getSaturationLevel());
-        sm.registerConsumer("player.setsaturation", (sc, in) -> {
-            ReflectionUtils.setSaturation(((PlayerEntity) in[0].get(sc)).getFoodStats(),
-                    in[1].getFloat(sc));
+        KajetansPlugin.scriptManager.registerConsumer("player.respawn", (sc, in) -> {
+            Player p = ((Player) in[0].get(sc));
+            p.spigot().respawn();
         });
-        sm.registerFunction("player.getname", (sc, in) -> {
+        KajetansPlugin.scriptManager.registerConsumer("player.clearinventory",
+                (sc, in) -> ((Player) in[0].get(sc)).getInventory().clear());
+        KajetansPlugin.scriptManager.registerConsumer("player.say", (sc, in) -> {
+            Player p = ((Player) in[0].get(sc));
+            p.chat(SnuviUtils.connect(sc, in, 1));
+        });
+        KajetansPlugin.scriptManager.registerConsumer("player.setcompass", (sc, in) -> {
+            Player p = ((Player) in[0].get(sc));
+            p.setCompassTarget((Location) in[1].get(sc));
+        });
+        KajetansPlugin.scriptManager.registerFunction("player.gethunger",
+                (sc, in) -> (double) ((Player) in[0].get(sc)).getFoodLevel());
+        KajetansPlugin.scriptManager.registerConsumer("player.sethunger", (sc, in) -> {
+            ((Player) in[0].get(sc)).setFoodLevel(in[1].getInt(sc));
+        });
+        KajetansPlugin.scriptManager.registerFunction("player.getsaturation",
+                (sc, in) -> (double) ((Player) in[0].get(sc)).getSaturation());
+        KajetansPlugin.scriptManager.registerConsumer("player.setsaturation",
+                (sc, in) -> ((Player) in[0].get(sc)).setSaturation(in[1].getFloat(sc)));
+        KajetansPlugin.scriptManager.registerFunction("player.getname", (sc, in) -> {
             Object o = in[0].get(sc);
-            if(o instanceof PlayerEntity) {
-                return ((PlayerEntity) o).getName().getString();
+            if(o instanceof Player) {
+                return ((Player) o).getName();
             }
-            GameProfile gp = server.getPlayerProfileCache().getProfileByUUID(getUUID(o));
-            if(gp == null) {
+            OfflinePlayer op = Bukkit.getOfflinePlayer(CommandUtils.getUUID(o));
+            if(op == null) {
                 return null;
             }
-            return gp.getName();
+            return op.getName();
         });
-        sm.registerFunction("player.getuuid", (sc, in) -> {
+        KajetansPlugin.scriptManager.registerFunction("player.getuuid", (sc, in) -> {
             Object o = in[0].get(sc);
-            if(o instanceof PlayerEntity) {
-                return ((PlayerEntity) o).getUniqueID();
+            if(o instanceof Player) {
+                return ((Player) o).getUniqueId();
             }
-            return playerBank.getUUID(o.toString());
+            OfflinePlayer op = Bukkit.getOfflinePlayerIfCached(o.toString());
+            if(op == null) {
+                return null;
+            }
+            return op.getUniqueId();
         });
-        sm.registerFunction("player.getid", (sc, in) -> (double) getId(playerBank, in[0].get(sc)));
-        sm.registerFunction("player.get",
-                (sc, in) -> server.getPlayerList().getPlayerByUUID(getUUID(in[0].get(sc))));
-        sm.registerFunction("player.getuuidfromid",
-                (sc, in) -> playerBank.getUUIDfromID(in[0].getInt(sc)));
-        sm.registerFunction("player.getnamefromid",
-                (sc, in) -> playerBank.getNamefromID(in[0].getInt(sc)));
-        sm.registerFunction("player.getip",
-                (sc, in) -> ((ServerPlayerEntity) in[0].get(sc)).connection.netManager
-                        .getRemoteAddress().toString());
-        sm.registerFunction("player.iscreative",
-                (sc, in) -> ((PlayerEntity) in[0].get(sc)).isCreative());
-        sm.registerFunction("player.isspectator",
-                (sc, in) -> ((PlayerEntity) in[0].get(sc)).isSpectator());
-        sm.registerFunction("player.issurvival", (sc, in) -> {
-            PlayerEntity p = (PlayerEntity) in[0].get(sc);
-            return !p.isCreative() && !p.isSpectator();
+        KajetansPlugin.scriptManager.registerFunction("player.getid",
+                (sc, in) -> (double) CommandUtils.getUUID(in[0].get(sc)).hashCode());
+        KajetansPlugin.scriptManager.registerFunction("player.get",
+                (sc, in) -> Bukkit.getPlayer(CommandUtils.getUUID(in[0].get(sc))));
+        KajetansPlugin.scriptManager.registerFunction("player.getuuidfromid", (sc, in) -> {
+            int id = in[0].getInt(sc);
+            for(OfflinePlayer op : Bukkit.getOfflinePlayers()) {
+                if(op.getUniqueId().hashCode() == id) {
+                    return op.getUniqueId();
+                }
+            }
+            return null;
         });
-        sm.registerFunction("player.isadventure",
-                (sc, in) -> !((PlayerEntity) in[0].get(sc)).abilities.allowEdit);
-        sm.registerConsumer("player.setfly", (sc, in) -> {
-            PlayerEntity p = ((PlayerEntity) in[0].get(sc));
+        KajetansPlugin.scriptManager.registerFunction("player.getnamefromid", (sc, in) -> {
+            int id = in[0].getInt(sc);
+            for(OfflinePlayer op : Bukkit.getOfflinePlayers()) {
+                if(op.getUniqueId().hashCode() == id) {
+                    return op.getName();
+                }
+            }
+            return null;
+        });
+        KajetansPlugin.scriptManager.registerFunction("player.getip",
+                (sc, in) -> ((Player) in[0].get(sc)).spigot().getRawAddress().toString());
+        KajetansPlugin.scriptManager.registerFunction("player.iscreative",
+                (sc, in) -> ((Player) in[0].get(sc)).getGameMode() == GameMode.CREATIVE);
+        KajetansPlugin.scriptManager.registerFunction("player.isspectator",
+                (sc, in) -> ((Player) in[0].get(sc)).getGameMode() == GameMode.SPECTATOR);
+        KajetansPlugin.scriptManager.registerFunction("player.issurvival",
+                (sc, in) -> ((Player) in[0].get(sc)).getGameMode() == GameMode.SURVIVAL);
+        KajetansPlugin.scriptManager.registerFunction("player.isadventure",
+                (sc, in) -> ((Player) in[0].get(sc)).getGameMode() == GameMode.ADVENTURE);
+        KajetansPlugin.scriptManager.registerConsumer("player.setfly", (sc, in) -> {
+            Player p = ((Player) in[0].get(sc));
             boolean b = in[1].getBoolean(sc);
-            p.abilities.allowFlying = b;
-            p.abilities.isFlying = b;
-            p.sendPlayerAbilities();
+            p.setAllowFlight(b);
         });
-        sm.registerFunction("player.hasfly",
-                (sc, in) -> ((PlayerEntity) in[0].get(sc)).abilities.allowFlying);
-        sm.registerFunction("player.isflying",
-                (sc, in) -> ((PlayerEntity) in[0].get(sc)).abilities.isFlying);
-        sm.registerConsumer("player.setgamemode", (sc, in) -> {
-            PlayerEntity p = (PlayerEntity) in[0].get(sc);
+        KajetansPlugin.scriptManager.registerFunction("player.hasfly",
+                (sc, in) -> ((Player) in[0].get(sc)).getAllowFlight());
+        KajetansPlugin.scriptManager.registerFunction("player.isflying",
+                (sc, in) -> ((Player) in[0].get(sc)).isFlying());
+        KajetansPlugin.scriptManager.registerConsumer("player.setgamemode", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
             switch(in[1].get(sc).toString()) {
                 case "survival":
                 case "s":
                 case "0":
-                    p.setGameType(GameType.SURVIVAL);
+                    p.setGameMode(GameMode.SURVIVAL);
                     return;
                 case "creative":
                 case "c":
                 case "1":
-                    p.setGameType(GameType.CREATIVE);
+                    p.setGameMode(GameMode.CREATIVE);
                     return;
                 case "adventure":
                 case "a":
                 case "2":
-                    p.setGameType(GameType.ADVENTURE);
+                    p.setGameMode(GameMode.ADVENTURE);
                     return;
                 case "spectator":
                 case "w":
                 case "3":
-                    p.setGameType(GameType.SPECTATOR);
+                    p.setGameMode(GameMode.SPECTATOR);
                     return;
             }
-            p.setGameType(GameType.CREATIVE);
+            p.setGameMode(GameMode.CREATIVE);
         });
-        sm.registerFunction("player.getlastdamager", (sc, in) -> {
-            DamageSource ds = ((PlayerEntity) in[0].get(sc)).getLastDamageSource();
-            if(ds == null) {
+        KajetansPlugin.scriptManager.registerFunction("player.getlastdamager", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            EntityDamageEvent e = p.getLastDamageCause();
+            if(!(e instanceof EntityDamageByEntityEvent)) {
                 return null;
             }
-            return ds.getImmediateSource();
+            EntityDamageByEntityEvent damage = (EntityDamageByEntityEvent) e;
+            return damage.getDamager();
         });
-        sm.registerConsumer("player.dropinventory", (sc, in) -> {
-            ((PlayerEntity) in[0].get(sc)).inventory.dropAllItems();
+        KajetansPlugin.scriptManager.registerConsumer("player.dropinventory", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            PlayerInventory inv = p.getInventory();
+            for(int i = 0; i < inv.getSize(); i++) {
+                ItemStack stack = inv.getItem(i);
+                if(stack != null) {
+                    p.getWorld().dropItemNaturally(p.getLocation(), stack);
+                }
+            }
+            inv.clear();
         });
-        sm.registerFunction("player.gettarget", (sc, in) -> {
-            PlayerEntity p = (PlayerEntity) in[0].get(sc);
+        KajetansPlugin.scriptManager.registerFunction("player.gettarget", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
 
             double radius = in[1].getDouble(sc);
             if(radius > 128.0) {
                 radius = 128.0;
             }
 
-            RayTraceContext.BlockMode bm = RayTraceContext.BlockMode.OUTLINE;
+            FluidCollisionMode mode = FluidCollisionMode.NEVER;
             if(in.length >= 3 && in[2].getBoolean(sc)) {
-                bm = RayTraceContext.BlockMode.COLLIDER;
-            }
-            RayTraceContext.FluidMode fm = RayTraceContext.FluidMode.NONE;
-            if(in.length >= 4 && in[3].getBoolean(sc)) {
-                fm = RayTraceContext.FluidMode.ANY;
+                mode = FluidCollisionMode.ALWAYS;
             }
 
-            Vector3d start = p.getEyePosition(0.0f);
-            Vector3d unit = p.getLook(0.0f);
-            Vector3d end = start.add(unit.x * radius, unit.y * radius, unit.z * radius);
-
-            BlockRayTraceResult result =
-                    p.world.rayTraceBlocks(new RayTraceContext(start, end, bm, fm, p));
-
-            if(result.getType() == RayTraceResult.Type.BLOCK) {
-                return new Location(p.world, result.getPos());
+            RayTraceResult result = p.rayTraceBlocks(radius, mode);
+            if(result == null) {
+                return null;
             }
-
-            return new Location(p.world, end);
+            return result.getHitBlock().getLocation();
         });
-        sm.registerFunction("player.gettargetentity", (sc, in) -> {
-            return Utils.getTargetedEntity((PlayerEntity) in[0].get(sc), in[1].getDouble(sc),
-                    (Class<? extends Entity>) getNamedClass(in[2].getString(sc)));
+        KajetansPlugin.scriptManager.registerFunction("player.gettargetentity", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            return p.getTargetEntity(in[1].getInt(sc));
         });
-        sm.registerAlias("player.hasscript", "player.hasquest");
-        sm.registerConsumer("player.action", (sc, in) -> {
-            StringTextComponent text = new StringTextComponent(SnuviUtils.connect(sc, in, 1));
-            doForGroup(server, scripts, perms, in[0].get(sc), sc,
-                    p -> ((ServerPlayerEntity) p).sendStatusMessage(text, true));
+        KajetansPlugin.scriptManager.registerConsumer("player.action", (sc, in) -> {
+            Component text = (Component) in[0].get(sc);
+            CommandUtils.doForGroup(in[0].get(sc), sc, p -> ((Player) p).sendActionBar(text));
         });
-        sm.registerConsumer("player.disconnect", (sc, in) -> {
-            ((ServerPlayerEntity) in[0].get(sc)).connection
-                    .disconnect(new StringTextComponent(in[1].getString(sc)));
+        KajetansPlugin.scriptManager.registerFunction("player.getspawn", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            return p.getBedSpawnLocation();
         });
-        sm.registerFunction("player.getspawn", (sc, in) -> {
-            ServerPlayerEntity p = (ServerPlayerEntity) in[0].get(sc);
-            return new Location(p.world, p.func_241140_K_());
-        });
-        sm.registerAlias("player.getspawn", "player.getbedspawn");
-        sm.registerConsumer("player.setspawn", (sc, in) -> {
+        KajetansPlugin.scriptManager.registerAlias("player.getspawn", "player.getbedspawn");
+        KajetansPlugin.scriptManager.registerConsumer("player.setspawn", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
             Location l = (Location) in[1].get(sc);
-            ((ServerPlayerEntity) in[0].get(sc)).func_242111_a(
-                    ((ServerWorld) l.getWorld()).getDimensionKey(), l.getBlockPos(),
-                    in.length > 2 ? in[2].getFloat(sc) : 0.0f, true, false);
+            p.setBedSpawnLocation(l, true);
         });
-        sm.registerAlias("player.setspawn", "player.setbedspawn");
-        sm.registerConsumer("player.damageitem", (sc, in) -> {
-            PlayerEntity p = (PlayerEntity) in[0].get(sc);
-            p.getHeldItemMainhand().damageItem(in[1].getInt(sc), p, (c) -> {
+        KajetansPlugin.scriptManager.registerAlias("player.setspawn", "player.setbedspawn");
+        KajetansPlugin.scriptManager.registerConsumer("player.damageitem", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            ItemStack stack = p.getEquipment().getItemInMainHand();
+            NMS.map(stack).damage(in[1].getInt(sc), NMS.map(p), c -> {
             });
         });
-        sm.registerConsumer("player.damagearmor", (sc, in) -> {
-            ((PlayerEntity) in[0].get(sc)).inventory.func_234563_a_((DamageSource) in[2].get(sc),
-                    in[1].getFloat(sc));
+        KajetansPlugin.scriptManager.registerConsumer("player.damagearmor", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            NMS.map(p).getInventory().a(NMS.toDamageSource(in[2].get(sc)), in[1].getFloat(sc),
+                    new int[] {0, 1, 2, 3});
         });
-        sm.registerConsumer("player.openenderchest", (sc, in) -> {
-            PlayerEntity p1 = (PlayerEntity) in[0].get(sc);
-            PlayerEntity p2 = (PlayerEntity) in[1].get(sc);
-            EnderChestInventory inv = p2.getInventoryEnderChest();
-            p1.openContainer(new SimpleNamedContainerProvider((id, pInv, p) -> {
-                return ChestContainer.createGeneric9X3(id, pInv, inv);
-            }, new StringTextComponent(in[2].getString(sc))));
+        KajetansPlugin.scriptManager.registerConsumer("player.openenderchest", (sc, in) -> {
+            Player p1 = (Player) in[0].get(sc);
+            Player p2 = (Player) in[1].get(sc);
+            p1.openInventory(p2.getEnderChest());
         });
-        sm.registerConsumer("player.addtotalexp", (sc, in) -> {
-            ((ServerPlayerEntity) in[0].get(sc)).giveExperiencePoints(in[1].getInt(sc));
+        KajetansPlugin.scriptManager.registerConsumer("player.addtotalexp", (sc, in) -> {
+            ((Player) in[0].get(sc)).giveExp(in[1].getInt(sc));
         });
-        sm.registerFunction("player.getlevel",
-                (sc, in) -> (double) ((PlayerEntity) in[0].get(sc)).experienceLevel);
-        sm.registerConsumer("player.setlevel", (sc, in) -> {
-            ((ServerPlayerEntity) in[0].get(sc)).setExperienceLevel(in[1].getInt(sc));
+        KajetansPlugin.scriptManager.registerFunction("player.getlevel",
+                (sc, in) -> (double) ((Player) in[0].get(sc)).getLevel());
+        KajetansPlugin.scriptManager.registerConsumer("player.setlevel", (sc, in) -> {
+            ((Player) in[0].get(sc)).setLevel(in[1].getInt(sc));
         });
-        sm.registerFunction("player.getexp",
-                (sc, in) -> (double) ((PlayerEntity) in[0].get(sc)).experience);
-        sm.registerConsumer("player.setexp", (sc, in) -> {
-            ServerPlayerEntity p = (ServerPlayerEntity) in[0].get(sc);
-            p.func_195394_a((int) (in[1].getDouble(sc) * p.xpBarCap()));
+        KajetansPlugin.scriptManager.registerFunction("player.getexp",
+                (sc, in) -> (double) ((Player) in[0].get(sc)).getExp());
+        KajetansPlugin.scriptManager.registerConsumer("player.setexp",
+                (sc, in) -> ((Player) in[0].get(sc)).setExp(in[1].getFloat(sc)));
+        KajetansPlugin.scriptManager.registerFunction("player.gethead", (sc, in) -> {
+            ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+            SkullMeta meta = (SkullMeta) skull.getItemMeta();
+            meta.setPlayerProfile(
+                    Bukkit.createProfile(CommandUtils.getUUID(in[0].get(sc)), in[1].getString(sc)));
+            skull.setItemMeta(meta);
+            return skull;
         });
-        sm.registerFunction("player.gethead", (sc, in) -> {
-            ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
-            CompoundNBT com = stack.getOrCreateTag();
-            GameProfile gp = new GameProfile(getUUID(in[0].get(sc)), in[1].getString(sc));
-            gp = SkullTileEntity.updateGameProfile(gp);
-            com.put("SkullOwner", NBTUtil.writeGameProfile(new CompoundNBT(), gp));
-            return stack;
+        KajetansPlugin.scriptManager.registerFunction("player.getinv",
+                (sc, in) -> ((Player) in[0].get(sc)).getInventory());
+        KajetansPlugin.scriptManager.registerFunction("player.getenderinv",
+                (sc, in) -> ((Player) in[0].get(sc)).getEnderChest());
+        KajetansPlugin.scriptManager.registerConsumer("player.setdisplayname", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            p.playerListName((Component) in[1].get(sc));
         });
-        sm.registerFunction("player.near",
-                (sc, in) -> Utils.getPlayers((Entity) in[0].get(sc), in[1].getDouble(sc)));
-        sm.registerFunction("player.getinv", (sc, in) -> ((PlayerEntity) in[0].get(sc)).inventory);
-        sm.registerFunction("player.getenderinv",
-                (sc, in) -> ((PlayerEntity) in[0].get(sc)).getInventoryEnderChest());
-        sm.registerConsumer("player.setdisplayname", (sc, in) -> {
-            ((ModEntityPlayerMP) in[0].get(sc)).setTabListDisplayName(in[1].getString(sc),
-                    scheduler);
-        });
-        sm.registerConsumer("player.hide", (sc, in) -> {
-            ServerPlayerEntity p = (ServerPlayerEntity) in[0].get(sc);
-            GameType type = p.interactionManager.getGameType();
-            ReflectionUtils.setGameType(p.interactionManager, GameType.SPECTATOR);
-            SPlayerListItemPacket packet =
-                    new SPlayerListItemPacket(SPlayerListItemPacket.Action.UPDATE_GAME_MODE, p);
-            ReflectionUtils.setGameType(p.interactionManager, type);
-            for(ServerPlayerEntity other : server.getPlayerList().getPlayers()) {
-                if(other == p) {
-                    continue;
-                }
-                other.connection.sendPacket(packet);
-            }
+        KajetansPlugin.scriptManager.registerConsumer("player.hide", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
             p.setInvisible(true);
         });
-        sm.registerConsumer("player.show", (sc, in) -> {
-            ServerPlayerEntity p = (ServerPlayerEntity) in[0].get(sc);
+        KajetansPlugin.scriptManager.registerConsumer("player.show", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
             p.setInvisible(false);
-            SPlayerListItemPacket packet =
-                    new SPlayerListItemPacket(SPlayerListItemPacket.Action.UPDATE_GAME_MODE, p);
-            for(ServerPlayerEntity other : server.getPlayerList().getPlayers()) {
-                if(other == p) {
-                    continue;
-                }
-                other.connection.sendPacket(packet);
-            }
         });
-        sm.registerFunction("players.getamount",
-                (sc, in) -> (double) server.getCurrentPlayerCount());
-        sm.registerFunction("players.tolist",
-                (sc, in) -> new ArrayList<>(server.getPlayerList().getPlayers()));
-        sm.registerFunction("players.toworldlist",
+        KajetansPlugin.scriptManager.registerFunction("players.getamount",
+                (sc, in) -> (double) Bukkit.getOnlinePlayers().size());
+        KajetansPlugin.scriptManager.registerFunction("players.tolist",
+                (sc, in) -> new ArrayList<>(Bukkit.getOnlinePlayers()));
+        KajetansPlugin.scriptManager.registerFunction("players.toworldlist",
                 (sc, in) -> new ArrayList<>(((World) in[0].get(sc)).getPlayers()));
-        sm.registerFunction("players.near", (sc, in) -> {
+        KajetansPlugin.scriptManager.registerFunction("players.near", (sc, in) -> {
             Location l = (Location) in[0].get(sc);
-            return Utils.getPlayers(l.getWorld(), l.getX(), l.getY(), l.getZ(),
-                    in[1].getDouble(sc));
+            return l.getWorld().getNearbyPlayers(l, in[1].getDouble(sc));
+        });
+        KajetansPlugin.scriptManager.registerFunction("player.getnearest", (sc, in) -> {
+            Location l = (Location) in[0].get(sc);
+            double distance = 10.0;
+            Collection<Player> players = l.getWorld().getNearbyPlayers(l, distance);
+            distance *= distance;
+            Player closest = null;
+            for(Player p : players) {
+                double d = l.distanceSquared(p.getLocation());
+                if(d < distance) {
+                    closest = p;
+                    distance = d;
+                }
+            }
+            return closest;
+        });
+        KajetansPlugin.scriptManager.registerConsumer("player.setflyspeed", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            p.setFlySpeed(in[1].getFloat(sc));
+        });
+        KajetansPlugin.scriptManager.registerConsumer("player.setwalkspeed", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            p.setWalkSpeed(in[1].getFloat(sc));
+        });
+        KajetansPlugin.scriptManager.registerFunction("player.issneaking", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            return p.isSneaking();
+        });
+        KajetansPlugin.scriptManager.registerFunction("player.isblocking", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            return p.isBlocking();
         });
     }
 }
-*/

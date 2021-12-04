@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 import me.hammerle.kp.KajetansPlugin;
 import net.minecraft.commands.CommandListenerWrapper;
 import net.minecraft.commands.ICompletionProvider;
@@ -23,6 +25,9 @@ import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
 
 public class CommandManager {
+    private final static UUID MARVINIUS = UUID.fromString("e41b5335-3c74-46e9-a6c5-dafc6334a477");
+    private final static UUID KAJETANJOHANNES =
+            UUID.fromString("51e240f9-ab10-4ea6-8a5d-779319f51257");
     private final static HashMap<String, KajetanCommand> COMMANDS = new HashMap<>();
     private final static HashSet<String> SNUVI_COMMANDS = new HashSet<>();
     private final static ArrayList<CommandNode<?>> CUSTOM_NODES = new ArrayList<>();
@@ -244,5 +249,24 @@ public class CommandManager {
 
     public static void clearCustom() {
         SNUVI_COMMANDS.clear();
+    }
+
+    public static void clearPermissions(Player p) {
+        for(PermissionAttachmentInfo info : p.getEffectivePermissions()) {
+            if(info.getAttachment() != null) {
+                info.getAttachment().remove();
+            }
+        }
+        for(PermissionAttachmentInfo info : p.getEffectivePermissions()) {
+            if(info.getAttachment() == null) {
+                p.addAttachment(KajetansPlugin.instance, info.getPermission(), false);
+            }
+        }
+        if(p.getUniqueId().equals(MARVINIUS) || p.getUniqueId().equals(KAJETANJOHANNES)) {
+            PermissionAttachment perm = p.addAttachment(KajetansPlugin.instance, "script", true);
+            perm.setPermission("script.debug", true);
+            perm.setPermission("script.error", true);
+        }
+        p.recalculatePermissions();
     }
 }

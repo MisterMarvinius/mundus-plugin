@@ -1,111 +1,74 @@
 package me.hammerle.kp.snuviscript.commands;
 
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Firework;
+import org.bukkit.entity.LargeFireball;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.WitherSkull;
+import me.hammerle.kp.KajetansPlugin;
+import me.hammerle.kp.NMS;
+
 public class DamageCommands {
     public static void registerFunctions() {
-        /*KajetansPlugin.scriptManager.registerFunction("damage.getimmediatesource",
-                (sc, in) -> ((DamageSource) in[0].get(sc)).getImmediateSource());
+        KajetansPlugin.scriptManager.registerFunction("damage.getimmediatesource",
+                (sc, in) -> NMS.map(NMS.toDamageSource(in[0].get(sc)).k()));
         KajetansPlugin.scriptManager.registerFunction("damage.gettruesource",
-                (sc, in) -> ((DamageSource) in[0].get(sc)).getTrueSource());
+                (sc, in) -> NMS.map(NMS.toDamageSource(in[0].get(sc)).getEntity()));
         KajetansPlugin.scriptManager.registerFunction("damage.iscreativeplayer",
-                (sc, in) -> ((DamageSource) in[0].get(sc)).isCreativePlayer());
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).ignoresInvulnerability());
         KajetansPlugin.scriptManager.registerFunction("damage.isabsolute",
-                (sc, in) -> ((DamageSource) in[0].get(sc)).isDamageAbsolute());
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).isStarvation());
         KajetansPlugin.scriptManager.registerFunction("damage.isdifficultyscaled",
-                (sc, in) -> ((DamageSource) in[0].get(sc)).isDifficultyScaled());
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).w());
         KajetansPlugin.scriptManager.registerFunction("damage.isexplosion",
-                (sc, in) -> ((DamageSource) in[0].get(sc)).isExplosion());
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).isExplosion());
         KajetansPlugin.scriptManager.registerFunction("damage.isfire",
-                (sc, in) -> ((DamageSource) in[0].get(sc)).isFireDamage());
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).isFire());
         KajetansPlugin.scriptManager.registerFunction("damage.ismagic",
-                (sc, in) -> ((DamageSource) in[0].get(sc)).isMagicDamage());
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).isMagic());
         KajetansPlugin.scriptManager.registerFunction("damage.isprojectile",
-                (sc, in) -> ((DamageSource) in[0].get(sc)).isProjectile());
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).b());
         KajetansPlugin.scriptManager.registerFunction("damage.isunblockable",
-                (sc, in) -> ((DamageSource) in[0].get(sc)).isUnblockable());
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).ignoresArmor());
+        KajetansPlugin.scriptManager.registerFunction("damage.isfall",
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).z());
+        KajetansPlugin.scriptManager.registerFunction("damage.isdamaginghelmet",
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).g());
+        KajetansPlugin.scriptManager.registerFunction("damage.issweep",
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).isSweep());
         KajetansPlugin.scriptManager.registerFunction("damage.gettype",
-                (sc, in) -> ((DamageSource) in[0].get(sc)).getDamageType());
-        KajetansPlugin.scriptManager.registerFunction("damage.get", (sc, in) -> {
-            Object o = in[0].get(sc);
-            if(o instanceof LivingEntity) {
-                LivingEntity ent = (LivingEntity) o;
-                DamageSource ds;
-                if(ent instanceof PlayerEntity) {
-                    ds = DamageSource.causePlayerDamage((PlayerEntity) ent);
-                } else {
-                    ds = DamageSource.causeMobDamage(ent);
-                }
-        
-                if(in[1].getBoolean(sc)) {
-                    ds.setDamageAllowedInCreativeMode();
-                }
-                if(in[2].getBoolean(sc)) {
-                    ds.setDamageBypassesArmor();
-                }
-                if(in[3].getBoolean(sc)) {
-                    ds.setDamageIsAbsolute();
-                }
-                if(in[4].getBoolean(sc)) {
-                    ds.setExplosion();
-                }
-                if(in[5].getBoolean(sc)) {
-                    ds.setFireDamage();
-                }
-                if(in[6].getBoolean(sc)) {
-                    ds.setMagicDamage();
-                }
-                if(in[7].getBoolean(sc)) {
-                    ds.setProjectile();
-                }
-                return ds;
-            }
-        
-            switch(o.toString()) {
-                case "inFire":
-                    return DamageSource.IN_FIRE;
-                case "lightningBolt":
-                    return DamageSource.LIGHTNING_BOLT;
-                case "onFire":
-                    return DamageSource.ON_FIRE;
-                case "lava":
-                    return DamageSource.LAVA;
-                case "hotFloor":
-                    return DamageSource.HOT_FLOOR;
-                case "inWall":
-                    return DamageSource.IN_WALL;
-                case "cramming":
-                    return DamageSource.CRAMMING;
-                case "drown":
-                    return DamageSource.DROWN;
-                case "starve":
-                    return DamageSource.STARVE;
-                case "cactus":
-                    return DamageSource.CACTUS;
-                case "fall":
-                    return DamageSource.FALL;
-                case "flyIntoWall":
-                    return DamageSource.FLY_INTO_WALL;
-                case "outOfWorld":
-                    return DamageSource.OUT_OF_WORLD;
-                case "generic":
-                    return DamageSource.GENERIC;
-                case "magic":
-                    return DamageSource.MAGIC;
-                case "wither":
-                    return DamageSource.WITHER;
-                case "anvil":
-                    return DamageSource.ANVIL;
-                case "fallingBlock":
-                    return DamageSource.FALLING_BLOCK;
-                case "dragonBreath":
-                    return DamageSource.DRAGON_BREATH;
-                case "dryout":
-                    return DamageSource.DRYOUT;
-                case "sweetBerryBush":
-                    return DamageSource.SWEET_BERRY_BUSH;
-                case "thorns":
-                    return DamageSource.causeThornsDamage((Entity) in[1].get(sc));
-            }
-            return DamageSource.GENERIC;
-        });*/
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).u());
+        KajetansPlugin.scriptManager.registerFunction("damage.get",
+                (sc, in) -> NMS.parseDamageSource(in[0].getString(sc)));
+        KajetansPlugin.scriptManager.registerFunction("damage.sting",
+                (sc, in) -> NMS.sting((LivingEntity) in[0].get(sc)));
+        KajetansPlugin.scriptManager.registerFunction("damage.mobattack",
+                (sc, in) -> NMS.mobAttack((LivingEntity) in[0].get(sc)));
+        KajetansPlugin.scriptManager.registerFunction("damage.mobindirect",
+                (sc, in) -> NMS.mobIndirect((Entity) in[0].get(sc), (LivingEntity) in[1].get(sc)));
+        KajetansPlugin.scriptManager.registerFunction("damage.playerattack",
+                (sc, in) -> NMS.playerAttack((Player) in[0].get(sc)));
+        KajetansPlugin.scriptManager.registerFunction("damage.arrow",
+                (sc, in) -> NMS.arrow((Arrow) in[0].get(sc), (Entity) in[1].get(sc)));
+        KajetansPlugin.scriptManager.registerFunction("damage.trident",
+                (sc, in) -> NMS.trident((Entity) in[0].get(sc), (Entity) in[1].get(sc)));
+        KajetansPlugin.scriptManager.registerFunction("damage.firework",
+                (sc, in) -> NMS.firework((Firework) in[0].get(sc), (Entity) in[1].get(sc)));
+        KajetansPlugin.scriptManager.registerFunction("damage.fireball",
+                (sc, in) -> NMS.fireball((LargeFireball) in[0].get(sc), (Entity) in[1].get(sc)));
+        KajetansPlugin.scriptManager.registerFunction("damage.witherskull",
+                (sc, in) -> NMS.witherSkull((WitherSkull) in[0].get(sc), (Entity) in[1].get(sc)));
+        KajetansPlugin.scriptManager.registerFunction("damage.projectile",
+                (sc, in) -> NMS.projectile((Entity) in[0].get(sc), (Entity) in[1].get(sc)));
+        KajetansPlugin.scriptManager.registerFunction("damage.indirectmagic",
+                (sc, in) -> NMS.indirectMagic((Entity) in[0].get(sc), (Entity) in[1].get(sc)));
+        KajetansPlugin.scriptManager.registerFunction("damage.thorns",
+                (sc, in) -> NMS.thorns((Entity) in[0].get(sc)));
+        KajetansPlugin.scriptManager.registerFunction("damage.explosion",
+                (sc, in) -> NMS.explosion((LivingEntity) in[0].get(sc)));
+        KajetansPlugin.scriptManager.registerFunction("damage.netherbed",
+                (sc, in) -> NMS.netherBed());
     }
 }

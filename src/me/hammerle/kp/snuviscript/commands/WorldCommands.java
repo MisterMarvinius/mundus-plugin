@@ -1,56 +1,62 @@
-/*package me.km.snuviscript.commands;
+package me.hammerle.kp.snuviscript.commands;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
-import me.hammerle.snuviscript.code.ScriptManager;
-import me.km.utils.Location;
-import me.km.utils.Utils;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import org.bukkit.Bukkit;
+import org.bukkit.Difficulty;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
+import me.hammerle.kp.KajetansPlugin;
 
 public class WorldCommands {
     @SuppressWarnings("")
-    public static void registerFunctions(ScriptManager sm, MinecraftServer server) {
-        sm.registerAlias("players.toworldlist", "world.getplayers");
-        sm.registerFunction("world.get", (sc, in) -> Utils.getWorldFromName(server, in[0].getString(sc)));
-        sm.registerFunction("world.getname", (sc, in) -> Utils.getWorldName((World) in[0].get(sc)));
-        sm.registerConsumer("world.setdifficulty", (sc, in) -> {
-            server.setDifficultyForAllWorlds(Difficulty.valueOf(in[0].getString(sc).toUpperCase()), true);
+    public static void registerFunctions() {
+        KajetansPlugin.scriptManager.registerAlias("players.toworldlist", "world.getplayers");
+        KajetansPlugin.scriptManager.registerFunction("world.get",
+                (sc, in) -> Bukkit.getServer().getWorld(in[0].getString(sc)));
+        KajetansPlugin.scriptManager.registerFunction("world.getname",
+                (sc, in) -> ((World) in[0].get(sc)).getName());
+        KajetansPlugin.scriptManager.registerConsumer("world.setdifficulty", (sc, in) -> {
+            ((World) in[0].get(sc)).setDifficulty(Difficulty.valueOf(in[0].getString(sc)));
         });
-        sm.registerConsumer("world.setspawn", (sc, in) -> {
+        KajetansPlugin.scriptManager.registerConsumer("world.setspawn", (sc, in) -> {
             Location l = ((Location) in[0].get(sc));
-            ((ServerWorld) l.getWorld()).func_241124_a__(l.getBlockPos(), in.length >= 2 ? in[1].getFloat(sc) : 0.0f);
+            l.getWorld().setSpawnLocation(l);
         });
-        sm.registerFunction("world.getspawn", (sc, in) -> {
-            ServerWorld w = (ServerWorld) in[0].get(sc);
-            BlockPos pos = w.getSpawnPoint();
-            return new Location(w, pos.getX(), pos.getY(), pos.getZ(), 0.0f, 0.0f);
+        KajetansPlugin.scriptManager.registerFunction("world.getspawn",
+                (sc, in) -> ((World) in[0].get(sc)).getSpawnLocation());
+        KajetansPlugin.scriptManager.registerFunction("world.getall",
+                (sc, in) -> new ArrayList<>(Bukkit.getWorlds()));
+        KajetansPlugin.scriptManager.registerConsumer("world.settime",
+                (sc, in) -> ((World) in[0].get(sc)).setTime(in[1].getLong(sc)));
+        KajetansPlugin.scriptManager.registerFunction("world.gettime",
+                (sc, in) -> (double) ((World) in[0].get(sc)).getTime());
+        KajetansPlugin.scriptManager.registerFunction("world.hasstorm",
+                (sc, in) -> ((World) in[0].get(sc)).isThundering());
+        KajetansPlugin.scriptManager.registerConsumer("world.clearweather", (sc, in) -> {
+            ((World) in[0].get(sc)).setClearWeatherDuration(in[1].getInt(sc));
         });
-        sm.registerFunction("world.getall", (sc, in) -> {
-            ArrayList<World> worlds = new ArrayList<>();
-            for(World w : server.getWorlds()) {
-                worlds.add(w);
-            }
-            return worlds;
+        KajetansPlugin.scriptManager.registerConsumer("world.setrain", (sc, in) -> {
+            World w = (World) in[0].get(sc);
+            w.setStorm(true);
+            w.setWeatherDuration(in[1].getInt(sc));
         });
-        sm.registerConsumer("world.settime", (sc, in) -> ((ServerWorld) in[0].get(sc)).setDayTime(in[1].getLong(sc)));
-        sm.registerFunction("world.gettime", (sc, in) -> (double) ((World) in[0].get(sc)).getDayTime());
-        sm.registerFunction("world.hasstorm", (sc, in) -> ((World) in[0].get(sc)).isRaining());
-        sm.registerConsumer("world.clearweather", (sc, in) -> {
-            ((ServerWorld) in[0].get(sc)).func_241113_a_(in[1].getInt(sc), 0, false, false);
+        KajetansPlugin.scriptManager.registerConsumer("world.setthunder", (sc, in) -> {
+            World w = (World) in[0].get(sc);
+            w.setThundering(true);
+            w.setThunderDuration(in[1].getInt(sc));
         });
-        sm.registerConsumer("world.setrain", (sc, in) -> {
-            ((ServerWorld) in[0].get(sc)).getWorld().func_241113_a_(0, in[1].getInt(sc), true, false);
+        KajetansPlugin.scriptManager.registerFunction("world.getentities", (sc, in) -> {
+            return new ArrayList<>(((World) in[0].get(sc)).getEntities());
         });
-        sm.registerConsumer("world.setthunder", (sc, in) -> {
-            ((ServerWorld) in[0].get(sc)).getWorld().func_241113_a_(0, in[1].getInt(sc), true, true);
+        KajetansPlugin.scriptManager.registerFunction("world.load", (sc, in) -> {
+            return Bukkit.createWorld(WorldCreator.name(in[0].getString(sc)));
         });
-        sm.registerFunction("world.getentities", (sc, in) -> {
-            return ((ServerWorld) in[0].get(sc)).getEntities().collect(Collectors.toList());
+        KajetansPlugin.scriptManager.registerConsumer("world.unload", (sc, in) -> {
+            Bukkit.unloadWorld((World) in[0].get(sc), true);
+        });
+        KajetansPlugin.scriptManager.registerFunction("world.getall", (sc, in) -> {
+            return new ArrayList<>(Bukkit.getWorlds());
         });
     }
 }
-*/

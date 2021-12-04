@@ -1,33 +1,24 @@
-/*package me.km.snuviscript.commands;
+package me.hammerle.kp.snuviscript.commands;
 
-import me.hammerle.snuviscript.code.ScriptManager;
-import me.km.utils.Location;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.ItemStack;
+import org.bukkit.Location;
+import org.bukkit.entity.Item;
+import org.bukkit.inventory.ItemStack;
+import me.hammerle.kp.KajetansPlugin;
+import me.hammerle.kp.NMS;
 
 public class ItemEntityCommands {
-    public static void registerFunctions(ScriptManager sm) {
-        sm.registerFunction("item.entity.get", (sc, in) -> ((ItemEntity) in[0].get(sc)).getItem());
-        sm.registerConsumer("item.entity.set", (sc, in) -> {
-            ((ItemEntity) in[0].get(sc)).setItem((ItemStack) in[1].get(sc));
+    public static void registerFunctions() {
+        KajetansPlugin.scriptManager.registerFunction("item.entity.get",
+                (sc, in) -> ((Item) in[0].get(sc)).getItemStack());
+        KajetansPlugin.scriptManager.registerConsumer("item.entity.set", (sc, in) -> {
+            ((Item) in[0].get(sc)).setItemStack((ItemStack) in[1].get(sc));
         });
-        sm.registerFunction("item.entity.new", (sc, in) -> {
+        KajetansPlugin.scriptManager.registerFunction("item.entity.spawn", (sc, in) -> {
             Location l = (Location) in[0].get(sc);
-            ItemEntity item = new ItemEntity(EntityType.ITEM, l.getWorld());
-            item.setPosition(l.getX(), l.getY(), l.getZ());
-            ItemStack stack = (ItemStack) in[1].get(sc);
-            item.setItem(stack);
-            item.lifespan = stack.getEntityLifespan(l.getWorld());
-            return item;
+            return l.getWorld().dropItem(l, (ItemStack) in[1].get(sc));
         });
-        sm.registerConsumer("item.entity.spawn", (sc, in) -> {
-            ItemEntity ent = (ItemEntity) in[0].get(sc);
-            ent.world.addEntity(ent);
-        });
-        sm.registerConsumer("item.entity.setlifespan", (sc, in) -> {
-            ((ItemEntity) in[0].get(sc)).lifespan = in[1].getInt(sc);
+        KajetansPlugin.scriptManager.registerConsumer("item.entity.setlifespan", (sc, in) -> {
+            NMS.map((Item) in[0].get(sc)).ao = in[1].getInt(sc);
         });
     }
 }
-*/

@@ -1,27 +1,60 @@
-/*package me.km.snuviscript.commands;
+package me.hammerle.kp.snuviscript.commands;
 
-import me.hammerle.snuviscript.code.ScriptManager;
-import me.hammerle.snuviscript.code.SnuviUtils;
-import me.km.overrides.ModEntityPlayerMP;
-import me.km.permissions.Permissions;
-import static me.km.snuviscript.commands.CommandUtils.doForGroup;
-import me.km.snuviscript.Scripts;
-import net.minecraft.server.MinecraftServer;
+import org.bukkit.entity.Player;
+import me.hammerle.kp.KajetansPlugin;
+import me.hammerle.kp.PlayerData;
+import net.kyori.adventure.text.Component;
 
 public class ScoreboardCommands {
-    public static void registerFunctions(ScriptManager sm, Scripts scripts, Permissions perms, MinecraftServer server) {
-        sm.registerConsumer("sb.add", (sc, in) -> {
-            int id = in[1].getInt(sc);
-            String message = SnuviUtils.connect(sc, in, 2);
-            doForGroup(server, scripts, perms, in[0].get(sc), sc, p -> ((ModEntityPlayerMP) p).getScoreboard().addText(id, message));
+    public static void registerFunctions() {
+        KajetansPlugin.scriptManager.registerConsumer("sb.settitle", (sc, in) -> {
+            Component title = (Component) in[1].get(sc);
+            CommandUtils.doForGroup(in[0].get(sc), sc, cs -> {
+                Player p = (Player) cs;
+                PlayerData data = PlayerData.get(p);
+                data.setTitle(title);
+            });
         });
-        sm.registerConsumer("sb.remove", (sc, in) -> {
+        KajetansPlugin.scriptManager.registerConsumer("sb.add", (sc, in) -> {
             int id = in[1].getInt(sc);
-            doForGroup(server, scripts, perms, in[0].get(sc), sc, p -> ((ModEntityPlayerMP) p).getScoreboard().removeText(id));
+            String message = in[2].getString(sc);
+            CommandUtils.doForGroup(in[0].get(sc), sc, cs -> {
+                Player p = (Player) cs;
+                PlayerData data = PlayerData.get(p);
+                data.setText(id, message);
+            });
         });
-        sm.registerConsumer("sb.reset", (sc, in) -> {
-            doForGroup(server, scripts, perms, in[0].get(sc), sc, p -> ((ModEntityPlayerMP) p).getScoreboard().clear((ModEntityPlayerMP) p));
+        KajetansPlugin.scriptManager.registerConsumer("sb.remove", (sc, in) -> {
+            int id = in[1].getInt(sc);
+            CommandUtils.doForGroup(in[0].get(sc), sc, cs -> {
+                Player p = (Player) cs;
+                PlayerData data = PlayerData.get(p);
+                data.removeText(id);
+            });
+        });
+        KajetansPlugin.scriptManager.registerConsumer("sb.addraw", (sc, in) -> {
+            int id = in[1].getInt(sc);
+            String message = in[2].getString(sc);
+            CommandUtils.doForGroup(in[0].get(sc), sc, cs -> {
+                Player p = (Player) cs;
+                PlayerData data = PlayerData.get(p);
+                data.setRaw(id, message);
+            });
+        });
+        KajetansPlugin.scriptManager.registerConsumer("sb.removeraw", (sc, in) -> {
+            String message = in[1].getString(sc);
+            CommandUtils.doForGroup(in[0].get(sc), sc, cs -> {
+                Player p = (Player) cs;
+                PlayerData data = PlayerData.get(p);
+                data.removeRaw(message);
+            });
+        });
+        KajetansPlugin.scriptManager.registerConsumer("sb.reset", (sc, in) -> {
+            CommandUtils.doForGroup(in[0].get(sc), sc, cs -> {
+                Player p = (Player) cs;
+                PlayerData data = PlayerData.get(p);
+                data.clear();
+            });
         });
     }
 }
-*/

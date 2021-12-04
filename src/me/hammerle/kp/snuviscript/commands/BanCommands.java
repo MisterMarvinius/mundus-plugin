@@ -11,7 +11,7 @@ import net.kyori.adventure.text.Component;
 public class BanCommands {
     public static void registerFunctions() {
         KajetansPlugin.scriptManager.registerConsumer("ban.kick", (sc, in) -> {
-            ((Player) in[0].get(sc)).kick(Component.text(in[1].getString(sc)));
+            ((Player) in[0].get(sc)).kick((Component) in[1].get(sc));
         });
         KajetansPlugin.scriptManager.registerConsumer("ban.add", (sc, in) -> {
             String name = in[0].getString(sc);

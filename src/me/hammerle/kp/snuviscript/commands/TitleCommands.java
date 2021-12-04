@@ -1,7 +1,6 @@
 package me.hammerle.kp.snuviscript.commands;
 
 import me.hammerle.kp.KajetansPlugin;
-import me.hammerle.snuviscript.code.SnuviUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
@@ -22,13 +21,11 @@ public class TitleCommands {
         KajetansPlugin.scriptManager.registerConsumer("title.reset", (sc, in) -> {
             ((Player) in[0].get(sc)).resetTitle();
         });
-        KajetansPlugin.scriptManager.registerConsumer("title.send", (sc, in) -> {
-            ((Player) in[0].get(sc)).sendTitlePart(TitlePart.TITLE,
-                    Component.text(SnuviUtils.connect(sc, in, 1)));
-        });
-        KajetansPlugin.scriptManager.registerConsumer("title.setsub", (sc, in) -> {
-            ((Player) in[0].get(sc)).sendTitlePart(TitlePart.SUBTITLE,
-                    Component.text(SnuviUtils.connect(sc, in, 1)));
-        });
+        KajetansPlugin.scriptManager.registerConsumer("title.send",
+                (sc, in) -> ((Player) in[0].get(sc)).sendTitlePart(TitlePart.TITLE,
+                        (Component) in[1].get(sc)));
+        KajetansPlugin.scriptManager.registerConsumer("title.setsub",
+                (sc, in) -> ((Player) in[0].get(sc)).sendTitlePart(TitlePart.SUBTITLE,
+                        (Component) in[1].get(sc)));
     }
 }

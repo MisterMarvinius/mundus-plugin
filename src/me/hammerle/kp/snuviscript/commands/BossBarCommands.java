@@ -1,52 +1,39 @@
-/*package me.km.snuviscript.commands;
+package me.hammerle.kp.snuviscript.commands;
 
-import me.hammerle.snuviscript.code.ScriptManager;
-import me.km.permissions.Permissions;
-import me.km.snuviscript.Scripts;
-import static me.km.snuviscript.commands.CommandUtils.doForGroup;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.play.server.SUpdateBossInfoPacket;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.BossInfo;
+import org.bukkit.Bukkit;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarFlag;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
+import org.bukkit.entity.Player;
+import me.hammerle.kp.KajetansPlugin;
 
 public class BossBarCommands {
-
-    private static class CustomBossInfo extends BossInfo {
-        public CustomBossInfo() {
-            super(MathHelper.getRandomUUID(), new StringTextComponent("nothing"), BossInfo.Color.PINK, BossInfo.Overlay.PROGRESS);
-        }
-    }
-
-    private static final CustomBossInfo INFO = new CustomBossInfo();
-
-    public static void registerFunctions(ScriptManager sm, Scripts scripts, Permissions perms, MinecraftServer server) {
-        sm.registerConsumer("boss.setcolor", (sc, in) -> {
-            INFO.setColor(BossInfo.Color.valueOf(in[0].getString(sc)));
+    public static void registerFunctions() {
+        KajetansPlugin.scriptManager.registerFunction("boss.create", (sc, in) -> {
+            return Bukkit.createBossBar(in[0].getString(sc), BarColor.valueOf(in[1].getString(sc)),
+                    BarStyle.valueOf(in[2].getString(sc)));
         });
-        sm.registerConsumer("boss.setcreatefog", (sc, in) -> {
-            INFO.setCreateFog(in[0].getBoolean(sc));
+        KajetansPlugin.scriptManager.registerConsumer("boss.addplayer", (sc, in) -> {
+            ((BossBar) in[0].get(sc)).addPlayer((Player) in[1].get(sc));
         });
-        sm.registerConsumer("boss.setdarkensky", (sc, in) -> {
-            INFO.setDarkenSky(in[0].getBoolean(sc));
+        KajetansPlugin.scriptManager.registerConsumer("boss.removeplayer", (sc, in) -> {
+            ((BossBar) in[0].get(sc)).removePlayer((Player) in[1].get(sc));
         });
-        sm.registerConsumer("boss.setname", (sc, in) -> {
-            INFO.setName(new StringTextComponent(in[0].getString(sc)));
+        KajetansPlugin.scriptManager.registerConsumer("boss.removeall", (sc, in) -> {
+            ((BossBar) in[0].get(sc)).removeAll();
         });
-        sm.registerConsumer("boss.setoverlay", (sc, in) -> {
-            INFO.setOverlay(BossInfo.Overlay.valueOf(in[0].getString(sc)));
+        KajetansPlugin.scriptManager.registerConsumer("boss.addflag", (sc, in) -> {
+            ((BossBar) in[0].get(sc)).addFlag(BarFlag.valueOf(in[1].getString(sc)));
         });
-        sm.registerConsumer("boss.setpercent", (sc, in) -> {
-            INFO.setPercent(in[0].getFloat(sc));
+        KajetansPlugin.scriptManager.registerConsumer("boss.removeflag", (sc, in) -> {
+            ((BossBar) in[0].get(sc)).removeFlag(BarFlag.valueOf(in[1].getString(sc)));
         });
-        sm.registerConsumer("boss.setplayendbossmusic", (sc, in) -> {
-            INFO.setPlayEndBossMusic(in[0].getBoolean(sc));
+        KajetansPlugin.scriptManager.registerConsumer("boss.setprogress", (sc, in) -> {
+            ((BossBar) in[0].get(sc)).setProgress(in[1].getDouble(sc));
         });
-        sm.registerConsumer("boss.send", (sc, in) -> {
-            SUpdateBossInfoPacket packet = new SUpdateBossInfoPacket(SUpdateBossInfoPacket.Operation.valueOf(in[1].getString(sc)), INFO);
-            doForGroup(server, scripts, perms, in[0].get(sc), sc, p -> ((ServerPlayerEntity) p).connection.sendPacket(packet));
+        KajetansPlugin.scriptManager.registerConsumer("boss.settitle", (sc, in) -> {
+            ((BossBar) in[0].get(sc)).setTitle(in[1].getString(sc));
         });
     }
 }
-*/
