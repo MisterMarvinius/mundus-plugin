@@ -333,5 +333,9 @@ public class PlayerCommands {
             Player p = (Player) in[0].get(sc);
             return p.isBlocking();
         });
+        KajetansPlugin.scriptManager.registerConsumer("player.setslot", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            p.getInventory().setHeldItemSlot(in[1].getInt(sc));
+        });
     }
 }

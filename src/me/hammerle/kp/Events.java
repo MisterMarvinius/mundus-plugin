@@ -6,55 +6,27 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.server.ServerCommandEvent;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import me.hammerle.kp.snuviscript.CommandManager;
 import me.hammerle.kp.snuviscript.MoveEvents;
 import me.hammerle.kp.snuviscript.ScriptEvents;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
 import com.destroystokyo.paper.event.server.ServerTickEndEvent;
 
 public class Events implements Listener {
-    private long lastMillis = 0;
-    private int lastSlot = -1;
-    private Player p;
-
-    @EventHandler
-    public void test(PlayerItemHeldEvent e) {
-        long diff = System.currentTimeMillis() - lastMillis;
-        if(diff < 300) {
-            KajetansPlugin.log("CAST " + e.getNewSlot());
-            lastMillis = 0;
-            e.getPlayer().getInventory().setHeldItemSlot(lastSlot);
-        }
-    }
-
-    @EventHandler
-    public void test2(PlayerSwapHandItemsEvent e) {
-        e.setCancelled(true);
-        lastSlot = e.getPlayer().getInventory().getHeldItemSlot();
-        e.getPlayer().getInventory().setHeldItemSlot(8);
-        lastMillis = System.currentTimeMillis();
-        p = e.getPlayer();
-    }
-
     @EventHandler
     public void onServerTick(ServerTickEndEvent e) {
         MoveEvents.tick();
         for(Player p : Bukkit.getOnlinePlayers()) {
             PlayerData.get(p).tick(p);
-        }
-
-        if(lastMillis != 0) {
-            long diff = System.currentTimeMillis() - lastMillis;
-            if(diff >= 500) {
-                KajetansPlugin.log("SWAP");
-                p.getInventory().setHeldItemSlot(lastSlot);
-                lastMillis = 0;
-            }
         }
     }
 
@@ -219,5 +191,72 @@ public class Events implements Listener {
     @EventHandler
     public void onPlayerChangedWorl(PlayerChangedWorldEvent e) {
         ScriptEvents.onPlayerChangedWorl(e);
+    }
+
+    @EventHandler
+    public void onPlayerItemHeld(PlayerItemHeldEvent e) {
+        ScriptEvents.onPlayerItemHeld(e);
+    }
+
+    @EventHandler
+    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent e) {
+        ScriptEvents.onPlayerSwapHandItems(e);
+    }
+
+    @EventHandler
+    public void onAsyncChat(AsyncChatEvent e) {
+        ScriptEvents.onAsyncChat(e);
+    }
+
+    @EventHandler
+    public void onExplosionPrime(ExplosionPrimeEvent e) {
+        ScriptEvents.onExplosionPrime(e);
+    }
+
+    @EventHandler
+    public void onEntityPortal(EntityPortalEvent e) {
+        if(e.getEntity() instanceof Item) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onEntitySpawn(EntitySpawnEvent e) {
+        ScriptEvents.onEntitySpawn(e);
+    }
+
+    @EventHandler
+    public void onCreatureSpawn(CreatureSpawnEvent e) {
+        ScriptEvents.onCreatureSpawn(e);
+    }
+
+    @EventHandler
+    public void onEntityRemoveFromWorld(EntityRemoveFromWorldEvent e) {
+        ScriptEvents.onEntityRemoveFromWorld(e);
+    }
+
+    @EventHandler
+    public void onEntityTame(EntityTameEvent e) {
+        ScriptEvents.onEntityTame(e);
+    }
+
+    @EventHandler
+    public void onPlayerToggleSneak(PlayerToggleSneakEvent e) {
+        ScriptEvents.onPlayerToggleSneak(e);
+    }
+
+    @EventHandler
+    public void onEntityChangeBlock(EntityChangeBlockEvent e) {
+        ScriptEvents.onEntityChangeBlock(e);
+    }
+
+    @EventHandler
+    public void onWorldLoad(WorldLoadEvent e) {
+        ScriptEvents.onWorldLoad(e);
+    }
+
+    @EventHandler
+    public void onPlayerTeleport(PlayerTeleportEvent e) {
+        ScriptEvents.onPlayerTeleport(e);
     }
 }

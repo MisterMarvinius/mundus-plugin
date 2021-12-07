@@ -3,6 +3,7 @@ package me.hammerle.kp.snuviscript;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -15,10 +16,12 @@ import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.spigotmc.event.entity.EntityMountEvent;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.kp.NMS;
@@ -448,262 +451,136 @@ public class ScriptEvents {
         });
     }
 
-    /*public void onFunctionKey(ServerPlayerEntity p, int key) {
-        handleEvent("function_key", (sc) -> {
-            setPlayer(sc, p);
-            sc.setVar("key", (double) key);
-        });
-    }
-    
-    @SubscribeEvent(receiveCanceled = true)
-    public void onChatEvent(ServerChatEvent e) {
-        handleEvent("chat", (sc) -> {
+    public static void onPlayerItemHeld(PlayerItemHeldEvent e) {
+        handleEvent("player_item_held", (sc) -> {
             setPlayer(sc, e.getPlayer());
-            sc.setVar("message", e.getMessage());
-            setCancel(sc, e.isCanceled());
-        }, (sc) -> {
-            handleVar(sc, "chat", "message",
-                    v -> e.setComponent(new StringTextComponent(v.getString(sc))));
-            handleVar(sc, "chat", "cancel", v -> e.setCanceled(v.getBoolean(sc)));
+            sc.setVar("from", (double) e.getPreviousSlot());
+            sc.setVar("to", (double) e.getNewSlot());
         });
     }
-    
-    @SubscribeEvent(receiveCanceled = true, priority = EventPriority.HIGHEST)
-    public void onPreExplosion(ExplosionEvent.Start e) {
-        e.setCanceled(true);
-        handleEvent(e, "pre_explosion", sc -> {
-            sc.setVar("damage_source", e.getExplosion().getDamageSource());
-            sc.setVar("location", new Location(e.getWorld(), e.getExplosion().getPosition()));
+
+    public static void onPlayerSwapHandItems(PlayerSwapHandItemsEvent e) {
+        handleEvent("player_swap_hand_items", (sc) -> {
+            setPlayer(sc, e.getPlayer());
         });
     }
-    
-    @SubscribeEvent
-    public void onExplosion(ExplosionEvent.Detonate e) {
-        ReflectionUtils.setNoBreakMode(e.getExplosion());
-        handleEvent(e, "explosion", sc -> {
-            sc.setVar("affected_blocks", e.getAffectedBlocks());
-            sc.setVar("affected_entities", e.getAffectedEntities());
-            sc.setVar("damage_source", e.getExplosion().getDamageSource());
-            sc.setVar("location", new Location(e.getWorld(), e.getExplosion().getPosition()));
+
+    public static void onAsyncChat(AsyncChatEvent e) {
+        KajetansPlugin.scriptManager.callEvent("chat", sc -> {
+            setPlayer(sc, e.getPlayer());
+            sc.setVar("message", e.message());
+            setCancel(sc, e.isCancelled());
+        }, sc -> {
+            setCancelled(e, sc);
+            handleVar(sc, "chat", "message", v -> e.message((Component) v.get(sc)));
         });
     }
-    
-    private static String getName(ICommandSource cs) {
-        if(cs instanceof PlayerEntity) {
-            return ((PlayerEntity) cs).getName().getString();
-        } else if(cs instanceof MinecraftServer) {
-            return "Server";
+
+    public static void onExplosionPrime(ExplosionPrimeEvent e) {
+        Entity ent = e.getEntity();
+        e.setCancelled(true);
+        KajetansPlugin.scriptManager.callEvent("explosion", sc -> {
+            setEntity(sc, ent);
+            sc.setVar("fire", e.getFire());
+            sc.setVar("radius", (double) e.getRadius());
+            setCancel(sc, e.isCancelled());
+        }, sc -> {
+            setCancelled(e, sc);
+            handleVar(sc, "explosion", "fire", v -> e.setFire(v.getBoolean(sc)));
+            handleVar(sc, "explosion", "radius", v -> e.setRadius(v.getFloat(sc)));
+        });
+        if(!e.isCancelled()) {
+            ent.getWorld().createExplosion(ent.getLocation(), e.getRadius(), e.getFire(), true,
+                    ent);
+            e.setFire(false);
+            e.setRadius(0.0f);
         }
-        return null;
-    }*/
+    }
 
     public static void onMissingCommand(CommandSender cs, String command) {
-        //PlayerEntity p = (cs instanceof PlayerEntity) ? (PlayerEntity) cs : null;
-        //handleEvent("missing_command", (sc) -> {
-        //    setPlayer(sc, p);
-        //    sc.setVar("command_name", command);
-        //    sc.setVar("sender_name", getName(cs));
-        //});
+        handleEvent("missing_command", (sc) -> {
+            sc.setVar("sender", cs);
+            sc.setVar("command", command);
+        });
     }
 
     public static void onMissingPermission(CommandSender cs, String command) {
-        //PlayerEntity p = (cs instanceof PlayerEntity) ? (PlayerEntity) cs : null;
-        //handleEvent("missing_perm", (sc) -> {
-        //    setPlayer(sc, p);
-        //    sc.setVar("command_name", command);
-        //    sc.setVar("sender_name", getName(cs));
-        //});
+        handleEvent("missing_perm", (sc) -> {
+            sc.setVar("sender", cs);
+            sc.setVar("command", command);
+        });
     }
 
-    /*@SubscribeEvent(receiveCanceled = true)
-    public void onEntityJoinWorld(EntityJoinWorldEvent e) {
-        Entity ent = e.getEntity();
-        BlockPos pos = ent.getPosition();
-        Server.scheduler.scheduleTask("onEntityJoinWorld", () -> {
-            World w = ent.getEntityWorld();
-            if(w.isAreaLoaded(pos, 1) && ent.getEntityWorld().getBlockState(ent.getPosition())
-                    .getBlock() == Blocks.NETHER_PORTAL) {
-                ent.setLocationAndAngles(pos.getX(), pos.getY() + 10, pos.getZ(), ent.rotationYaw,
-                        ent.rotationPitch);
-                return;
-            }
-        });
-        if(!ent.isPassenger() && !scripts.getEntityLimits().isAllowedToSpawn(ent.getType())
-                && !ent.getTags().contains("mod_spawned")) {
-            ent.getPassengers().forEach(rider -> {
-                if(rider == null || rider instanceof PlayerEntity) {
-                    return;
-                }
-                rider.remove();
-            });
-            ent.removePassengers();
-            e.setCanceled(true);
-            return;
-        }
-        handleEvent(e, "entity_join", (sc) -> {
-            setEntity(sc, ent);
+    public static void onEntitySpawn(EntitySpawnEvent e) {
+        handleEvent(e, "entity_spawn", (sc) -> {
+            setEntity(sc, e.getEntity());
+            sc.setVar("location", e.getLocation());
         });
     }
-    
-    @SubscribeEvent(receiveCanceled = true)
-    public void onLivingUpdate(LivingUpdateEvent e) {
-        if(e.getEntity().getTags().contains("no_tick")) {
-            e.setCanceled(true);
-        }
-    }
-    
-    @SubscribeEvent(receiveCanceled = true)
-    public void onEntityLeaveWorld(EntityLeaveWorldEvent e) {
-        Entity ent = e.getEntity();
-        handleEvent(e, "entity_leave", (sc) -> {
-            setEntity(sc, ent);
+
+    public static void onCreatureSpawn(CreatureSpawnEvent e) {
+        String reason = e.getSpawnReason().toString();
+        handleEvent(e, "living_spawn", (sc) -> {
+            setEntity(sc, e.getEntity());
+            sc.setVar("location", e.getLocation());
+            sc.setVar("reason", reason);
         });
     }
-    
-    @SubscribeEvent
-    public void onServerTick(TickEvent.ServerTickEvent e) {
-        if(e.phase == TickEvent.Phase.END) {
-            scripts.getEntityLimits().tick(server.getWorlds());
-        }
-    }
-    
-    @SubscribeEvent(receiveCanceled = true)
-    public void onAnimalTame(AnimalTameEvent e) {
-        handleEvent(e, "animal_tame", (sc) -> {
-            sc.setVar("animal", e.getAnimal());
-            sc.setVar("tamer", e.getTamer());
+
+    public static void onEntityRemoveFromWorld(EntityRemoveFromWorldEvent e) {
+        handleEvent("entity_remove", (sc) -> {
+            setEntity(sc, e.getEntity());
         });
     }
-    
-    @SubscribeEvent(receiveCanceled = true)
-    public void onJump(LivingJumpEvent e) {
-        handleEvent(e, "living_jump", (sc) -> {
-            setLiving(sc, e.getEntityLiving());
+
+    public static void onEntityTame(EntityTameEvent e) {
+        handleEvent(e, "living_tame", (sc) -> {
+            setLiving(sc, e.getEntity());
+            sc.setVar("tamer", e.getOwner());
         });
     }
-    
-    public void onSneak(PlayerEntity p, boolean sneak) {
-        handleEvent("player_sneak", (sc) -> {
-            setPlayer(sc, p);
-            sc.setVar("sneak", sneak);
+
+    public static void onPlayerToggleSneak(PlayerToggleSneakEvent e) {
+        handleEvent("player_toggle_sneak", (sc) -> {
+            setPlayer(sc, e.getPlayer());
+            sc.setVar("sneak", e.isSneaking());
         });
     }
-    
-    @SubscribeEvent(receiveCanceled = true)
-    public void onMobGriefing(EntityMobGriefingEvent e) {
-        handleEvent(e, "mob_griefing", (sc) -> {
-            Entity ent = e.getEntity();
-            setEntity(sc, ent);
-            boolean b = true;
-            if(ent != null) {
-                World w = ent.world;
-                if(w != null) {
-                    GameRules rules = w.getGameRules();
-                    if(rules != null) {
-                        try {
-                            b = !rules.getBoolean(GameRules.MOB_GRIEFING);
-                        } catch(Exception ex) {
-                            System.out.println("onMobGriefing Exception");
-                            ex.printStackTrace();
-                        }
-                    } else {
-                        System.out.println("Rules are null");
-                    }
-                } else {
-                    System.out.println("World is null");
-                }
-            } else {
-                System.out.println("Entity is null");
-            }
-            setCancel(sc, b);
-        }, (sc) -> {
-            handleVar(sc, "mob_griefing", "cancel", (v) -> {
-                e.setResult(v.getBoolean(sc) ? Result.DENY : Result.ALLOW);
-            });
+
+    public static void onEntityChangeBlock(EntityChangeBlockEvent e) {
+        handleEvent(e, "entity_change_block", (sc) -> {
+            setEntity(sc, e.getEntity());
+            setBlock(sc, e.getBlock());
+            sc.setVar("change_data", e.getBlockData());
         });
     }
-    
-    @SubscribeEvent(receiveCanceled = true)
-    public void onWorldLoad(WorldEvent.Load e) {
-        handleEvent(e, "world_load", (sc) -> {
+
+    public static void onWorldLoad(WorldLoadEvent e) {
+        handleEvent("world_load", (sc) -> {
             sc.setVar("world", e.getWorld());
         });
     }
-    
-    @Override
-    public void onCraft(int id, World w, PlayerEntity p, CraftingInventory inv,
-            CraftResultInventory result) {
-        if(w.isRemote) {
-            return;
-        }
-        ServerPlayerEntity serverplayerentity = (ServerPlayerEntity) p;
-        Wrapper<ItemStack> wrapper = new Wrapper<>(ItemStack.EMPTY);
-        Optional<ICraftingRecipe> optional =
-                w.getServer().getRecipeManager().getRecipe(IRecipeType.CRAFTING, inv, w);
-        if(optional.isPresent()) {
-            ICraftingRecipe icraftingrecipe = optional.get();
-            if(result.canUseRecipe(w, serverplayerentity, icraftingrecipe)) {
-                wrapper.set(icraftingrecipe.getCraftingResult(inv));
-                scripts.getScriptManager().callEvent("craft", (sc) -> {
-                    setPlayer(sc, p);
-                    sc.setVar("result", wrapper.get());
-                }, (sc) -> {
-                    handleVar(sc, "craft", "result", (v) -> {
-                        ItemStack stack = (ItemStack) v.get(sc);
-                        if(stack == null) {
-                            wrapper.set(ItemStack.EMPTY);
-                        } else {
-                            wrapper.set(stack);
-                        }
-                    });
-                });
-            }
-        }
-        result.setInventorySlotContents(0, wrapper.get());
-        serverplayerentity.connection.sendPacket(new SSetSlotPacket(id, 0, wrapper.get()));
-    }*/
 
     public static void onVote(String[] data) {
         if(data.length < 5) {
             return;
         }
-        //handleEvent("vote", sc -> {
-        //    sc.setVar("from", data[1]);
-        //    sc.setVar("name", data[2]);
-        //    sc.setVar("ip", data[3]);
-        //    sc.setVar("timestamp", SnuviUtils.convert(data[4]));
-        //});
+        handleEvent("vote", (sc) -> {
+            sc.setVar("from", data[1]);
+            sc.setVar("name", data[2]);
+            sc.setVar("ip", data[3]);
+            sc.setVar("timestamp", SnuviUtils.convert(data[4]));
+        });
     }
 
-    /*@Override
-    public boolean onClick(Container c, int slot, int dragType, ClickType ct, PlayerEntity p) {
-        String name = c.getClass().getSimpleName();
-        WrappedBool b = new WrappedBool();
-        b.wrapped = false;
-        scripts.getScriptManager().callEvent("container_click", sc -> {
-            setPlayer(sc, p);
-            sc.setVar("slot", (double) slot);
-            sc.setVar("item_list", c.getInventory());
-            sc.setVar("type", name);
-            sc.setVar("drag_type", (double) dragType);
-            sc.setVar("click_type", ct.toString());
-            setCancel(sc, b.wrapped);
-        }, sc -> {
-            handleVar(sc, "container_click", "cancel", v -> b.wrapped = v.getBoolean(sc));
+    public static void onPlayerTeleport(PlayerTeleportEvent e) {
+        String cause = e.getCause().toString();
+        handleEvent(e, "player_teleport", (sc) -> {
+            setPlayer(sc, e.getPlayer());
+            sc.setVar("from", e.getFrom());
+            sc.setVar("to", e.getTo());
+            sc.setVar("cause", cause);
         });
-        return b.wrapped;
     }
-    
-    @SubscribeEvent(receiveCanceled = true)
-    public void onEnderTeleport(EnderTeleportEvent e) {
-        handleEvent("ender_teleport", (sc) -> {
-            setLiving(sc, e.getEntityLiving());
-            sc.setVar("location", new Location(e.getEntityLiving().getEntityWorld(), e.getTargetX(),
-                    e.getTargetY(), e.getTargetZ(), 0.0f, 0.0f));
-            setCancel(sc, e.isCanceled());
-        }, (sc) -> {
-            simpleCancel(sc, e, "ender_teleport");
-        });
-    }*/
 }
 
