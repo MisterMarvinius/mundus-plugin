@@ -1,26 +1,35 @@
-/*package me.km.snuviscript.commands;
+package me.hammerle.kp.snuviscript.commands;
 
-import me.hammerle.snuviscript.code.ScriptManager;
-import me.km.overrides.ModEntityPlayerMP;
-import me.km.scheduler.SnuviScheduler;
+import org.bukkit.entity.Player;
+import me.hammerle.kp.KajetansPlugin;
+import me.hammerle.kp.PlayerData;
 
 public class DataCommands {
-    public static void registerFunctions(ScriptManager sm, SnuviScheduler scheduler) {
-        sm.registerConsumer("data.set", (sc, in) -> {
-            ((ModEntityPlayerMP) in[0].get(sc)).setVar(in[1].getString(sc), in[2].get(sc));
+    public static void registerFunctions() {
+        KajetansPlugin.scriptManager.registerConsumer("data.set", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            PlayerData data = PlayerData.get(p);
+            data.setData(in[1].getString(sc), in[2].get(sc));
         });
-        sm.registerConsumer("data.settimer", (sc, in) -> {
-            ((ModEntityPlayerMP) in[0].get(sc)).setTimer(in[1].getString(sc), in[2].getInt(sc), scheduler);
+        KajetansPlugin.scriptManager.registerConsumer("data.settimer", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            PlayerData data = PlayerData.get(p);
+            data.setTimer(in[1].getString(sc), in[2].getInt(sc));
         });
-        sm.registerFunction("data.get", (sc, in) -> {
-            return ((ModEntityPlayerMP) in[0].get(sc)).getVar(in[1].getString(sc));
+        KajetansPlugin.scriptManager.registerFunction("data.get", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            PlayerData data = PlayerData.get(p);
+            return data.getData(in[1].getString(sc));
         });
-        sm.registerFunction("data.gettimer", (sc, in) -> {
-            return (double) ((ModEntityPlayerMP) in[0].get(sc)).getTimer(in[1].getString(sc));
+        KajetansPlugin.scriptManager.registerFunction("data.get", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            PlayerData data = PlayerData.get(p);
+            return (double) data.getTimer(in[1].getString(sc));
         });
-        sm.registerConsumer("data.clear", (sc, in) -> {
-            ((ModEntityPlayerMP) in[0].get(sc)).clearData(scheduler);
+        KajetansPlugin.scriptManager.registerConsumer("data.clear", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            PlayerData data = PlayerData.get(p);
+            data.clearData();
         });
     }
 }
-*/

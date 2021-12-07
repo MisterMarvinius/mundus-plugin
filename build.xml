@@ -8,7 +8,7 @@
         <javac includeantruntime="false" srcdir="src" destdir="build/classes">
             <classpath>
                 <fileset dir="lib">
-                    <include name="patched_1.17.1.jar"/>
+                    <include name="Paper-Server-reobf.jar"/>
                     <include name="SnuviScriptRecoded.jar"/>
                 </fileset>
             </classpath>

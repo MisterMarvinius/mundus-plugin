@@ -16,6 +16,7 @@ import org.bukkit.craftbukkit.v1_17_R1.entity.CraftFirework;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftItem;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLargeFireball;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftWitherSkull;
+import org.bukkit.craftbukkit.v1_17_R1.event.CraftEventFactory;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LargeFireball;
@@ -40,6 +41,10 @@ import net.minecraft.world.entity.projectile.EntityWitherSkull;
 
 public class NMS {
     private final static HashMap<String, DamageSource> DAMAGE_SOURCES = new HashMap<>();
+
+    public static DamageSource getCurrentDamageSource() {
+        return CraftEventFactory.currentDamageCause;
+    }
 
     public static EntityPlayer map(Player p) {
         return ((CraftPlayer) p).getHandle();
@@ -170,14 +175,9 @@ public class NMS {
         return c.toString();
     }
 
-    public static ItemStack parseItemStack(String stack) {
-        try {
-            NBTTagCompound c = MojangsonParser.parse(stack);
-            return CraftItemStack.asCraftMirror(net.minecraft.world.item.ItemStack.a(c));
-        } catch(Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
+    public static ItemStack parseItemStack(String stack) throws Exception {
+        NBTTagCompound c = MojangsonParser.parse(stack);
+        return CraftItemStack.asCraftMirror(net.minecraft.world.item.ItemStack.a(c));
     }
 
     public static String toString(Entity ent) {
@@ -186,20 +186,16 @@ public class NMS {
         return c.toString();
     }
 
-    public static Entity parseEntity(String stack, Location l) {
-        try {
-            NBTTagCompound c = MojangsonParser.parse(stack);
-            var nmsWorld = map(l.getWorld());
-            net.minecraft.world.entity.Entity ent =
-                    net.minecraft.world.entity.EntityTypes.a(c, nmsWorld, e -> {
-                        e.a_(UUID.randomUUID());
-                        e.setLocation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
-                        return nmsWorld.addEntity(e) ? e : null;
-                    });
-            return map(ent);
-        } catch(Exception ex) {
-        }
-        return null;
+    public static Entity parseEntity(String stack, Location l) throws Exception {
+        NBTTagCompound c = MojangsonParser.parse(stack);
+        var nmsWorld = map(l.getWorld());
+        net.minecraft.world.entity.Entity ent =
+                net.minecraft.world.entity.EntityTypes.a(c, nmsWorld, e -> {
+                    e.a_(UUID.randomUUID());
+                    e.setLocation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
+                    return nmsWorld.addEntity(e) ? e : null;
+                });
+        return map(ent);
     }
 
     private static BlockPosition convert(Location l) {

@@ -53,7 +53,7 @@ public class ScoreboardCommands {
             CommandUtils.doForGroup(in[0].get(sc), sc, cs -> {
                 Player p = (Player) cs;
                 PlayerData data = PlayerData.get(p);
-                data.clear();
+                data.clearTexts();
             });
         });
     }

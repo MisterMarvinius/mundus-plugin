@@ -106,12 +106,12 @@ public class KajetansPlugin extends JavaPlugin implements ISnuviScheduler {
         ScoreboardCommands.registerFunctions();
         ParticleCommands.registerFunctions();
         SoundCommands.registerFunctions();
-        //InventoryCommands.registerFunctions(sm);
-        //DataCommands.registerFunctions(sm, scheduler);
+        InventoryCommands.registerFunctions();
+        DataCommands.registerFunctions();
         ReadCommands.registerFunctions();
         TextCommands.registerFunctions();
         BanCommands.registerFunctions();
-        //ShopCommands.registerFunctions(sm);
+        ShopCommands.registerFunctions();
         ErrorCommands.registerFunctions();
         EnchantmentCommands.registerFunctions();
         ItemEntityCommands.registerFunctions();

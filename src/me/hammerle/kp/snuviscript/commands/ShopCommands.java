@@ -1,36 +1,46 @@
-/*package me.km.snuviscript.commands;
+package me.hammerle.kp.snuviscript.commands;
 
-import me.hammerle.snuviscript.code.ScriptManager;
-import me.km.snuviscript.FakeMerchant;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.MerchantOffer;
-import net.minecraft.util.text.StringTextComponent;
+import java.util.ArrayList;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Merchant;
+import org.bukkit.inventory.MerchantRecipe;
+import me.hammerle.kp.KajetansPlugin;
+import net.kyori.adventure.text.Component;
 
 public class ShopCommands {
-    public static void registerFunctions(ScriptManager sm) {
-        sm.registerFunction("shop.new", (sc, in) -> new FakeMerchant());
-        sm.registerConsumer("shop.addoffer", (sc, in) -> {
-            FakeMerchant npc = (FakeMerchant) in[0].get(sc);
+    public static void registerFunctions() {
+        KajetansPlugin.scriptManager.registerFunction("shop.new",
+                (sc, in) -> Bukkit.createMerchant((Component) in[0].get(sc)));
+        KajetansPlugin.scriptManager.registerConsumer("shop.addoffer", (sc, in) -> {
+            Merchant npc = (Merchant) in[0].get(sc);
             ItemStack buy = (ItemStack) in[1].get(sc);
             ItemStack sell = (ItemStack) in[2].get(sc);
             int maxUses = (in.length >= 4) ? in[3].getInt(sc) : Integer.MAX_VALUE;
-            npc.getOffers().add(new MerchantOffer(buy, sell, maxUses, 0, 1.0f));
+            MerchantRecipe recipe = new MerchantRecipe(sell, maxUses);
+            recipe.addIngredient(buy);
+            ArrayList<MerchantRecipe> recipes = new ArrayList<>(npc.getRecipes());
+            recipes.add(recipe);
+            npc.setRecipes(recipes);
         });
-        sm.registerConsumer("shop.adddoubleoffer", (sc, in) -> {
-            FakeMerchant npc = (FakeMerchant) in[0].get(sc);
+        KajetansPlugin.scriptManager.registerConsumer("shop.adddoubleoffer", (sc, in) -> {
+            Merchant npc = (Merchant) in[0].get(sc);
             ItemStack buyA = (ItemStack) in[1].get(sc);
             ItemStack buyB = (ItemStack) in[2].get(sc);
             ItemStack sell = (ItemStack) in[3].get(sc);
             int maxUses = (in.length >= 5) ? in[4].getInt(sc) : Integer.MAX_VALUE;
-            npc.getOffers().add(new MerchantOffer(buyA, buyB, sell, maxUses, 0, 1.0f));
+            MerchantRecipe recipe = new MerchantRecipe(sell, maxUses);
+            recipe.addIngredient(buyA);
+            recipe.addIngredient(buyB);
+            ArrayList<MerchantRecipe> recipes = new ArrayList<>(npc.getRecipes());
+            recipes.add(recipe);
+            npc.setRecipes(recipes);
         });
-        sm.registerConsumer("shop.open", (sc, in) -> {
-            FakeMerchant npc = (FakeMerchant) in[0].get(sc);
-            ServerPlayerEntity p = (ServerPlayerEntity) in[1].get(sc);
-            String name = in[2].getString(sc);
-            npc.setCustomer(p);
-            npc.openMerchantContainer(p, new StringTextComponent(name), 1);
+        KajetansPlugin.scriptManager.registerConsumer("shop.open", (sc, in) -> {
+            Merchant npc = (Merchant) in[0].get(sc);
+            Player p = (Player) in[1].get(sc);
+            p.openMerchant(npc, false);
         });
     }
-}*/
+}

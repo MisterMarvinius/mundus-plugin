@@ -40,6 +40,8 @@ public class BlockCommands {
                 in) -> ((Tag<Material>) in[1].get(sc)).isTagged(((Block) in[0].get(sc)).getType()));
         KajetansPlugin.scriptManager.registerFunction("block.gettype",
                 (sc, in) -> ((Block) in[0].get(sc)).getType());
+        KajetansPlugin.scriptManager.registerFunction("block.getlocation",
+                (sc, in) -> ((Block) in[0].get(sc)).getLocation());
         KajetansPlugin.scriptManager.registerFunction("block.isair",
                 (sc, in) -> ((Location) in[0].get(sc)).getBlock().getType() == Material.AIR);
         KajetansPlugin.scriptManager.registerFunction("block.countair", (sc, in) -> {

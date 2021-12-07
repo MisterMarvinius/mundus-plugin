@@ -1,6 +1,8 @@
 package me.hammerle.kp;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -10,6 +12,7 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.RenderType;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
+import me.hammerle.kp.snuviscript.ScriptEvents;
 import net.kyori.adventure.text.Component;
 
 public class PlayerData {
@@ -18,6 +21,8 @@ public class PlayerData {
 
     private Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
     private Objective objective;
+    private HashMap<String, Object> data = new HashMap<>();
+    private ConcurrentHashMap<String, Integer> timers = new ConcurrentHashMap<>();
 
     private PlayerData(Player p) {
         objective = scoreboard.registerNewObjective("kajetansplugin", "dummy",
@@ -62,7 +67,7 @@ public class PlayerData {
         }
     }
 
-    public void clear() {
+    public void clearTexts() {
         for(String name : scoreboard.getEntries()) {
             objective.getScore(name).resetScore();
         }
@@ -74,6 +79,49 @@ public class PlayerData {
 
     public void removeRaw(String text) {
         objective.getScore(text).resetScore();
+    }
+
+    public void setData(String name, Object o) {
+        if(o == null) {
+            data.remove(name);
+            return;
+        }
+        data.put(name, o);
+    }
+
+    public Object getData(String name) {
+        return data.get(name);
+    }
+
+    public void setTimer(String name, int time) {
+        if(time <= 0) {
+            timers.remove(name);
+            return;
+        }
+        timers.put(name, time);
+    }
+
+    public int getTimer(String name) {
+        return timers.getOrDefault(name, -1);
+    }
+
+    public void clearData() {
+        data.clear();
+        timers.clear();
+    }
+
+    public void tick(Player p) {
+        timers.entrySet().removeIf(entry -> {
+            int time = entry.getValue() - 1;
+            if(time <= 0) {
+                if(time == 0) {
+                    ScriptEvents.onPlayerDataTick(p, entry.getKey());
+                }
+                return true;
+            }
+            entry.setValue(time);
+            return false;
+        });
     }
 
     public static PlayerData get(Player p) {
