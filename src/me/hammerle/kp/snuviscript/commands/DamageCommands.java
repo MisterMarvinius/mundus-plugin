@@ -13,9 +13,9 @@ import me.hammerle.kp.NMS;
 public class DamageCommands {
     public static void registerFunctions() {
         KajetansPlugin.scriptManager.registerFunction("damage.getimmediatesource",
-                (sc, in) -> NMS.map(NMS.toDamageSource(in[0].get(sc)).k()));
+                (sc, in) -> NMS.getImmediateSource(NMS.toDamageSource(in[0].get(sc))));
         KajetansPlugin.scriptManager.registerFunction("damage.gettruesource",
-                (sc, in) -> NMS.map(NMS.toDamageSource(in[0].get(sc)).getEntity()));
+                (sc, in) -> NMS.getTrueSource(NMS.toDamageSource(in[0].get(sc))));
         KajetansPlugin.scriptManager.registerFunction("damage.iscreativeplayer",
                 (sc, in) -> NMS.toDamageSource(in[0].get(sc)).ignoresInvulnerability());
         KajetansPlugin.scriptManager.registerFunction("damage.isabsolute",

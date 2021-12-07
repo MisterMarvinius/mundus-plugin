@@ -67,6 +67,14 @@ public class WorldPlotMap {
         return map.getPlotAt(l.getBlockX(), l.getBlockY(), l.getBlockZ());
     }
 
+    public static boolean hasPlotAt(Location l) {
+        PlotMap map = MAPS.get(l.getWorld());
+        if(map == null) {
+            return false;
+        }
+        return map.hasPlotAt(l.getBlockX(), l.getBlockY(), l.getBlockZ());
+    }
+
     private static PlotMap getOrCreate(World w) {
         PlotMap map = MAPS.get(w);
         if(map == null) {

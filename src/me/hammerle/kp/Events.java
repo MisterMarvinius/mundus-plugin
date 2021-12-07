@@ -3,17 +3,21 @@ package me.hammerle.kp;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.server.ServerCommandEvent;
+import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
+import me.hammerle.kp.plots.PlotEvents;
 import me.hammerle.kp.snuviscript.CommandManager;
 import me.hammerle.kp.snuviscript.MoveEvents;
 import me.hammerle.kp.snuviscript.ScriptEvents;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -95,7 +99,13 @@ public class Events implements Listener {
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent e) {
+        PlotEvents.onEntityDamage(e);
         ScriptEvents.onEntityDamage(e);
+    }
+
+    @EventHandler
+    public void onHangingBreakByEntity(HangingBreakByEntityEvent e) {
+        PlotEvents.onHangingBreakByEntity(e);
     }
 
     @EventHandler
@@ -120,31 +130,37 @@ public class Events implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
+        PlotEvents.onBlockPlace(e);
         ScriptEvents.onBlockPlace(e);
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
+        PlotEvents.onBlockBreak(e);
         ScriptEvents.onBlockBreak(e);
     }
 
     @EventHandler
     public void onPlayerBucketFill(PlayerBucketFillEvent e) {
+        PlotEvents.onPlayerBucket(e);
         ScriptEvents.onPlayerBucket(e);
     }
 
     @EventHandler
     public void onPlayerBucketEmpty(PlayerBucketEmptyEvent e) {
+        PlotEvents.onPlayerBucket(e);
         ScriptEvents.onPlayerBucket(e);
     }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
+        PlotEvents.onPlayerInteract(e);
         ScriptEvents.onPlayerInteract(e);
     }
 
     @EventHandler
     public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
+        PlotEvents.onPlayerInteractEntity(e);
         ScriptEvents.onPlayerInteractEntity(e);
     }
 
@@ -247,6 +263,9 @@ public class Events implements Listener {
 
     @EventHandler
     public void onEntityChangeBlock(EntityChangeBlockEvent e) {
+        if(e.getBlock().getType() == Material.FARMLAND) {
+            e.setCancelled(true);
+        }
         ScriptEvents.onEntityChangeBlock(e);
     }
 
@@ -258,5 +277,20 @@ public class Events implements Listener {
     @EventHandler
     public void onPlayerTeleport(PlayerTeleportEvent e) {
         ScriptEvents.onPlayerTeleport(e);
+    }
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent e) {
+        PlotEvents.onEntityExplode(e);
+    }
+
+    @EventHandler
+    public void onBlockExplode(BlockExplodeEvent e) {
+        PlotEvents.onBlockExplode(e);
+    }
+
+    @EventHandler
+    public void onLightningStrike(LightningStrikeEvent e) {
+        PlotEvents.onLightningStrike(e);
     }
 }

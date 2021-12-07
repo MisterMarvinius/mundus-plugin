@@ -226,6 +226,17 @@ public class PlotMap {
         return list.stream().filter(p -> p.isInside(x, y, z)).collect(Collectors.toList());
     }
 
+    public boolean hasPlotAt(int x, int y, int z) {
+        ArrayList<Plot> list = plots[hash(Math.floorDiv(x, SIZE_FACTOR),
+                Math.floorDiv(z, SIZE_FACTOR), plots.length)];
+        for(Plot p : list) {
+            if(p.isInside(x, y, z)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean anyPlotMatches(int x, int y, int z, boolean empty, Predicate<Plot> pred) {
         ArrayList<Plot> list = plots[hash(Math.floorDiv(x, SIZE_FACTOR),
                 Math.floorDiv(z, SIZE_FACTOR), plots.length)];
