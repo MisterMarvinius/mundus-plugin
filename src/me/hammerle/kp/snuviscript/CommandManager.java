@@ -8,11 +8,11 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import me.hammerle.kp.KajetansPlugin;
+import me.hammerle.kp.NMS;
 import net.minecraft.commands.CommandListenerWrapper;
 import net.minecraft.commands.ICompletionProvider;
 import net.minecraft.commands.synchronization.CompletionProviders;
@@ -147,8 +147,7 @@ public class CommandManager {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static void send(Player player) {
-        CraftPlayer cPlayer = (CraftPlayer) player;
-        EntityPlayer p = cPlayer.getHandle();
+        EntityPlayer p = NMS.map(player);
 
         Map<CommandNode<CommandListenerWrapper>, CommandNode<ICompletionProvider>> map =
                 Maps.newIdentityHashMap();
@@ -156,12 +155,12 @@ public class CommandManager {
                 p.c.vanillaCommandDispatcher.a().getRoot();
         RootCommandNode<ICompletionProvider> rootNode = new RootCommandNode<>();
         map.put(vanilla, rootNode);
-        CommandListenerWrapper cs = p.getCommandListener();
+        CommandListenerWrapper cs = p.cQ();
         commandSourceNodesToSuggestionNodes(true, vanilla, rootNode, cs, map);
         for(CommandNode node : CUSTOM_NODES) {
             commandSourceNodesToSuggestionNodes(node, rootNode, cs, map);
         }
-        p.b.sendPacket(new PacketPlayOutCommands(rootNode));
+        p.b.a(new PacketPlayOutCommands(rootNode));
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

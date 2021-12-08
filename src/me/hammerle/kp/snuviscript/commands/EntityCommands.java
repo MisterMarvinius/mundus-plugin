@@ -17,6 +17,7 @@ import org.bukkit.entity.AbstractArrow.PickupStatus;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import me.hammerle.kp.KajetansPlugin;
+import me.hammerle.kp.NMS;
 import net.kyori.adventure.text.Component;
 
 public class EntityCommands {
@@ -147,7 +148,7 @@ public class EntityCommands {
             ((Ageable) in[0].get(sc)).setAge(in[1].getInt(sc));
         });
         KajetansPlugin.scriptManager.registerFunction("entity.gettype",
-                (sc, in) -> ((Entity) in[0].get(sc)).getType());
+                (sc, in) -> NMS.map(((Entity) in[0].get(sc))).ad());
         KajetansPlugin.scriptManager.registerFunction("sheep.issheared",
                 (sc, in) -> ((Sheep) in[0].get(sc)).isSheared());
         KajetansPlugin.scriptManager.registerFunction("sheep.getcolor",

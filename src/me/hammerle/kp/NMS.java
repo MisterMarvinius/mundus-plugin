@@ -10,16 +10,17 @@ import com.destroystokyo.paper.profile.CraftPlayerProfile;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import org.bukkit.craftbukkit.v1_17_R1.entity.*;
+import org.bukkit.craftbukkit.v1_18_R1.entity.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_18_R1.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
+import me.hammerle.kp.snuviscript.ScriptEvents;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.IRegistry;
 import net.minecraft.nbt.MojangsonParser;
@@ -40,6 +41,7 @@ import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.entity.projectile.EntityFireballFireball;
 import net.minecraft.world.entity.projectile.EntityFireworks;
 import net.minecraft.world.entity.projectile.EntityWitherSkull;
+import net.minecraft.world.level.block.entity.TileEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeDefaults;
 import net.minecraft.world.entity.ai.attributes.AttributeProvider;
 import net.minecraft.world.entity.ai.attributes.GenericAttributes;
@@ -55,9 +57,9 @@ public class NMS {
             Method m = EntityTypes.class.getDeclaredMethod("a", String.class,
                     EntityTypes.Builder.class);
             m.setAccessible(true);
-            HUMAN_TYPE = (EntityTypes<RawHuman.WrapperHuman>) m.invoke(null, "human",
-                    EntityTypes.Builder.a(RawHuman.WrapperHuman::new, EnumCreatureType.a)
-                            .a(0.6F, 1.95F).trackingRange(8));
+            HUMAN_TYPE =
+                    (EntityTypes<RawHuman.WrapperHuman>) m.invoke(null, "human", EntityTypes.Builder
+                            .a(RawHuman.WrapperHuman::new, EnumCreatureType.a).a(0.6f, 1.95f));
 
             final Field unsafeField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
             unsafeField.setAccessible(true);
@@ -74,7 +76,7 @@ public class NMS {
                             .get(null);
             attributesMap = new HashMap<>(attributesMap);
             attributesMap.put(HUMAN_TYPE,
-                    EntityMonster.fB().a(GenericAttributes.a, 20.0).a(GenericAttributes.f, 1)
+                    EntityMonster.fD().a(GenericAttributes.a, 20.0).a(GenericAttributes.f, 1)
                             .a(GenericAttributes.d, 0.1).a(GenericAttributes.h).a());
             unsafe.putObject(base, offset, attributesMap);
 
@@ -91,6 +93,8 @@ public class NMS {
 
     public static interface Human extends Creature {
         public void setSkin(String texture, String signature);
+
+        public void setName(String name);
     }
 
     private static class RawHuman extends CraftCreature implements Human {
@@ -100,88 +104,104 @@ public class NMS {
             public WrapperHuman(EntityTypes<? extends WrapperHuman> type,
                     net.minecraft.world.level.World world) {
                 super(type, world);
-                setPlayer(UUID.randomUUID(), "Default", world);
+                setPlayer("Default", world);
             }
 
-            private void setPlayer(UUID uuid, String name, net.minecraft.world.level.World world) {
+            private void setPlayer(String name, net.minecraft.world.level.World world) {
                 player = new EntityPlayer(getCraftServer().getServer(), (WorldServer) world,
-                        new GameProfile(uuid, name));
+                        new GameProfile(cm(), name));
+                player.e(getBukkitEntity().getEntityId());
             }
 
             @Override
-            public void tick() {
-                super.tick();
-            }
-
-            @Override
-            public boolean damageEntity(DamageSource ds, float amount) {
-                if(ds.ignoresInvulnerability()) {
-                    super.damageEntity(ds, amount);
+            public boolean a(DamageSource ds, float amount) {
+                if(ScriptEvents.onHumanHurt(ds, getWrappedEntity(), amount)) {
+                    return false;
                 }
-                return false;
+                return super.a(ds, amount);
+            }
+
+            public RawHuman getWrappedEntity() {
+                return new RawHuman(this);
             }
 
             @Override
             public CraftEntity getBukkitEntity() {
-                return new RawHuman(this);
+                return getWrappedEntity();
             }
 
             public EntityPlayer update(PacketPlayOutSpawnEntityLiving p) {
                 player.e(p.b()); // set id, get id
-                player.setLocation(p.e(), p.f(), p.g(), 0.0f, 0.0f);
+                player.a(p.e(), p.f(), p.g(), 0.0f, 0.0f);
                 return player;
             }
 
             @Override
-            public void saveData(NBTTagCompound nbt) {
-                super.saveData(nbt);
+            public void b(NBTTagCompound nbt) {
+                super.b(nbt);
 
-                GameProfile gp = player.getProfile();
-                nbt.a("HumanUUID", gp.getId());
-                nbt.setString("HumanName", gp.getName());
+                GameProfile gp = player.fp();
+                nbt.a("HumanName", gp.getName());
 
                 Collection<Property> c = gp.getProperties().get("textures");
                 for(Property p : c) {
                     if(p.getName().equals("textures")) {
-                        nbt.setString("HumanTexture", p.getValue());
-                        nbt.setString("HumanSignature", p.getSignature());
+                        nbt.a("HumanTexture", p.getValue());
+                        nbt.a("HumanSignature", p.getSignature());
                         break;
                     }
                 }
-
-                KajetansPlugin.log("saved");
             }
 
             @Override
-            public void loadData(NBTTagCompound nbt) {
-                super.loadData(nbt);
-                if(nbt.b("HumanUUID") && nbt.hasKeyOfType("HumanName", 8)) {
-                    UUID uuid = nbt.a("HumanUUID");
-                    String name = nbt.getString("CustomName");
-                    setPlayer(uuid, name, player.t);
-                    KajetansPlugin.log(uuid + " " + name + " loaded");
+            public void a(NBTTagCompound nbt) {
+                super.a(nbt);
+                if(nbt.b("HumanName", 8)) {
+                    String name = nbt.l("HumanName");
+                    setPlayer(name, player.t);
                 }
-                if(nbt.hasKeyOfType("HumanTexture", 8) && nbt.hasKeyOfType("HumanSignature", 8)) {
-                    String texture = nbt.getString("HumanTexture");
-                    String signature = nbt.getString("HumanSignature");
-                    setSkin(texture, signature);
-                    KajetansPlugin.log(texture + " " + signature + " loaded");
+                if(nbt.b("HumanTexture", 8) && nbt.b("HumanSignature", 8)) {
+                    String texture = nbt.l("HumanTexture");
+                    String signature = nbt.l("HumanSignature");
+                    setSkinWithoutPacket(texture, signature);
+                }
+            }
+
+            private void updatePosition() {
+                Location l = getBukkitEntity().getLocation();
+                player.a(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
+            }
+
+            public void setSkinWithoutPacket(String texture, String signature) {
+                GameProfile gp = player.fp();
+                gp.getProperties().clear();
+                gp.getProperties().put("textures", new Property("textures", texture, signature));
+            }
+
+            private void sync() {
+                updatePosition();
+                PacketPlayOutPlayerInfo info = new PacketPlayOutPlayerInfo(
+                        PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, player);
+                PacketPlayOutNamedEntitySpawn spawn = new PacketPlayOutNamedEntitySpawn(player);
+
+                Location center = getBukkitEntity().getLocation();
+                for(EntityPlayer p : ((WorldServer) this.W()).z()) {
+                    double distance = center.distanceSquared(p.getBukkitEntity().getLocation());
+                    if(distance < 100.0) {
+                        p.b.a(info);
+                        p.b.a(spawn);
+                    }
                 }
             }
 
             public void setSkin(String texture, String signature) {
-                GameProfile gp = player.getProfile();
-                gp.getProperties().clear();
-                gp.getProperties().put("textures", new Property("textures", texture, signature));
+                setSkinWithoutPacket(texture, signature);
+                sync();
+            }
 
-                PacketPlayOutPlayerInfo info = new PacketPlayOutPlayerInfo(
-                        PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, player);
-                PacketPlayOutNamedEntitySpawn spawn = new PacketPlayOutNamedEntitySpawn(player);
-                for(Player p : Bukkit.getOnlinePlayers()) {
-                    var nmsPlayer = map(p);
-                    nmsPlayer.b.sendPacket(info);
-                    nmsPlayer.b.sendPacket(spawn);
-                }
+            public void setName(String name) {
+                setPlayer(name, player.t);
+                sync();
             }
         }
 
@@ -195,8 +215,8 @@ public class NMS {
 
         private RawHuman(WrapperHuman human, Location l, PlayerProfile profile) {
             this(human);
-            human.setLocation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
-            human.getWorld().addEntity(human);
+            human.a(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
+            human.W().b(human);
         }
 
         public RawHuman(Location l, PlayerProfile profile) {
@@ -205,10 +225,10 @@ public class NMS {
 
         public void setSkin(String texture, String signature) {
             human.setSkin(texture, signature);
-            //String texture =
-            //        "ewogICJ0aW1lc3RhbXAiIDogMTU4OTA1MzMyMjY3NiwKICAicHJvZmlsZUlkIiA6ICI3MmNiMDYyMWU1MTA0MDdjOWRlMDA1OTRmNjAxNTIyZCIsCiAgInByb2ZpbGVOYW1lIiA6ICJNb3M5OTAiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmM4OTBjN2U1OGYyM2U5N2ZmNGRkYWMwNDhiYmZhMDJkNjYxMTEwMTNkMmYxNzdjNWY4ZjYyYThiMWIxYWZkZCIKICAgIH0KICB9Cn0=";
-            //String signature =
-            //        "Skp8QvxYFa4YUhw+XHgicva/8j3gnCcN9u0EDLpkSlVCWuYqUeETbgA3LAit4ftjDjNpUA40UPTvlebBsnjcUvEkiu765BvZE61yms2IcNeK7vDoLoeNfx+UqTAquMI6uOzBBNZi6yBeMSghRX2hwVGsiKuzoFb67o1HfFcPLfCOVR3QRd2D84VfduhQmc+MVSFrUhZFGluzOvslUzR8/tbi2ZarkURlLOlgT0UoT1yEX/pHM7GogtnQiJL7xOqfEnU0Ex+OKZYkjawatbD/L5bjbL1pV2QeuxZLrnvRoQFTVAnONhvPfd9f8WF0kdR8DaDe4Knq+SPJ357HOun9ZRci3RobXcyQaRsw5JezSrgUbBccoUr7SiSgdM4VBhtzGGZ8TYUBz5pocHYCaOALG71bZZ4aVjQKfw5Rtalj+q2Wqbub20IQd/7/z9NUvPB0d7zHBLqr8a1UtZoSKLbaVJZJaYqt0ygxff68MKKQlE0L4fupBHEIXdNgza8tp472rsB+o45IZ/xmFltH1jhRsYvV973ki0l4S6U/O6gWu699sUyHn4a3DnVNN0GIyNAIP9KpHhvQzvxPxJq0Z2gXw2rzRGDxt+fe8gYZJ+UF4t/i39IP9RBgryocdu0L0lzeQA0b7vrr1khvAHyBVuZJ0t2S/RHTnlcAcAxoDENP1Gk=";
+        }
+
+        public void setName(String name) {
+            human.setName(name);
         }
     }
 
@@ -221,13 +241,17 @@ public class NMS {
             super(getCraftServer().getServer(), c.a, c.b);
         }
 
-        @Override
-        public void a(PacketPlayInChat packet) {
-            super.a(packet);
+        @SuppressWarnings("deprecation")
+        private RawHuman.WrapperHuman getById(int id) {
+            net.minecraft.world.entity.Entity ent = b.x().b(id);
+            if(ent instanceof RawHuman.WrapperHuman) {
+                return (RawHuman.WrapperHuman) ent;
+            }
+            return null;
         }
 
         private boolean handle(PacketPlayOutSpawnEntityLiving p) {
-            if(p.d() != IRegistry.Y.getId(HUMAN_TYPE)) {
+            if(p.d() != IRegistry.Z.a(HUMAN_TYPE)) {
                 return false;
             }
             UUID uuid = p.c();
@@ -240,34 +264,38 @@ public class NMS {
             PacketPlayOutPlayerInfo info = new PacketPlayOutPlayerInfo(
                     PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, player);
             PacketPlayOutNamedEntitySpawn spawn = new PacketPlayOutNamedEntitySpawn(player);
-            super.sendPacket(info);
-            super.sendPacket(spawn);
-
-            /*KajetansPlugin.scheduleTask(() -> {
-                PacketPlayOutPlayerInfo playerInfoRemove = new PacketPlayOutPlayerInfo(
-                        PacketPlayOutPlayerInfo.EnumPlayerInfoAction.e, player);
-                sendPacket(playerInfoRemove);
-            }, 20);*/
+            super.a(info);
+            super.a(spawn);
             return true;
         }
 
-        @SuppressWarnings("deprecation")
         private boolean handle(PacketPlayOutEntityMetadata p) {
-            int id = p.c();
-            net.minecraft.world.entity.Entity ent = b.getWorldServer().b(id);
-            return ent instanceof RawHuman.WrapperHuman;
+            return getById(p.c()) != null;
+        }
+
+        private void handle(PacketPlayOutEntityDestroy p) {
+            for(int id : p.b()) {
+                RawHuman.WrapperHuman human = getById(id);
+                if(human != null) {
+                    PacketPlayOutPlayerInfo remove = new PacketPlayOutPlayerInfo(
+                            PacketPlayOutPlayerInfo.EnumPlayerInfoAction.e, human.player);
+                    super.a(remove);
+                }
+            }
         }
 
         @Override
-        public void sendPacket(Packet<?> packet) {
-            if(packet instanceof PacketPlayOutSpawnEntityLiving
-                    && handle((PacketPlayOutSpawnEntityLiving) packet)) {
+        public void a(Packet<?> p) {
+            if(p instanceof PacketPlayOutSpawnEntityLiving
+                    && handle((PacketPlayOutSpawnEntityLiving) p)) {
                 return;
-            } else if(packet instanceof PacketPlayOutEntityMetadata
-                    && handle((PacketPlayOutEntityMetadata) packet)) {
+            } else if(p instanceof PacketPlayOutEntityMetadata
+                    && handle((PacketPlayOutEntityMetadata) p)) {
                 return;
+            } else if(p instanceof PacketPlayOutEntityDestroy) {
+                handle((PacketPlayOutEntityDestroy) p);
             }
-            super.sendPacket(packet);
+            super.a(p);
         }
     }
 
@@ -287,10 +315,10 @@ public class NMS {
     }
 
     public static Entity getTrueSource(DamageSource ds) {
-        if(ds.getEntity() == null) {
+        if(ds.l() == null) {
             return null;
         }
-        return map(ds.getEntity());
+        return map(ds.l());
     }
 
     public static EntityPlayer map(Player p) {
@@ -365,7 +393,7 @@ public class NMS {
     }
 
     public static DamageSource mobAttack(LivingEntity liv) {
-        return DamageSource.mobAttack(map(liv));
+        return DamageSource.c(map(liv));
     }
 
     public static DamageSource mobIndirect(Entity ent, LivingEntity liv) {
@@ -373,11 +401,11 @@ public class NMS {
     }
 
     public static DamageSource playerAttack(Player p) {
-        return DamageSource.playerAttack(map(p));
+        return DamageSource.a(map(p));
     }
 
     public static DamageSource arrow(Arrow arrow, Entity ent) {
-        return DamageSource.arrow(map(arrow), map(ent));
+        return DamageSource.a(map(arrow), map(ent));
     }
 
     public static DamageSource trident(Entity ent, Entity ent2) {
@@ -389,7 +417,7 @@ public class NMS {
     }
 
     public static DamageSource fireball(LargeFireball fireball, Entity ent) {
-        return DamageSource.fireball(map(fireball), map(ent));
+        return DamageSource.a(map(fireball), map(ent));
     }
 
     public static DamageSource witherSkull(WitherSkull witherSkull, Entity ent) {
@@ -397,7 +425,7 @@ public class NMS {
     }
 
     public static DamageSource projectile(Entity ent, Entity ent2) {
-        return DamageSource.projectile(map(ent), map(ent2));
+        return DamageSource.a(map(ent), map(ent2));
     }
 
     public static DamageSource indirectMagic(Entity ent, Entity ent2) {
@@ -417,17 +445,17 @@ public class NMS {
     }
 
     public static void setMessageOfTheDay(String msg) {
-        ((CraftServer) Bukkit.getServer()).getServer().setMotd(msg);
+        ((CraftServer) Bukkit.getServer()).getServer().e(msg);
     }
 
     public static String toString(ItemStack stack) {
         NBTTagCompound c = new NBTTagCompound();
-        map(stack).save(c);
+        map(stack).b(c);
         return c.toString();
     }
 
     public static ItemStack parseItemStack(String stack) throws Exception {
-        NBTTagCompound c = MojangsonParser.parse(stack);
+        NBTTagCompound c = MojangsonParser.a(stack);
         return CraftItemStack.asCraftMirror(net.minecraft.world.item.ItemStack.a(c));
     }
 
@@ -438,13 +466,13 @@ public class NMS {
     }
 
     public static Entity parseEntity(String stack, Location l) throws Exception {
-        NBTTagCompound c = MojangsonParser.parse(stack);
+        NBTTagCompound c = MojangsonParser.a(stack);
         var nmsWorld = map(l.getWorld());
         net.minecraft.world.entity.Entity ent =
                 net.minecraft.world.entity.EntityTypes.a(c, nmsWorld, e -> {
                     e.a_(UUID.randomUUID());
-                    e.setLocation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
-                    return nmsWorld.addEntity(e) ? e : null;
+                    e.a(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
+                    return nmsWorld.b(e) ? e : null;
                 });
         return map(ent);
     }
@@ -457,13 +485,11 @@ public class NMS {
         var nmsFromWorld = map(from.getWorld());
         var nmsToWorld = map(to.getWorld());
 
-        var fromEntity = nmsFromWorld.getTileEntity(convert(from));
-        var toEntity = nmsToWorld.getTileEntity(convert(to));
-        KajetansPlugin.log(String.valueOf(fromEntity));
-        KajetansPlugin.log(String.valueOf(toEntity));
+        TileEntity fromEntity = nmsFromWorld.c_(convert(from));
+        TileEntity toEntity = nmsToWorld.c_(convert(to));
         if(fromEntity != null && toEntity != null && fromEntity.getClass() == toEntity.getClass()) {
-            NBTTagCompound nbtTagCompound = fromEntity.save(new NBTTagCompound());
-            toEntity.load(nbtTagCompound);
+            NBTTagCompound nbtTagCompound = fromEntity.m();
+            toEntity.a(nbtTagCompound);
         }
     }
 }

@@ -5,6 +5,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
+import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -77,7 +78,7 @@ public class LivingCommands {
             StackTrace trace = sc.getStackTrace();
             KajetansPlugin.scheduleTask(() -> {
                 try {
-                    NMS.map(liv).damageEntity(damageSource, damage);
+                    NMS.map(liv).a(damageSource, damage);
                 } catch(Exception ex) {
                     sc.getScriptManager().getLogger().print(null, ex, "living.damage", sc.getName(),
                             sc, trace);
@@ -90,7 +91,7 @@ public class LivingCommands {
             StackTrace trace = sc.getStackTrace();
             KajetansPlugin.scheduleTask(() -> {
                 try {
-                    NMS.map(liv).heal(heal);
+                    NMS.map(liv).heal(heal, EntityRegainHealthEvent.RegainReason.CUSTOM);
                 } catch(Exception ex) {
                     sc.getScriptManager().getLogger().print(null, ex, "living.heal", sc.getName(),
                             sc, trace);

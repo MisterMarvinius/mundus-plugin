@@ -17,21 +17,21 @@ public class DamageCommands {
         KajetansPlugin.scriptManager.registerFunction("damage.gettruesource",
                 (sc, in) -> NMS.getTrueSource(NMS.toDamageSource(in[0].get(sc))));
         KajetansPlugin.scriptManager.registerFunction("damage.iscreativeplayer",
-                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).ignoresInvulnerability());
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).i());
         KajetansPlugin.scriptManager.registerFunction("damage.isabsolute",
-                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).isStarvation());
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).j());
         KajetansPlugin.scriptManager.registerFunction("damage.isdifficultyscaled",
                 (sc, in) -> NMS.toDamageSource(in[0].get(sc)).w());
         KajetansPlugin.scriptManager.registerFunction("damage.isexplosion",
-                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).isExplosion());
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).d());
         KajetansPlugin.scriptManager.registerFunction("damage.isfire",
-                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).isFire());
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).s());
         KajetansPlugin.scriptManager.registerFunction("damage.ismagic",
-                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).isMagic());
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).x());
         KajetansPlugin.scriptManager.registerFunction("damage.isprojectile",
                 (sc, in) -> NMS.toDamageSource(in[0].get(sc)).b());
         KajetansPlugin.scriptManager.registerFunction("damage.isunblockable",
-                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).ignoresArmor());
+                (sc, in) -> NMS.toDamageSource(in[0].get(sc)).f());
         KajetansPlugin.scriptManager.registerFunction("damage.isfall",
                 (sc, in) -> NMS.toDamageSource(in[0].get(sc)).z());
         KajetansPlugin.scriptManager.registerFunction("damage.isdamaginghelmet",

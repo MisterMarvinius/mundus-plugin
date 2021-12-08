@@ -50,13 +50,14 @@ public class Events implements Listener {
     public void onPlayerLogin(PlayerLoginEvent e) {
         Player p = e.getPlayer();
         CommandManager.clearPermissions(p);
-        KajetansPlugin.scheduleTask(() -> PlayerData.get(p).login(p));
         ScriptEvents.onPlayerLogin(e);
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        NMS.patch(e.getPlayer());
+        Player p = e.getPlayer();
+        NMS.patch(p);
+        PlayerData.get(p).login(p);
         ScriptEvents.onPlayerJoin(e);
     }
 
@@ -206,8 +207,8 @@ public class Events implements Listener {
     }
 
     @EventHandler
-    public void onPlayerChangedWorl(PlayerChangedWorldEvent e) {
-        ScriptEvents.onPlayerChangedWorl(e);
+    public void onPlayerChangedWorld(PlayerChangedWorldEvent e) {
+        ScriptEvents.onPlayerChangedWorld(e);
     }
 
     @EventHandler

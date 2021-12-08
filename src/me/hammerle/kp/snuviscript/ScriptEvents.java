@@ -25,14 +25,20 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.kp.NMS;
+import me.hammerle.kp.NMS.Human;
 import me.hammerle.snuviscript.code.Script;
 import me.hammerle.snuviscript.code.SnuviUtils;
 import me.hammerle.snuviscript.inputprovider.Variable;
 import net.kyori.adventure.text.Component;
+import net.minecraft.world.damagesource.DamageSource;
 
 public class ScriptEvents {
     private static class WrappedBool {
-        public boolean wrapped = false;
+        public boolean wrapped;
+
+        public WrappedBool(boolean init) {
+            wrapped = init;
+        }
     }
 
     private static void setEntity(Script sc, Entity ent) {
@@ -192,12 +198,25 @@ public class ScriptEvents {
         });
     }
 
-    /*public void onHumanHurt(Entity attacker, EntityHuman h) {
-        handleEvent("human_hurt", sc -> {
-            setEntity(sc, attacker);
+    public static boolean onHumanHurt(DamageSource ds, Human h, float amount) {
+        WrappedBool wb = new WrappedBool(true);
+        KajetansPlugin.scriptManager.callEvent("human_damage", sc -> {
             sc.setVar("human", h);
+            sc.setVar("vanilla_cause", ds);
+            sc.setVar("damage", amount);
+            setCancel(sc, wb.wrapped);
+        }, sc -> {
+            Variable v = sc.getVar("cancel");
+            if(v == null) {
+                return;
+            }
+            try {
+                wb.wrapped = v.getBoolean(sc);
+            } catch(Exception ex) {
+            }
         });
-    }*/
+        return wb.wrapped;
+    }
 
     public static void onPlayerPreRespawn(PlayerRespawnEvent e) {
         handleEvent("player_post_respawn", sc -> setPlayer(sc, e.getPlayer()));
@@ -415,7 +434,7 @@ public class ScriptEvents {
         });
     }
 
-    public static void onPlayerChangedWorl(PlayerChangedWorldEvent e) {
+    public static void onPlayerChangedWorld(PlayerChangedWorldEvent e) {
         handleEvent("player_change_world", (sc) -> {
             setPlayer(sc, e.getPlayer());
             sc.setVar("from", e.getFrom());
@@ -423,7 +442,7 @@ public class ScriptEvents {
     }
 
     public static boolean onCommand(Player p, String command) {
-        WrappedBool wr = new WrappedBool();
+        WrappedBool wr = new WrappedBool(false);
         KajetansPlugin.scriptManager.callEvent("command", sc -> {
             sc.setVar("player", p);
             sc.setVar("command", command);

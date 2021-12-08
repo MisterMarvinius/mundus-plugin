@@ -39,6 +39,11 @@ public class KajetansPlugin extends JavaPlugin implements ISnuviScheduler {
     private boolean enabled = false;
     private boolean debug = false;
 
+    public KajetansPlugin() {
+        instance = this;
+        NMS.init();
+    }
+
     public static void log(String msg) {
         instance.getLogger().info(msg);
     }
@@ -125,7 +130,6 @@ public class KajetansPlugin extends JavaPlugin implements ISnuviScheduler {
 
     @Override
     public void onEnable() {
-        instance = this;
         enabled = true;
         log("§40.0.1");
         logger = new SnuviLogger();
@@ -156,7 +160,6 @@ public class KajetansPlugin extends JavaPlugin implements ISnuviScheduler {
         getServer().getPluginManager().registerEvents(new Events(), instance);
 
         registerFunctions();
-        NMS.init();
         scheduleTask(() -> startScript(null, "startscript"));
         startVotifier(conf.getString(null, "pkey", ""));
     }

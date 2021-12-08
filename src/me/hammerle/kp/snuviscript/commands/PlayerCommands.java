@@ -243,12 +243,12 @@ public class PlayerCommands {
         KajetansPlugin.scriptManager.registerConsumer("player.damageitem", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             ItemStack stack = p.getEquipment().getItemInMainHand();
-            NMS.map(stack).damage(in[1].getInt(sc), NMS.map(p), c -> {
+            NMS.map(stack).a(in[1].getInt(sc), NMS.map(p), c -> {
             });
         });
         KajetansPlugin.scriptManager.registerConsumer("player.damagearmor", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
-            NMS.map(p).getInventory().a(NMS.toDamageSource(in[2].get(sc)), in[1].getFloat(sc),
+            NMS.map(p).fq().a(NMS.toDamageSource(in[2].get(sc)), in[1].getFloat(sc),
                     new int[] {0, 1, 2, 3});
         });
         KajetansPlugin.scriptManager.registerConsumer("player.openenderchest", (sc, in) -> {
