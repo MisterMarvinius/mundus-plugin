@@ -595,11 +595,17 @@ public class ScriptEvents {
         if(data.length < 5) {
             return;
         }
+        double timestamp;
+        try {
+            timestamp = Double.parseDouble(data[4]);
+        } catch(NumberFormatException ex) {
+            return;
+        }
         handleEvent("vote", (sc) -> {
             sc.setVar("from", data[1]);
             sc.setVar("name", data[2]);
             sc.setVar("ip", data[3]);
-            sc.setVar("timestamp", SnuviUtils.convert(data[4]));
+            sc.setVar("timestamp", timestamp);
         });
     }
 
