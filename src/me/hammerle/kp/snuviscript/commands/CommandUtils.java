@@ -28,7 +28,7 @@ public class CommandUtils {
 
     public static void doForGroup(Object group, Script sc, Consumer<CommandSender> c) {
         if(!(group instanceof String)) {
-            c.accept((Player) group);
+            c.accept((CommandSender) group);
             return;
         }
         switch(group.toString().toLowerCase()) {
@@ -37,7 +37,7 @@ public class CommandUtils {
                 return;
             case "dev":
                 Bukkit.getOnlinePlayers().forEach(p -> {
-                    if(p.hasPermission("script.error")) {
+                    if(p.hasPermission("script.debug")) {
                         c.accept(p);
                     }
                 });

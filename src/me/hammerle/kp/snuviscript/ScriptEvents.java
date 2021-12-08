@@ -141,12 +141,15 @@ public class ScriptEvents {
         });
     }
 
-    private static void onSnuviClick(Player p, Inventory inv, Component title, int slot) {
+    private static void onSnuviClick(Player p, Inventory inv, Component title, int slot,
+            String click, String action) {
         handleEvent("snuvi_click", sc -> {
             setPlayer(sc, p);
             sc.setVar("inv", inv);
             sc.setVar("inv_title", title);
             sc.setVar("inv_slot", (double) slot);
+            sc.setVar("click", click);
+            sc.setVar("action", action);
         });
     }
 
@@ -157,6 +160,9 @@ public class ScriptEvents {
         Player p = (Player) e.getWhoClicked();
         Inventory clicked = e.getClickedInventory();
         int slot = e.getSlot();
+
+        String click = e.getClick().toString();
+        String action = e.getAction().toString();
 
         if(clicked != null && clicked.getHolder() instanceof SnuviInventoryHolder) {
             SnuviInventoryHolder holder = (SnuviInventoryHolder) clicked.getHolder();
@@ -169,17 +175,16 @@ public class ScriptEvents {
                 case CLICK_EVENT_1:
                 case CLICK_EVENT_2:
                     e.setCancelled(true);
-                    onSnuviClick(p, e.getClickedInventory(), e.getView().title(), slot);
+                    onSnuviClick(p, e.getClickedInventory(), e.getView().title(), slot, click,
+                            action);
                     return;
             }
         }
-        String click = e.getClick().toString();
-        String action = e.getAction().toString();
         handleEvent(e, "inv_click", sc -> {
             setPlayer(sc, p);
             sc.setVar("inv", e.getInventory());
             sc.setVar("inv_clicked", e.getClickedInventory());
-            sc.setVar("inv_name", e.getView().title());
+            sc.setVar("inv_title", e.getView().title());
             sc.setVar("inv_slot", (double) slot);
             sc.setVar("click", click);
             sc.setVar("action", action);
@@ -194,7 +199,7 @@ public class ScriptEvents {
         handleEvent("inv_close", sc -> {
             setPlayer(sc, p);
             sc.setVar("inv", e.getInventory());
-            sc.setVar("inv_name", e.getView().title());
+            sc.setVar("inv_title", e.getView().title());
         });
     }
 
@@ -202,8 +207,8 @@ public class ScriptEvents {
         WrappedBool wb = new WrappedBool(true);
         KajetansPlugin.scriptManager.callEvent("human_damage", sc -> {
             sc.setVar("human", h);
-            sc.setVar("vanilla_cause", ds);
-            sc.setVar("damage", amount);
+            sc.setVar("damage_source", ds);
+            sc.setVar("damage", (double) amount);
             setCancel(sc, wb.wrapped);
         }, sc -> {
             Variable v = sc.getVar("cancel");
@@ -219,11 +224,11 @@ public class ScriptEvents {
     }
 
     public static void onPlayerPreRespawn(PlayerRespawnEvent e) {
-        handleEvent("player_post_respawn", sc -> setPlayer(sc, e.getPlayer()));
+        handleEvent("player_pre_respawn", sc -> setPlayer(sc, e.getPlayer()));
     }
 
     public static void onPlayerPostRespawn(PlayerPostRespawnEvent e) {
-        handleEvent("player_pre_respawn", sc -> setPlayer(sc, e.getPlayer()));
+        handleEvent("player_post_respawn", sc -> setPlayer(sc, e.getPlayer()));
     }
 
     private static Block getBlock(EntityDamageEvent e) {
@@ -246,9 +251,9 @@ public class ScriptEvents {
         String cause = e.getCause().toString();
         Block damagerBlock = getBlock(e);
         Entity damagerEntity = getEntity(e);
-        handleEvent("entity_damage", (sc) -> {
+        handleEvent(e, "entity_damage", (sc) -> {
             setEntity(sc, e.getEntity());
-            sc.setVar("vanilla_cause", NMS.getCurrentDamageSource());
+            sc.setVar("damage_source", NMS.getCurrentDamageSource());
             sc.setVar("cause", cause);
             sc.setVar("damager_block", damagerBlock);
             sc.setVar("damager_entity", damagerEntity);
@@ -258,23 +263,24 @@ public class ScriptEvents {
     }
 
     public static void onEntityRegainHealth(EntityRegainHealthEvent e) {
+        String cause = e.getRegainReason().toString();
         KajetansPlugin.scriptManager.callEvent("entity_heal", sc -> {
             setEntity(sc, e.getEntity());
-            sc.setVar("heal_amount", e.getAmount());
-            sc.setVar("heal_reason", e.getRegainReason().toString());
+            sc.setVar("heal", e.getAmount());
+            sc.setVar("cause", cause);
             setCancel(sc, e.isCancelled());
         }, sc -> {
             setCancelled(e, sc);
-            handleVar(sc, "entity_heal", "heal_amount", v -> e.setAmount(v.getDouble(sc)));
+            handleVar(sc, "entity_heal", "heal", v -> e.setAmount(v.getDouble(sc)));
         });
     }
 
     public static void onEntityDeath(EntityDeathEvent e) {
         KajetansPlugin.scriptManager.callEvent("living_death", sc -> {
             setLiving(sc, e.getEntity());
-            sc.setVar("vanilla_cause", NMS.getCurrentDamageSource());
+            sc.setVar("damage_source", NMS.getCurrentDamageSource());
             sc.setVar("drops", e.getDrops());
-            sc.setVar("experience", e.getDrops());
+            sc.setVar("experience", (double) e.getDroppedExp());
             setCancel(sc, e.isCancelled());
         }, sc -> {
             setCancelled(e, sc);
@@ -351,15 +357,17 @@ public class ScriptEvents {
     }
 
     public static void onPlayerInteract(PlayerInteractEvent e) {
-        handleEvent("block_click", (sc) -> {
+        String action = e.getAction().toString();
+        handleEvent(e, "block_click", (sc) -> {
             setPlayer(sc, e.getPlayer());
             setBlock(sc, e.getClickedBlock());
             setHand(sc, e.getHand());
+            sc.setVar("action", action);
         });
     }
 
     public static void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
-        handleEvent("entity_click", (sc) -> {
+        handleEvent(e, "entity_click", (sc) -> {
             setPlayer(sc, e.getPlayer());
             setEntity(sc, e.getRightClicked());
             setHand(sc, e.getHand());
@@ -367,7 +375,7 @@ public class ScriptEvents {
     }
 
     public static void onPlayerArmSwing(PlayerArmSwingEvent e) {
-        handleEvent("arm_swing", sc -> {
+        handleEvent(e, "arm_swing", sc -> {
             setPlayer(sc, e.getPlayer());
             setHand(sc, e.getHand());
         });
@@ -384,8 +392,9 @@ public class ScriptEvents {
         KajetansPlugin.scriptManager.callEvent("fishing", sc -> {
             setPlayer(sc, e.getPlayer());
             setEntity(sc, e.getCaught());
-            sc.setVar("experience", e.getExpToDrop());
+            sc.setVar("experience", (double) e.getExpToDrop());
             setCancel(sc, e.isCancelled());
+            sc.setVar("hook", e.getHook());
         }, sc -> {
             setCancelled(e, sc);
             handleVar(sc, "fishing", "experience", v -> e.setExpToDrop(v.getInt(sc)));
@@ -399,6 +408,7 @@ public class ScriptEvents {
         Player p = (Player) e.getWhoClicked();
         handleEvent(e, "craft", sc -> {
             setPlayer(sc, p);
+            sc.setVar("inv", e.getInventory());
             setItem(sc, e.getInventory().getResult());
         });
     }
@@ -406,6 +416,7 @@ public class ScriptEvents {
     public static void onPrepareItemCraft(PrepareItemCraftEvent e) {
         KajetansPlugin.scriptManager.callEvent("pre_craft", sc -> {
             sc.setVar("players", e.getViewers());
+            sc.setVar("inv", e.getInventory());
             setItem(sc, e.getInventory().getResult());
         }, sc -> {
             handleVar(sc, "pre_craft", "item",
@@ -414,7 +425,7 @@ public class ScriptEvents {
     }
 
     public static void onPlayerDropItem(PlayerDropItemEvent e) {
-        handleEvent(e, "player_toss", (sc) -> {
+        handleEvent(e, "player_drop", (sc) -> {
             setPlayer(sc, e.getPlayer());
             setItem(sc, e.getItemDrop());
         });
@@ -460,18 +471,18 @@ public class ScriptEvents {
         return wr.wrapped;
     }
 
-    public static void onCustomCommand(Player p, String command, String[] args) {
+    public static void onCustomCommand(CommandSender cs, String command, String[] args) {
         handleEvent("custom_command", (sc) -> {
-            setPlayer(sc, p);
+            sc.setVar("sender", cs);
             sc.setVar("command", command);
             sc.setVar("args", Arrays.stream(args).map(s -> SnuviUtils.convert(s))
                     .collect(Collectors.toList()));
-            sc.setVar("text_args", Arrays.stream(args).collect(Collectors.toList()));
+            sc.setVar("string_args", Arrays.stream(args).collect(Collectors.toList()));
         });
     }
 
     public static void onPlayerItemHeld(PlayerItemHeldEvent e) {
-        handleEvent("player_item_held", (sc) -> {
+        handleEvent(e, "player_item_held", (sc) -> {
             setPlayer(sc, e.getPlayer());
             sc.setVar("from", (double) e.getPreviousSlot());
             sc.setVar("to", (double) e.getNewSlot());
@@ -538,11 +549,11 @@ public class ScriptEvents {
     }
 
     public static void onCreatureSpawn(CreatureSpawnEvent e) {
-        String reason = e.getSpawnReason().toString();
+        String cause = e.getSpawnReason().toString();
         handleEvent(e, "living_spawn", (sc) -> {
             setEntity(sc, e.getEntity());
             sc.setVar("location", e.getLocation());
-            sc.setVar("reason", reason);
+            sc.setVar("cause", cause);
         });
     }
 
@@ -560,7 +571,7 @@ public class ScriptEvents {
     }
 
     public static void onPlayerToggleSneak(PlayerToggleSneakEvent e) {
-        handleEvent("player_toggle_sneak", (sc) -> {
+        handleEvent(e, "player_toggle_sneak", (sc) -> {
             setPlayer(sc, e.getPlayer());
             sc.setVar("sneak", e.isSneaking());
         });

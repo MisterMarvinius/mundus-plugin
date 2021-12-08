@@ -116,11 +116,7 @@ public class CommandManager {
         }
 
         if(hasCustom(commandName)) {
-            if(cs instanceof Player) {
-                ScriptEvents.onCustomCommand((Player) cs, commandName, getArguments(rawCommand));
-                return;
-            }
-            ScriptEvents.onCustomCommand(null, commandName, getArguments(rawCommand));
+            ScriptEvents.onCustomCommand(cs, commandName, getArguments(rawCommand));
             return;
         }
 
