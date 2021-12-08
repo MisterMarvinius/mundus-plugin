@@ -1,86 +1,116 @@
 package me.hammerle.kp;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import com.destroystokyo.paper.profile.CraftPlayerProfile;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.entity.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftArrow;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftFirework;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftItem;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftLargeFireball;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftWitherSkull;
 import org.bukkit.craftbukkit.v1_17_R1.event.CraftEventFactory;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LargeFireball;
-import org.bukkit.entity.Firework;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.WitherSkull;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import net.minecraft.core.BlockPosition;
+import net.minecraft.core.IRegistry;
 import net.minecraft.nbt.MojangsonParser;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.protocol.EnumProtocolDirection;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntityCreature;
 import net.minecraft.world.entity.EntityLiving;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EnumCreatureType;
 import net.minecraft.world.entity.item.EntityItem;
+import net.minecraft.world.entity.monster.EntityMonster;
 import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.entity.projectile.EntityFireballFireball;
 import net.minecraft.world.entity.projectile.EntityFireworks;
 import net.minecraft.world.entity.projectile.EntityWitherSkull;
+import net.minecraft.world.entity.ai.attributes.AttributeDefaults;
+import net.minecraft.world.entity.ai.attributes.AttributeProvider;
+import net.minecraft.world.entity.ai.attributes.GenericAttributes;
 
 public class NMS {
     private final static HashMap<String, DamageSource> DAMAGE_SOURCES = new HashMap<>();
+
+    private static EntityTypes<RawHuman.WrapperHuman> HUMAN_TYPE;
+
+    @SuppressWarnings("unchecked")
+    public static void init() {
+        try {
+            Method m = EntityTypes.class.getDeclaredMethod("a", String.class,
+                    EntityTypes.Builder.class);
+            m.setAccessible(true);
+            HUMAN_TYPE = (EntityTypes<RawHuman.WrapperHuman>) m.invoke(null, "human",
+                    EntityTypes.Builder.a(RawHuman.WrapperHuman::new, EnumCreatureType.a)
+                            .a(0.6F, 1.95F).trackingRange(8));
+
+            final Field unsafeField = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+            unsafeField.setAccessible(true);
+            final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) unsafeField.get(null);
+
+            Field attributesMapField = AttributeDefaults.class.getDeclaredField("b");
+            attributesMapField.setAccessible(true);
+
+            Object base = unsafe.staticFieldBase(attributesMapField);
+            long offset = unsafe.staticFieldOffset(attributesMapField);
+
+            Map<EntityTypes<? extends EntityLiving>, AttributeProvider> attributesMap =
+                    (Map<EntityTypes<? extends EntityLiving>, AttributeProvider>) attributesMapField
+                            .get(null);
+            attributesMap = new HashMap<>(attributesMap);
+            attributesMap.put(HUMAN_TYPE,
+                    EntityMonster.fB().a(GenericAttributes.a, 20.0).a(GenericAttributes.f, 1)
+                            .a(GenericAttributes.d, 0.1).a(GenericAttributes.h).a());
+            unsafe.putObject(base, offset, attributesMap);
+
+            AttributeDefaults.a();
+        } catch(Exception ex) {
+            ex.printStackTrace();
+            KajetansPlugin.warn(ex.getMessage());
+        }
+    }
 
     private static CraftServer getCraftServer() {
         return (CraftServer) Bukkit.getServer();
     }
 
-    public static interface Human extends Player {
+    public static interface Human extends Creature {
         public void setSkin(String texture, String signature);
     }
 
-    private static class RawHuman extends CraftPlayer implements Human {
-        private static class DummyNetworkManager extends NetworkManager {
-            public DummyNetworkManager() {
-                super(EnumProtocolDirection.b);
-            }
-        }
+    private static class RawHuman extends CraftCreature implements Human {
+        private static class WrapperHuman extends EntityCreature {
+            private EntityPlayer player;
 
-        private static class WrapperHuman extends EntityPlayer {
-            public WrapperHuman(World w, PlayerProfile profile) {
-                super(getCraftServer().getServer(), map(w), map(profile));
-                b = new PlayerConnection(getCraftServer().getServer(), new DummyNetworkManager(),
-                        this);
+            public WrapperHuman(EntityTypes<? extends WrapperHuman> type,
+                    net.minecraft.world.level.World world) {
+                super(type, world);
+                setPlayer(UUID.randomUUID(), "Default", world);
+            }
+
+            private void setPlayer(UUID uuid, String name, net.minecraft.world.level.World world) {
+                player = new EntityPlayer(getCraftServer().getServer(), (WorldServer) world,
+                        new GameProfile(uuid, name));
             }
 
             @Override
             public void tick() {
                 super.tick();
-                Player p = getBukkitEntity();
-                if(p.isDead()) {
-                    p.remove();
-                }
-                KajetansPlugin.log("TICK");
             }
 
             @Override
@@ -90,58 +120,159 @@ public class NMS {
                 }
                 return false;
             }
+
+            @Override
+            public CraftEntity getBukkitEntity() {
+                return new RawHuman(this);
+            }
+
+            public EntityPlayer update(PacketPlayOutSpawnEntityLiving p) {
+                player.e(p.b()); // set id, get id
+                player.setLocation(p.e(), p.f(), p.g(), 0.0f, 0.0f);
+                return player;
+            }
+
+            @Override
+            public void saveData(NBTTagCompound nbt) {
+                super.saveData(nbt);
+
+                GameProfile gp = player.getProfile();
+                nbt.a("HumanUUID", gp.getId());
+                nbt.setString("HumanName", gp.getName());
+
+                Collection<Property> c = gp.getProperties().get("textures");
+                for(Property p : c) {
+                    if(p.getName().equals("textures")) {
+                        nbt.setString("HumanTexture", p.getValue());
+                        nbt.setString("HumanSignature", p.getSignature());
+                        break;
+                    }
+                }
+
+                KajetansPlugin.log("saved");
+            }
+
+            @Override
+            public void loadData(NBTTagCompound nbt) {
+                super.loadData(nbt);
+                if(nbt.b("HumanUUID") && nbt.hasKeyOfType("HumanName", 8)) {
+                    UUID uuid = nbt.a("HumanUUID");
+                    String name = nbt.getString("CustomName");
+                    setPlayer(uuid, name, player.t);
+                    KajetansPlugin.log(uuid + " " + name + " loaded");
+                }
+                if(nbt.hasKeyOfType("HumanTexture", 8) && nbt.hasKeyOfType("HumanSignature", 8)) {
+                    String texture = nbt.getString("HumanTexture");
+                    String signature = nbt.getString("HumanSignature");
+                    setSkin(texture, signature);
+                    KajetansPlugin.log(texture + " " + signature + " loaded");
+                }
+            }
+
+            public void setSkin(String texture, String signature) {
+                GameProfile gp = player.getProfile();
+                gp.getProperties().clear();
+                gp.getProperties().put("textures", new Property("textures", texture, signature));
+
+                PacketPlayOutPlayerInfo info = new PacketPlayOutPlayerInfo(
+                        PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, player);
+                PacketPlayOutNamedEntitySpawn spawn = new PacketPlayOutNamedEntitySpawn(player);
+                for(Player p : Bukkit.getOnlinePlayers()) {
+                    var nmsPlayer = map(p);
+                    nmsPlayer.b.sendPacket(info);
+                    nmsPlayer.b.sendPacket(spawn);
+                }
+            }
         }
 
-        private WrapperHuman human;
+        public final WrapperHuman human;
 
-        private RawHuman(WrapperHuman human, float yaw) {
+        private RawHuman(WrapperHuman human) {
             super(getCraftServer(), human);
             this.human = human;
+            setPersistent(true);
+        }
+
+        private RawHuman(WrapperHuman human, Location l, PlayerProfile profile) {
+            this(human);
+            human.setLocation(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
             human.getWorld().addEntity(human);
-
-            PacketPlayOutPlayerInfo playerInfoAdd = new PacketPlayOutPlayerInfo(
-                    PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, human);
-            PacketPlayOutNamedEntitySpawn namedEntitySpawn =
-                    new PacketPlayOutNamedEntitySpawn(human);
-            PacketPlayOutEntityHeadRotation headRotation =
-                    new PacketPlayOutEntityHeadRotation(human, (byte) ((yaw * 256f) / 360f));
-            PacketPlayOutPlayerInfo playerInfoRemove = new PacketPlayOutPlayerInfo(
-                    PacketPlayOutPlayerInfo.EnumPlayerInfoAction.e, human);
-
-            for(Player player : Bukkit.getOnlinePlayers()) {
-                PlayerConnection connection = ((CraftPlayer) player).getHandle().b;
-                connection.sendPacket(playerInfoAdd);
-                connection.sendPacket(namedEntitySpawn);
-                connection.sendPacket(headRotation);
-                connection.sendPacket(playerInfoRemove);
-            }
         }
 
         public RawHuman(Location l, PlayerProfile profile) {
-            this(new WrapperHuman(l.getWorld(), profile), l.getYaw());
-            teleport(l);
+            this(HUMAN_TYPE.a(map(l.getWorld())), l, profile);
         }
 
         public void setSkin(String texture, String signature) {
-            GameProfile gp = human.getProfile();
-            gp.getProperties().clear();
-            texture =
-                    "ewogICJ0aW1lc3RhbXAiIDogMTU4OTA1MzMyMjY3NiwKICAicHJvZmlsZUlkIiA6ICI3MmNiMDYyMWU1MTA0MDdjOWRlMDA1OTRmNjAxNTIyZCIsCiAgInByb2ZpbGVOYW1lIiA6ICJNb3M5OTAiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmM4OTBjN2U1OGYyM2U5N2ZmNGRkYWMwNDhiYmZhMDJkNjYxMTEwMTNkMmYxNzdjNWY4ZjYyYThiMWIxYWZkZCIKICAgIH0KICB9Cn0=";
-            signature =
-                    "Skp8QvxYFa4YUhw+XHgicva/8j3gnCcN9u0EDLpkSlVCWuYqUeETbgA3LAit4ftjDjNpUA40UPTvlebBsnjcUvEkiu765BvZE61yms2IcNeK7vDoLoeNfx+UqTAquMI6uOzBBNZi6yBeMSghRX2hwVGsiKuzoFb67o1HfFcPLfCOVR3QRd2D84VfduhQmc+MVSFrUhZFGluzOvslUzR8/tbi2ZarkURlLOlgT0UoT1yEX/pHM7GogtnQiJL7xOqfEnU0Ex+OKZYkjawatbD/L5bjbL1pV2QeuxZLrnvRoQFTVAnONhvPfd9f8WF0kdR8DaDe4Knq+SPJ357HOun9ZRci3RobXcyQaRsw5JezSrgUbBccoUr7SiSgdM4VBhtzGGZ8TYUBz5pocHYCaOALG71bZZ4aVjQKfw5Rtalj+q2Wqbub20IQd/7/z9NUvPB0d7zHBLqr8a1UtZoSKLbaVJZJaYqt0ygxff68MKKQlE0L4fupBHEIXdNgza8tp472rsB+o45IZ/xmFltH1jhRsYvV973ki0l4S6U/O6gWu699sUyHn4a3DnVNN0GIyNAIP9KpHhvQzvxPxJq0Z2gXw2rzRGDxt+fe8gYZJ+UF4t/i39IP9RBgryocdu0L0lzeQA0b7vrr1khvAHyBVuZJ0t2S/RHTnlcAcAxoDENP1Gk=";
-            gp.getProperties().put("textures", new Property("textures", texture, signature));
-
-            for(Player pl : Bukkit.getOnlinePlayers()) {
-                pl.hidePlayer(KajetansPlugin.instance, this);
-                pl.showPlayer(KajetansPlugin.instance, this);
-            }
+            human.setSkin(texture, signature);
+            //String texture =
+            //        "ewogICJ0aW1lc3RhbXAiIDogMTU4OTA1MzMyMjY3NiwKICAicHJvZmlsZUlkIiA6ICI3MmNiMDYyMWU1MTA0MDdjOWRlMDA1OTRmNjAxNTIyZCIsCiAgInByb2ZpbGVOYW1lIiA6ICJNb3M5OTAiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmM4OTBjN2U1OGYyM2U5N2ZmNGRkYWMwNDhiYmZhMDJkNjYxMTEwMTNkMmYxNzdjNWY4ZjYyYThiMWIxYWZkZCIKICAgIH0KICB9Cn0=";
+            //String signature =
+            //        "Skp8QvxYFa4YUhw+XHgicva/8j3gnCcN9u0EDLpkSlVCWuYqUeETbgA3LAit4ftjDjNpUA40UPTvlebBsnjcUvEkiu765BvZE61yms2IcNeK7vDoLoeNfx+UqTAquMI6uOzBBNZi6yBeMSghRX2hwVGsiKuzoFb67o1HfFcPLfCOVR3QRd2D84VfduhQmc+MVSFrUhZFGluzOvslUzR8/tbi2ZarkURlLOlgT0UoT1yEX/pHM7GogtnQiJL7xOqfEnU0Ex+OKZYkjawatbD/L5bjbL1pV2QeuxZLrnvRoQFTVAnONhvPfd9f8WF0kdR8DaDe4Knq+SPJ357HOun9ZRci3RobXcyQaRsw5JezSrgUbBccoUr7SiSgdM4VBhtzGGZ8TYUBz5pocHYCaOALG71bZZ4aVjQKfw5Rtalj+q2Wqbub20IQd/7/z9NUvPB0d7zHBLqr8a1UtZoSKLbaVJZJaYqt0ygxff68MKKQlE0L4fupBHEIXdNgza8tp472rsB+o45IZ/xmFltH1jhRsYvV973ki0l4S6U/O6gWu699sUyHn4a3DnVNN0GIyNAIP9KpHhvQzvxPxJq0Z2gXw2rzRGDxt+fe8gYZJ+UF4t/i39IP9RBgryocdu0L0lzeQA0b7vrr1khvAHyBVuZJ0t2S/RHTnlcAcAxoDENP1Gk=";
         }
     }
 
     public static Human createHuman(String name, Location l) {
-        PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID(), name);
-        Human human = new RawHuman(l, profile);
-        return human;
+        return new RawHuman(l, Bukkit.createProfile(UUID.randomUUID(), name));
+    }
+
+    private static class PluginConnection extends PlayerConnection {
+        public PluginConnection(PlayerConnection c) {
+            super(getCraftServer().getServer(), c.a, c.b);
+        }
+
+        @Override
+        public void a(PacketPlayInChat packet) {
+            super.a(packet);
+        }
+
+        private boolean handle(PacketPlayOutSpawnEntityLiving p) {
+            if(p.d() != IRegistry.Y.getId(HUMAN_TYPE)) {
+                return false;
+            }
+            UUID uuid = p.c();
+            Entity ent = Bukkit.getEntity(uuid);
+            if(!(ent instanceof RawHuman)) {
+                return false;
+            }
+            RawHuman raw = (RawHuman) ent;
+            EntityPlayer player = raw.human.update(p);
+            PacketPlayOutPlayerInfo info = new PacketPlayOutPlayerInfo(
+                    PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, player);
+            PacketPlayOutNamedEntitySpawn spawn = new PacketPlayOutNamedEntitySpawn(player);
+            super.sendPacket(info);
+            super.sendPacket(spawn);
+
+            /*KajetansPlugin.scheduleTask(() -> {
+                PacketPlayOutPlayerInfo playerInfoRemove = new PacketPlayOutPlayerInfo(
+                        PacketPlayOutPlayerInfo.EnumPlayerInfoAction.e, player);
+                sendPacket(playerInfoRemove);
+            }, 20);*/
+            return true;
+        }
+
+        @SuppressWarnings("deprecation")
+        private boolean handle(PacketPlayOutEntityMetadata p) {
+            int id = p.c();
+            net.minecraft.world.entity.Entity ent = b.getWorldServer().b(id);
+            return ent instanceof RawHuman.WrapperHuman;
+        }
+
+        @Override
+        public void sendPacket(Packet<?> packet) {
+            if(packet instanceof PacketPlayOutSpawnEntityLiving
+                    && handle((PacketPlayOutSpawnEntityLiving) packet)) {
+                return;
+            } else if(packet instanceof PacketPlayOutEntityMetadata
+                    && handle((PacketPlayOutEntityMetadata) packet)) {
+                return;
+            }
+            super.sendPacket(packet);
+        }
+    }
+
+    public static void patch(Player p) {
+        map(p).b = new PluginConnection(map(p).b);
     }
 
     public static DamageSource getCurrentDamageSource() {
@@ -149,10 +280,16 @@ public class NMS {
     }
 
     public static Entity getImmediateSource(DamageSource ds) {
+        if(ds.k() == null) {
+            return null;
+        }
         return map(ds.k());
     }
 
     public static Entity getTrueSource(DamageSource ds) {
+        if(ds.getEntity() == null) {
+            return null;
+        }
         return map(ds.getEntity());
     }
 

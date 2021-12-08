@@ -156,6 +156,7 @@ public class KajetansPlugin extends JavaPlugin implements ISnuviScheduler {
         getServer().getPluginManager().registerEvents(new Events(), instance);
 
         registerFunctions();
+        NMS.init();
         scheduleTask(() -> startScript(null, "startscript"));
         startVotifier(conf.getString(null, "pkey", ""));
     }

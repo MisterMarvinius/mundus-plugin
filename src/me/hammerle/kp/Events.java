@@ -56,6 +56,7 @@ public class Events implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
+        NMS.patch(e.getPlayer());
         ScriptEvents.onPlayerJoin(e);
     }
 

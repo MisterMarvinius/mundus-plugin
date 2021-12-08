@@ -13,7 +13,7 @@ public class HumanCommands {
         });
         KajetansPlugin.scriptManager.registerConsumer("human.set", (sc, in) -> {
             Human h = (Human) in[0].get(sc);
-            h.setSkin("", "");
+            h.setSkin(in[1].getString(sc), in[2].getString(sc));
         });
         /*KajetansPlugin.scriptManager.registerConsumer("human.setstatue", (sc, in) -> {
         ((EntityHuman) in[0].get(sc)).setStatue(in[1].getBoolean(sc));
