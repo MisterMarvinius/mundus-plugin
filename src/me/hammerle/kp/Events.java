@@ -2,6 +2,7 @@ package me.hammerle.kp;
 
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
+import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.inventory.*;
@@ -158,6 +159,7 @@ public class Events implements Listener {
     public void onPlayerInteract(PlayerInteractEvent e) {
         PlotEvents.onPlayerInteract(e);
         ScriptEvents.onPlayerInteract(e);
+        CustomItems.onPlayerInteract(e);
     }
 
     @EventHandler
@@ -294,5 +296,20 @@ public class Events implements Listener {
     @EventHandler
     public void onLightningStrike(LightningStrikeEvent e) {
         PlotEvents.onLightningStrike(e);
+    }
+
+    @EventHandler
+    public void onPlayerItemDamage(PlayerItemDamageEvent e) {
+        CustomItems.onPlayerItemDamage(e);
+    }
+
+    @EventHandler
+    public void onPrepareAnvil(PrepareAnvilEvent e) {
+        CustomItems.onPrepareAnvil(e);
+    }
+
+    @EventHandler
+    public void onPrepareItemEnchant(PrepareItemEnchantEvent e) {
+        CustomItems.onPrepareItemEnchant(e);
     }
 }

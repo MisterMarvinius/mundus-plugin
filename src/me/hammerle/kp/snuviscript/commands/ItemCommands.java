@@ -19,7 +19,9 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import me.hammerle.kp.CustomItems;
 import me.hammerle.kp.KajetansPlugin;
+import me.hammerle.kp.CustomItems.CustomItem;
 import net.kyori.adventure.text.Component;
 
 public class ItemCommands {
@@ -34,6 +36,9 @@ public class ItemCommands {
 
         KajetansPlugin.scriptManager.registerFunction("item.new",
                 (sc, in) -> new ItemStack((Material) in[0].get(sc),
+                        in.length >= 2 ? in[1].getInt(sc) : 1));
+        KajetansPlugin.scriptManager.registerFunction("item.newcustom",
+                (sc, in) -> CustomItems.build(CustomItem.valueOf(in[0].getString(sc)),
                         in.length >= 2 ? in[1].getInt(sc) : 1));
         KajetansPlugin.scriptManager.registerConsumer("item.drop", (sc, in) -> {
             Location l = (Location) in[0].get(sc);

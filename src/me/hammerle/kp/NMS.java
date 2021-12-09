@@ -85,6 +85,10 @@ public class NMS {
             ex.printStackTrace();
             KajetansPlugin.warn(ex.getMessage());
         }
+
+        net.minecraft.world.item.ItemStack.maxStackSizeHook = (stack, vanilla) -> {
+            return CustomItems.getMaxStackSize(stack.getBukkitStack(), vanilla);
+        };
     }
 
     private static CraftServer getCraftServer() {
