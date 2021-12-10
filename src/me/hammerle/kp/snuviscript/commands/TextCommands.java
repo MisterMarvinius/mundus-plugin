@@ -21,6 +21,8 @@ public class TextCommands {
                 (sc, in) -> NMS.toString((Entity) in[0].get(sc)));
         KajetansPlugin.scriptManager.registerFunction("string.blockdata",
                 (sc, in) -> ((BlockData) in[0].get(sc)).getAsString());
+        KajetansPlugin.scriptManager.registerFunction("string.blockentity",
+                (sc, in) -> in[0].getString(sc));
 
         KajetansPlugin.scriptManager.registerFunction("text.new",
                 (sc, in) -> Component.text(in[0].getString(sc)));

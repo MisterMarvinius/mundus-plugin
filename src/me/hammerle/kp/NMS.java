@@ -14,8 +14,10 @@ import org.bukkit.craftbukkit.v1_18_R1.entity.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_18_R1.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_18_R1.event.CraftEventFactory;
 import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
 import org.bukkit.entity.*;
@@ -42,6 +44,7 @@ import net.minecraft.world.entity.projectile.EntityFireballFireball;
 import net.minecraft.world.entity.projectile.EntityFireworks;
 import net.minecraft.world.entity.projectile.EntityWitherSkull;
 import net.minecraft.world.level.block.entity.TileEntity;
+import net.minecraft.world.level.block.state.IBlockData;
 import net.minecraft.world.entity.ai.attributes.AttributeDefaults;
 import net.minecraft.world.entity.ai.attributes.AttributeProvider;
 import net.minecraft.world.entity.ai.attributes.GenericAttributes;
@@ -373,6 +376,10 @@ public class NMS {
         return ((CraftPlayerProfile) profile).getGameProfile();
     }
 
+    public static IBlockData map(Block b) {
+        return ((CraftBlock) b).getNMS();
+    }
+
     public static DamageSource toDamageSource(Object o) {
         return (DamageSource) o;
     }
@@ -458,9 +465,12 @@ public class NMS {
         return c.toString();
     }
 
+    private static NBTTagCompound parse(String s) throws Exception {
+        return MojangsonParser.a(s);
+    }
+
     public static ItemStack parseItemStack(String stack) throws Exception {
-        NBTTagCompound c = MojangsonParser.a(stack);
-        return CraftItemStack.asCraftMirror(net.minecraft.world.item.ItemStack.a(c));
+        return CraftItemStack.asCraftMirror(net.minecraft.world.item.ItemStack.a(parse(stack)));
     }
 
     public static String toString(Entity ent) {
@@ -470,7 +480,7 @@ public class NMS {
     }
 
     public static Entity parseEntity(String stack, Location l) throws Exception {
-        NBTTagCompound c = MojangsonParser.a(stack);
+        NBTTagCompound c = parse(stack);
         var nmsWorld = map(l.getWorld());
         net.minecraft.world.entity.Entity ent =
                 net.minecraft.world.entity.EntityTypes.a(c, nmsWorld, e -> {
@@ -489,11 +499,46 @@ public class NMS {
         var nmsFromWorld = map(from.getWorld());
         var nmsToWorld = map(to.getWorld());
 
+        BlockPosition posTo = convert(to);
         TileEntity fromEntity = nmsFromWorld.c_(convert(from));
-        TileEntity toEntity = nmsToWorld.c_(convert(to));
+        TileEntity toEntity = nmsToWorld.c_(posTo);
         if(fromEntity != null && toEntity != null && fromEntity.getClass() == toEntity.getClass()) {
             NBTTagCompound nbtTagCompound = fromEntity.m();
             toEntity.a(nbtTagCompound);
+            Block b = to.getBlock();
+            nmsToWorld.a(posTo, map(b), map(b), 3);
         }
+    }
+
+    public static NBTTagCompound getBlockEntity(String s) throws Exception {
+        return parse(s);
+    }
+
+    public static NBTTagCompound getEntity(Block b) {
+        Location l = b.getLocation();
+        var nmsWorld = map(l.getWorld());
+        TileEntity te = nmsWorld.c_(convert(l));
+        if(te == null) {
+            return null;
+        }
+        return te.o();
+    }
+
+    public static void setEntity(Block b, NBTTagCompound nbt) {
+        if(nbt == null) {
+            return;
+        }
+        Location l = b.getLocation();
+        var nmsWorld = map(l.getWorld());
+        BlockPosition pos = convert(l);
+        TileEntity te = nmsWorld.c_(pos);
+        if(te != null) {
+            te.a(nbt);
+            nmsWorld.a(pos, map(b), map(b), 3);
+        }
+    }
+
+    public static NBTTagCompound toNBT(Object o) {
+        return (NBTTagCompound) o;
     }
 }

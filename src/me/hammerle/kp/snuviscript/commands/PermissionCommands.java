@@ -13,21 +13,21 @@ public class PermissionCommands {
             CommandManager.clearPermissions((Player) in[0].get(sc));
         });
         KajetansPlugin.scriptManager.registerConsumer("perm.add", (sc, in) -> {
-            Player p = (Player) in[0].get(sc);
+            Player p = (Player) in[1].get(sc);
             for(PermissionAttachmentInfo info : p.getEffectivePermissions()) {
                 PermissionAttachment perm = info.getAttachment();
                 if(perm != null && perm.getPlugin() == KajetansPlugin.instance) {
-                    perm.setPermission(in[1].getString(sc), true);
+                    perm.setPermission(in[0].getString(sc), true);
                     return;
                 }
             }
-            p.addAttachment(KajetansPlugin.instance, in[1].getString(sc), true);
+            p.addAttachment(KajetansPlugin.instance, in[0].getString(sc), true);
         });
-        KajetansPlugin.scriptManager.registerConsumer("perm.refresh", (sc, in) -> {
+        KajetansPlugin.scriptManager.registerConsumer("perm.update", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             p.recalculatePermissions();
         });
         KajetansPlugin.scriptManager.registerFunction("perm.has",
-                (sc, in) -> ((Permissible) in[0].get(sc)).hasPermission(in[1].getString(sc)));
+                (sc, in) -> ((Permissible) in[1].get(sc)).hasPermission(in[0].getString(sc)));
     }
 }

@@ -30,5 +30,7 @@ public class ReadCommands {
                 (sc, in) -> EquipmentSlot.valueOf(in[0].getString(sc)));
         KajetansPlugin.scriptManager.registerFunction("read.blockdata",
                 (sc, in) -> Bukkit.createBlockData(in[0].getString(sc)));
+        KajetansPlugin.scriptManager.registerFunction("read.blockentity",
+                (sc, in) -> NMS.getBlockEntity(in[0].getString(sc)));
     }
 }
