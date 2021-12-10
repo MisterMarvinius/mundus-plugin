@@ -61,6 +61,9 @@ public class CommandScript extends KajetanCommand {
                 try {
                     if(args[1].equals("all")) {
                         KajetansPlugin.scriptManager.removeScripts();
+                        CommandManager.clearCustom();
+                        CommandManager.clearIgnored();
+                        CommandManager.clearCustomNodes();
                         sendMessage(cs, "All active scripts were terminated.");
                         return;
                     }

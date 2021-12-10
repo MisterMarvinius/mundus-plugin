@@ -5,6 +5,7 @@ import me.hammerle.kp.snuviscript.CommandManager;
 import com.mojang.brigadier.arguments.*;
 import com.mojang.brigadier.builder.*;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import net.minecraft.commands.CommandDispatcher;
 import net.minecraft.commands.CommandListenerWrapper;
 import net.minecraft.commands.arguments.ArgumentEnchantment;
@@ -134,6 +135,10 @@ public class CommandCommands {
             return arg;
         });
         KajetansPlugin.scriptManager.registerConsumer("command.sendhelp", (sc, in) -> {
+            if(in.length > 0) {
+                CommandManager.send((Player) in[0].get(sc));
+                return;
+            }
             Bukkit.getServer().getOnlinePlayers().forEach(p -> CommandManager.send(p));
         });
         KajetansPlugin.scriptManager.registerConsumer("command.addhelpalias", (sc, in) -> {
