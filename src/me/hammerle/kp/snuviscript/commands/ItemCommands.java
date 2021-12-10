@@ -34,11 +34,15 @@ public class ItemCommands {
             p.setCooldown((Material) in[0].get(sc), in[2].getInt(sc));
         });
 
+        KajetansPlugin.scriptManager.registerFunction("item.custom.get",
+                (sc, in) -> CustomItem.valueOf(in[0].getString(sc)));
+        KajetansPlugin.scriptManager.registerFunction("item.custom.new", (sc, in) -> CustomItems
+                .build((CustomItem) in[0].get(sc), in.length >= 2 ? in[1].getInt(sc) : 1));
+        KajetansPlugin.scriptManager.registerFunction("item.getcustom",
+                (sc, in) -> CustomItems.getCustomItem((ItemStack) in[0].get(sc)));
+
         KajetansPlugin.scriptManager.registerFunction("item.new",
                 (sc, in) -> new ItemStack((Material) in[0].get(sc),
-                        in.length >= 2 ? in[1].getInt(sc) : 1));
-        KajetansPlugin.scriptManager.registerFunction("item.newcustom",
-                (sc, in) -> CustomItems.build(CustomItem.valueOf(in[0].getString(sc)),
                         in.length >= 2 ? in[1].getInt(sc) : 1));
         KajetansPlugin.scriptManager.registerConsumer("item.drop", (sc, in) -> {
             Location l = (Location) in[0].get(sc);
