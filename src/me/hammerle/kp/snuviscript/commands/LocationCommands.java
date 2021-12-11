@@ -1,7 +1,6 @@
 package me.hammerle.kp.snuviscript.commands;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import me.hammerle.kp.KajetansPlugin;
@@ -23,6 +22,12 @@ public class LocationCommands {
                 (sc, in) -> ((Location) in[0].get(sc)).getY());
         KajetansPlugin.scriptManager.registerFunction("loc.getz",
                 (sc, in) -> ((Location) in[0].get(sc)).getZ());
+        KajetansPlugin.scriptManager.registerFunction("loc.getblockx",
+                (sc, in) -> ((Location) in[0].get(sc)).getBlockX());
+        KajetansPlugin.scriptManager.registerFunction("loc.getblocky",
+                (sc, in) -> ((Location) in[0].get(sc)).getBlockY());
+        KajetansPlugin.scriptManager.registerFunction("loc.getblockz",
+                (sc, in) -> ((Location) in[0].get(sc)).getBlockZ());
         KajetansPlugin.scriptManager.registerConsumer("loc.set",
                 (sc, in) -> ((Location) in[0].get(sc)).set(in[1].getDouble(sc), in[2].getDouble(sc),
                         in[3].getDouble(sc)));
@@ -56,27 +61,6 @@ public class LocationCommands {
         KajetansPlugin.scriptManager.registerFunction("loc.mod",
                 (sc, in) -> ((Location) in[0].get(sc)).clone().add(in[1].getDouble(sc),
                         in[2].getDouble(sc), in[3].getDouble(sc)));
-        KajetansPlugin.scriptManager.registerFunction("loc.getcoord", (sc, in) -> {
-            Location l = (Location) in[0].get(sc);
-            switch(in[1].getString(sc)) {
-                case "x":
-                    return l.getX();
-                case "y":
-                    return l.getY();
-                case "z":
-                    return l.getZ();
-                case "bx":
-                    return l.getBlockX();
-                case "by":
-                    return l.getBlockY();
-                case "bz":
-                    return l.getBlockZ();
-                case "w":
-                    return l.getWorld().getName();
-                default:
-                    return null;
-            }
-        });
         KajetansPlugin.scriptManager.registerFunction("loc.isbetween", (sc, in) -> {
             Location l1 = (Location) in[0].get(sc);
             Location l2 = (Location) in[1].get(sc);
@@ -111,34 +95,13 @@ public class LocationCommands {
             return new LocationIterator((World) in[0].get(sc), in[1].getInt(sc), in[2].getInt(sc),
                     in[3].getInt(sc), in[4].getInt(sc), in[5].getInt(sc), in[6].getInt(sc));
         });
-        KajetansPlugin.scriptManager.registerFunction("loc.trace", (sc, in) -> {
-            Location l = (Location) in[0].get(sc);
-            Location pos = l.clone();
-            double ux = in[1].getDouble(sc);
-            double uy = in[2].getDouble(sc);
-            double uz = in[3].getDouble(sc);
-            int steps = in[4].getInt(sc);
-            boolean last = in[5].getBoolean(sc);
-            for(int i = 0; i < steps; i++) {
-                if(pos.getBlock().getType() != Material.AIR) {
-                    if(last) {
-                        pos.subtract(ux, uy, uz);
-                    }
-                    l.set(pos.getX(), pos.getY(), pos.getZ());
-                    return true;
-                }
-                pos.add(ux, uy, uz);
-            }
-            return false;
-        });
-        KajetansPlugin.scriptManager.registerFunction("loc.explode", (sc, in) -> {
+        KajetansPlugin.scriptManager.registerConsumer("loc.explode", (sc, in) -> {
             Location l = (Location) in[0].get(sc);
             Entity ent = (Entity) in[1].get(sc);
             float power = in[2].getFloat(sc);
             boolean fire = in[3].getBoolean(sc);
             boolean destroys = in[4].getBoolean(sc);
             l.getWorld().createExplosion(l, power, fire, destroys, ent);
-            return false;
         });
 
     }

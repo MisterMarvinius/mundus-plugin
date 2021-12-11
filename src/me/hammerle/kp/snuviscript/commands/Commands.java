@@ -1,12 +1,9 @@
 package me.hammerle.kp.snuviscript.commands;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.kp.NMS;
-import me.hammerle.kp.snuviscript.CommandManager;
-import me.hammerle.snuviscript.code.SnuviUtils;
 import me.hammerle.snuviscript.config.SnuviConfig;
 import net.kyori.adventure.text.Component;
 
@@ -17,12 +14,6 @@ public class Commands {
         });
         KajetansPlugin.scriptManager.registerConsumer("msg", (sc, in) -> {
             CommandUtils.sendMessageToGroup(in[0].get(sc), sc, (Component) in[1].get(sc));
-        });
-        KajetansPlugin.scriptManager.registerFunction("removeformat",
-                (sc, in) -> SnuviUtils.connect(sc, in, 0).replaceAll("§.", ""));
-        KajetansPlugin.scriptManager.registerConsumer("command", (sc, in) -> {
-            CommandManager.execute(Bukkit.getServer().getConsoleSender(),
-                    SnuviUtils.connect(sc, in, 0));
         });
         KajetansPlugin.scriptManager.registerFunction("isplayer", (sc, in) -> {
             Object o = in[0].get(sc);

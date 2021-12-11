@@ -21,7 +21,7 @@ public class DataCommands {
             PlayerData data = PlayerData.get(p);
             return data.getData(in[1].getString(sc));
         });
-        KajetansPlugin.scriptManager.registerFunction("data.get", (sc, in) -> {
+        KajetansPlugin.scriptManager.registerFunction("data.gettimer", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             PlayerData data = PlayerData.get(p);
             return (double) data.getTimer(in[1].getString(sc));
