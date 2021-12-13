@@ -451,7 +451,7 @@ public class NMS {
         return DamageSource.d(map(liv));
     }
 
-    public static DamageSource netherBed() {
+    public static DamageSource explosionBed() {
         return DamageSource.a();
     }
 

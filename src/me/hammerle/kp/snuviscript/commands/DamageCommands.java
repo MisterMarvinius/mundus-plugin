@@ -68,7 +68,7 @@ public class DamageCommands {
                 (sc, in) -> NMS.thorns((Entity) in[0].get(sc)));
         KajetansPlugin.scriptManager.registerFunction("damage.explosion",
                 (sc, in) -> NMS.explosion((LivingEntity) in[0].get(sc)));
-        KajetansPlugin.scriptManager.registerFunction("damage.netherbed",
-                (sc, in) -> NMS.netherBed());
+        KajetansPlugin.scriptManager.registerFunction("damage.explosionbed",
+                (sc, in) -> NMS.explosionBed());
     }
 }

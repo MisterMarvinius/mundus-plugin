@@ -34,6 +34,8 @@ public class ItemCommands {
             p.setCooldown((Material) in[0].get(sc), in[2].getInt(sc));
         });
 
+        KajetansPlugin.scriptManager.registerFunction("item.custom.getall",
+                (sc, in) -> CustomItem.values());
         KajetansPlugin.scriptManager.registerFunction("item.custom.get",
                 (sc, in) -> CustomItem.valueOf(in[0].getString(sc)));
         KajetansPlugin.scriptManager.registerFunction("item.custom.new", (sc, in) -> CustomItems

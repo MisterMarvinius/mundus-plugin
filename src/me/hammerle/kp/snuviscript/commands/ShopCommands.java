@@ -18,7 +18,7 @@ public class ShopCommands {
             ItemStack buy = (ItemStack) in[1].get(sc);
             ItemStack sell = (ItemStack) in[2].get(sc);
             int maxUses = (in.length >= 4) ? in[3].getInt(sc) : Integer.MAX_VALUE;
-            MerchantRecipe recipe = new MerchantRecipe(sell, maxUses);
+            MerchantRecipe recipe = new MerchantRecipe(sell, 0, maxUses, false, 0, 0.0f, true);
             recipe.addIngredient(buy);
             ArrayList<MerchantRecipe> recipes = new ArrayList<>(npc.getRecipes());
             recipes.add(recipe);
@@ -30,7 +30,7 @@ public class ShopCommands {
             ItemStack buyB = (ItemStack) in[2].get(sc);
             ItemStack sell = (ItemStack) in[3].get(sc);
             int maxUses = (in.length >= 5) ? in[4].getInt(sc) : Integer.MAX_VALUE;
-            MerchantRecipe recipe = new MerchantRecipe(sell, maxUses);
+            MerchantRecipe recipe = new MerchantRecipe(sell, 0, maxUses, false, 0, 0.0f, true);
             recipe.addIngredient(buyA);
             recipe.addIngredient(buyB);
             ArrayList<MerchantRecipe> recipes = new ArrayList<>(npc.getRecipes());

@@ -21,7 +21,7 @@ public class SnuviInventoryHolder implements InventoryHolder {
     public static Inventory create(String info, Component title) {
         int allSlots = info.length();
         allSlots = Math.min(9 * 6, allSlots);
-        int slots = allSlots + 9 - (allSlots % 9);
+        int slots = allSlots == 0 ? 9 : allSlots + 8 - ((allSlots - 1) % 9);
         SnuviSlotType[] types = new SnuviSlotType[slots];
         SnuviSlotType[] values = SnuviSlotType.values();
         for(int i = 0; i < allSlots; i++) {

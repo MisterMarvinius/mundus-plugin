@@ -53,8 +53,8 @@ public class PlayerCommands {
             Player p = (Player) in[0].get(sc);
             HashMap<Integer, ItemStack> left = p.getInventory().removeItemAnySlot(stack);
             int count = 0;
-            for(int c : left.keySet()) {
-                count += c;
+            for(ItemStack lStack : left.values()) {
+                count += lStack.getAmount();
             }
             stack.setAmount(count);
             return stack;
@@ -64,8 +64,8 @@ public class PlayerCommands {
             Player p = (Player) in[0].get(sc);
             HashMap<Integer, ItemStack> left = p.getInventory().addItem(stack);
             int count = 0;
-            for(int c : left.keySet()) {
-                count += c;
+            for(ItemStack lStack : left.values()) {
+                count += lStack.getAmount();
             }
             stack.setAmount(count);
             return stack;
