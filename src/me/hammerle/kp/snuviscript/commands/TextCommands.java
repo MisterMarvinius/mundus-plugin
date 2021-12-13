@@ -6,6 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.kp.NMS;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -42,18 +43,12 @@ public class TextCommands {
             Component c = (Component) in[0].get(sc);
             return c.clickEvent(ClickEvent.copyToClipboard(in[1].getString(sc)));
         });
-        KajetansPlugin.scriptManager.registerFunction("text.copytext", (sc, in) -> {
-            String s = in[1].getString(sc).replace(" ", "%20");
-            Component c = (Component) in[0].get(sc);
-            return c.clickEvent(
-                    ClickEvent.openUrl("http://minecraft.hammerle.me/showtext.php/?text=" + s));
-        });
         KajetansPlugin.scriptManager.registerFunction("text.merge", (sc, in) -> {
-            Component c = (Component) in[0].get(sc);
-            for(int i = 1; i < in.length; i++) {
-                c = c.append((Component) in[i].get(sc));
+            TextComponent.Builder c = Component.text();
+            for(int i = 0; i < in.length; i++) {
+                c.append((Component) in[i].get(sc));
             }
-            return c;
+            return c.build();
         });
     }
 }
