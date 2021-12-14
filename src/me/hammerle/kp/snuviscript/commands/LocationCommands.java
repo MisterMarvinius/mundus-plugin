@@ -23,11 +23,11 @@ public class LocationCommands {
         KajetansPlugin.scriptManager.registerFunction("loc.getz",
                 (sc, in) -> ((Location) in[0].get(sc)).getZ());
         KajetansPlugin.scriptManager.registerFunction("loc.getblockx",
-                (sc, in) -> ((Location) in[0].get(sc)).getBlockX());
+                (sc, in) -> (double) ((Location) in[0].get(sc)).getBlockX());
         KajetansPlugin.scriptManager.registerFunction("loc.getblocky",
-                (sc, in) -> ((Location) in[0].get(sc)).getBlockY());
+                (sc, in) -> (double) ((Location) in[0].get(sc)).getBlockY());
         KajetansPlugin.scriptManager.registerFunction("loc.getblockz",
-                (sc, in) -> ((Location) in[0].get(sc)).getBlockZ());
+                (sc, in) -> (double) ((Location) in[0].get(sc)).getBlockZ());
         KajetansPlugin.scriptManager.registerConsumer("loc.set",
                 (sc, in) -> ((Location) in[0].get(sc)).set(in[1].getDouble(sc), in[2].getDouble(sc),
                         in[3].getDouble(sc)));

@@ -1,16 +1,21 @@
 package me.hammerle.kp.snuviscript.commands;
 
+import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.Openable;
+import org.bukkit.block.data.type.Door;
 import org.bukkit.entity.LivingEntity;
 import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.kp.NMS;
@@ -91,5 +96,51 @@ public class BlockCommands {
             Openable o = (Openable) b.getBlockData();
             return o.isOpen();
         });
+        KajetansPlugin.scriptManager.registerFunction("block.isopenable",
+                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Openable);
+        KajetansPlugin.scriptManager.registerConsumer("block.setdoorhinge", (sc, in) -> {
+            Block b = (Block) in[0].get(sc);
+            Door o = (Door) b.getBlockData();
+            o.setHinge(Door.Hinge.valueOf(in[1].getString(sc)));
+            b.setBlockData(o);
+        });
+        KajetansPlugin.scriptManager.registerFunction("block.getdoorhinge", (sc, in) -> {
+            Block b = (Block) in[0].get(sc);
+            Door o = (Door) b.getBlockData();
+            return o.getHinge().toString();
+        });
+        KajetansPlugin.scriptManager.registerFunction("block.isdoor",
+                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Door);
+        KajetansPlugin.scriptManager.registerConsumer("block.setbisectedhalf", (sc, in) -> {
+            Block b = (Block) in[0].get(sc);
+            Bisected o = (Bisected) b.getBlockData();
+            o.setHalf(Bisected.Half.valueOf(in[1].getString(sc)));
+            b.setBlockData(o);
+        });
+        KajetansPlugin.scriptManager.registerFunction("block.getbisectedhalf", (sc, in) -> {
+            Block b = (Block) in[0].get(sc);
+            Bisected o = (Bisected) b.getBlockData();
+            return o.getHalf().toString();
+        });
+        KajetansPlugin.scriptManager.registerFunction("block.isbisected",
+                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Bisected);
+        KajetansPlugin.scriptManager.registerConsumer("block.setdirectionalface", (sc, in) -> {
+            Block b = (Block) in[0].get(sc);
+            Directional o = (Directional) b.getBlockData();
+            o.setFacing(BlockFace.valueOf(in[1].getString(sc)));
+            b.setBlockData(o);
+        });
+        KajetansPlugin.scriptManager.registerFunction("block.getdirectionalface", (sc, in) -> {
+            Block b = (Block) in[0].get(sc);
+            Directional o = (Directional) b.getBlockData();
+            return o.getFacing().toString();
+        });
+        KajetansPlugin.scriptManager.registerFunction("block.getdirectionalfaces", (sc, in) -> {
+            Block b = (Block) in[0].get(sc);
+            Directional o = (Directional) b.getBlockData();
+            return o.getFaces().stream().map(f -> f.toString()).collect(Collectors.toList());
+        });
+        KajetansPlugin.scriptManager.registerFunction("block.isdirectional",
+                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Directional);
     }
 }
