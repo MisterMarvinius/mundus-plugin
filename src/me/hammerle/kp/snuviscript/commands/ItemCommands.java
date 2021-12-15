@@ -56,10 +56,8 @@ public class ItemCommands {
         KajetansPlugin.scriptManager.registerFunction("item.hastag",
                 (sc, in) -> ((Tag<Material>) in[1].get(sc))
                         .isTagged(((ItemStack) in[0].get(sc)).getType()));
-        KajetansPlugin.scriptManager.registerFunction("item.get",
-                (sc, in) -> ((ItemStack) in[0].get(sc)).getType());
         KajetansPlugin.scriptManager.registerFunction("item.gettype",
-                (sc, in) -> ((ItemStack) in[0].get(sc)).getType().toString());
+                (sc, in) -> ((ItemStack) in[0].get(sc)).getType());
         KajetansPlugin.scriptManager.registerFunction("item.getmaxamount",
                 (sc, in) -> (double) ((ItemStack) in[0].get(sc)).getMaxStackSize());
         KajetansPlugin.scriptManager.registerFunction("item.getamount",

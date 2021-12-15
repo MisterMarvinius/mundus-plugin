@@ -35,18 +35,18 @@ public class PlayerCommands {
             ItemStack[] stacks = p.getInventory().getContents();
             if(useData) {
                 for(int i = 0; i < stacks.length; i++) {
-                    if(stacks[i].isSimilar(stack)) {
+                    if(stacks[i] != null && stacks[i].isSimilar(stack)) {
                         counter += stacks[i].getAmount();
                     }
                 }
             } else {
                 for(int i = 0; i < stacks.length; i++) {
-                    if(stacks[i].getType() == stack.getType()) {
+                    if(stacks[i] != null && stacks[i].getType() == stack.getType()) {
                         counter += stacks[i].getAmount();
                     }
                 }
             }
-            return counter;
+            return (double) counter;
         });
         KajetansPlugin.scriptManager.registerFunction("player.removeitem", (sc, in) -> {
             ItemStack stack = ((ItemStack) in[1].get(sc)).clone();
