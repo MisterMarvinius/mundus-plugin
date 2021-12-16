@@ -25,7 +25,6 @@ public class CustomItems {
         GOLD_COIN(2, "Gold Coin", 64),
         SILVER_COIN(4, "Silver Coin", 64),
         COPPER_COIN(6, "Copper Coin", 64),
-        APRICOT(8, "Apricot", 64),
         ARROW_DOWN(10, "Down Arrow", 64),
         ARROW_LEFT(12, "Left Arrow", 64),
         ARROW_RIGHT(14, "Right Arrow", 64),
@@ -60,14 +59,11 @@ public class CustomItems {
         GOLDEN_KEY(72, "Golden Key", 64),
         CROSS_GREEN(74, "Green Cross", 64),
         CROSS_RED(76, "Red Cross", 64),
-        FRIED_EGG(78, "Fried Egg", 64),
         GEAR(80, "Gear", 64),
         MINUS_GREEN(82, "Green Minus", 64),
         MINUS_RED(84, "Red Minus", 64),
         MUSHROOM_STICK_COOKED(86, "Raw Mushroom Stick", 64),
         MUSHROOM_STICK_RAW(88, "Cooked Mushroom Stick", 64),
-        PEAR(90, "Pear", 64),
-        PLUM(92, "Plum", 64),
         WOLF_FUR(94, "Wolf Fur", 64),
         SCROLL(96, "Scroll", 64);
 
