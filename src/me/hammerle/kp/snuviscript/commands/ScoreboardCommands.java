@@ -49,7 +49,7 @@ public class ScoreboardCommands {
                 data.removeRaw(message);
             });
         });
-        KajetansPlugin.scriptManager.registerConsumer("sb.reset", (sc, in) -> {
+        KajetansPlugin.scriptManager.registerConsumer("sb.clear", (sc, in) -> {
             CommandUtils.doForGroup(in[0].get(sc), sc, cs -> {
                 Player p = (Player) cs;
                 PlayerData data = PlayerData.get(p);

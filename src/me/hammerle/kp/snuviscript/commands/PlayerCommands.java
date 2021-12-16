@@ -202,7 +202,7 @@ public class PlayerCommands {
             }
             inv.clear();
         });
-        KajetansPlugin.scriptManager.registerFunction("player.gettarget", (sc, in) -> {
+        KajetansPlugin.scriptManager.registerFunction("player.gettargetblock", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
 
             double radius = in[1].getDouble(sc);
@@ -219,7 +219,7 @@ public class PlayerCommands {
             if(result == null) {
                 return null;
             }
-            return result.getHitBlock().getLocation();
+            return result.getHitBlock();
         });
         KajetansPlugin.scriptManager.registerFunction("player.gettargetentity", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
