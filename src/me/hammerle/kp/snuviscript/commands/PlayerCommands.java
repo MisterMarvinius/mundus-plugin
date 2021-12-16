@@ -11,75 +11,57 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.util.RayTraceResult;
 import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.kp.NMS;
-import me.hammerle.snuviscript.code.SnuviUtils;
 import net.kyori.adventure.text.Component;
 
 public class PlayerCommands {
+    private static int countItemStack(Player p, ItemStack stack) {
+        if(stack.getAmount() == 0) {
+            return 0;
+        }
+        int counter = 0;
+        ItemStack[] stacks = p.getInventory().getContents();
+        for(int i = 0; i < stacks.length; i++) {
+            if(stacks[i] != null && stacks[i].isSimilar(stack)) {
+                counter += stacks[i].getAmount();
+            }
+        }
+        return counter;
+    }
+
     public static void registerFunctions() {
-        KajetansPlugin.scriptManager.registerFunction("player.getitemamount", (sc, in) -> {
-            Player p = (Player) in[0].get(sc);
-            boolean useData = in[1].getBoolean(sc);
-            ItemStack stack = (ItemStack) in[2].get(sc);
-            if(stack.getAmount() == 0) {
-                return 0;
-            }
-            int counter = 0;
-            ItemStack[] stacks = p.getInventory().getContents();
-            if(useData) {
-                for(int i = 0; i < stacks.length; i++) {
-                    if(stacks[i] != null && stacks[i].isSimilar(stack)) {
-                        counter += stacks[i].getAmount();
-                    }
-                }
-            } else {
-                for(int i = 0; i < stacks.length; i++) {
-                    if(stacks[i] != null && stacks[i].getType() == stack.getType()) {
-                        counter += stacks[i].getAmount();
-                    }
-                }
-            }
-            return (double) counter;
-        });
+        KajetansPlugin.scriptManager.registerFunction("player.getitemamount", (sc,
+                in) -> (double) countItemStack((Player) in[0].get(sc), (ItemStack) in[1].get(sc)));
         KajetansPlugin.scriptManager.registerFunction("player.removeitem", (sc, in) -> {
-            ItemStack stack = ((ItemStack) in[1].get(sc)).clone();
             Player p = (Player) in[0].get(sc);
-            HashMap<Integer, ItemStack> left = p.getInventory().removeItemAnySlot(stack);
-            int count = 0;
-            for(ItemStack lStack : left.values()) {
-                count += lStack.getAmount();
+            ItemStack stack = (ItemStack) in[1].get(sc);
+            int count = countItemStack(p, stack);
+            if(count >= stack.getAmount()) {
+                p.getInventory().removeItemAnySlot(stack);
+                return 0.0;
             }
-            stack.setAmount(count);
-            return stack;
+            return (double) (stack.getAmount() - count);
         });
         KajetansPlugin.scriptManager.registerFunction("player.giveitem", (sc, in) -> {
-            ItemStack stack = ((ItemStack) in[1].get(sc)).clone();
+            ItemStack stack = (ItemStack) in[1].get(sc);
             Player p = (Player) in[0].get(sc);
             HashMap<Integer, ItemStack> left = p.getInventory().addItem(stack);
             int count = 0;
             for(ItemStack lStack : left.values()) {
                 count += lStack.getAmount();
             }
-            stack.setAmount(count);
-            return stack;
+            return (double) count;
         });
-        KajetansPlugin.scriptManager.registerConsumer("player.respawn", (sc, in) -> {
-            Player p = ((Player) in[0].get(sc));
-            p.spigot().respawn();
+        KajetansPlugin.scriptManager.registerFunction("player.additem", (sc, in) -> {
+            // TODO
+            return 0.0f;
         });
-        KajetansPlugin.scriptManager.registerConsumer("player.clearinventory",
-                (sc, in) -> ((Player) in[0].get(sc)).getInventory().clear());
-        KajetansPlugin.scriptManager.registerConsumer("player.say", (sc, in) -> {
-            Player p = ((Player) in[0].get(sc));
-            p.chat(SnuviUtils.connect(sc, in, 1));
-        });
+        KajetansPlugin.scriptManager.registerConsumer("player.respawn",
+                (sc, in) -> ((Player) in[0].get(sc)).spigot().respawn());
         KajetansPlugin.scriptManager.registerConsumer("player.setcompass", (sc, in) -> {
             Player p = ((Player) in[0].get(sc));
             p.setCompassTarget((Location) in[1].get(sc));
@@ -157,89 +139,45 @@ public class PlayerCommands {
         KajetansPlugin.scriptManager.registerFunction("player.isflying",
                 (sc, in) -> ((Player) in[0].get(sc)).isFlying());
         KajetansPlugin.scriptManager.registerConsumer("player.setgamemode", (sc, in) -> {
-            Player p = (Player) in[0].get(sc);
-            switch(in[1].get(sc).toString()) {
-                case "survival":
-                case "s":
-                case "0":
-                    p.setGameMode(GameMode.SURVIVAL);
-                    return;
-                case "creative":
-                case "c":
-                case "1":
-                    p.setGameMode(GameMode.CREATIVE);
-                    return;
-                case "adventure":
-                case "a":
-                case "2":
-                    p.setGameMode(GameMode.ADVENTURE);
-                    return;
-                case "spectator":
-                case "w":
-                case "3":
-                    p.setGameMode(GameMode.SPECTATOR);
-                    return;
-            }
-            p.setGameMode(GameMode.CREATIVE);
-        });
-        KajetansPlugin.scriptManager.registerFunction("player.getlastdamager", (sc, in) -> {
-            Player p = (Player) in[0].get(sc);
-            EntityDamageEvent e = p.getLastDamageCause();
-            if(!(e instanceof EntityDamageByEntityEvent)) {
-                return null;
-            }
-            EntityDamageByEntityEvent damage = (EntityDamageByEntityEvent) e;
-            return damage.getDamager();
+            ((Player) in[0].get(sc)).setGameMode(GameMode.valueOf(in[1].get(sc).toString()));
         });
         KajetansPlugin.scriptManager.registerConsumer("player.dropinventory", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
+            Location l = (Location) in[1].get(sc);
             PlayerInventory inv = p.getInventory();
             for(int i = 0; i < inv.getSize(); i++) {
                 ItemStack stack = inv.getItem(i);
                 if(stack != null) {
-                    p.getWorld().dropItemNaturally(p.getLocation(), stack);
+                    p.getWorld().dropItemNaturally(l, stack);
                 }
             }
             inv.clear();
         });
         KajetansPlugin.scriptManager.registerFunction("player.gettargetblock", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
-
-            double radius = in[1].getDouble(sc);
-            if(radius > 128.0) {
-                radius = 128.0;
-            }
-
             FluidCollisionMode mode = FluidCollisionMode.NEVER;
             if(in.length >= 3 && in[2].getBoolean(sc)) {
                 mode = FluidCollisionMode.ALWAYS;
             }
-
-            RayTraceResult result = p.rayTraceBlocks(radius, mode);
-            if(result == null) {
-                return null;
-            }
-            return result.getHitBlock();
+            return p.getTargetBlockExact(in[1].getInt(sc), mode);
         });
         KajetansPlugin.scriptManager.registerFunction("player.gettargetentity", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             return p.getTargetEntity(in[1].getInt(sc));
         });
         KajetansPlugin.scriptManager.registerConsumer("player.action", (sc, in) -> {
-            Component text = (Component) in[0].get(sc);
+            Component text = (Component) in[1].get(sc);
             CommandUtils.doForGroup(in[0].get(sc), sc, p -> ((Player) p).sendActionBar(text));
         });
         KajetansPlugin.scriptManager.registerFunction("player.getspawn", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             return p.getBedSpawnLocation();
         });
-        KajetansPlugin.scriptManager.registerAlias("player.getspawn", "player.getbedspawn");
         KajetansPlugin.scriptManager.registerConsumer("player.setspawn", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             Location l = (Location) in[1].get(sc);
             p.setBedSpawnLocation(l, true);
         });
-        KajetansPlugin.scriptManager.registerAlias("player.setspawn", "player.setbedspawn");
         KajetansPlugin.scriptManager.registerConsumer("player.damageitem", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             ItemStack stack = p.getEquipment().getItemInMainHand();
@@ -250,11 +188,6 @@ public class PlayerCommands {
             Player p = (Player) in[0].get(sc);
             NMS.map(p).fq().a(NMS.toDamageSource(in[2].get(sc)), in[1].getFloat(sc),
                     new int[] {0, 1, 2, 3});
-        });
-        KajetansPlugin.scriptManager.registerConsumer("player.openenderchest", (sc, in) -> {
-            Player p1 = (Player) in[0].get(sc);
-            Player p2 = (Player) in[1].get(sc);
-            p1.openInventory(p2.getEnderChest());
         });
         KajetansPlugin.scriptManager.registerConsumer("player.addtotalexp", (sc, in) -> {
             ((Player) in[0].get(sc)).giveExp(in[1].getInt(sc));

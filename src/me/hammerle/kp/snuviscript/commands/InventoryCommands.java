@@ -55,5 +55,7 @@ public class InventoryCommands {
         KajetansPlugin.scriptManager.registerConsumer("inv.close", (sc, in) -> {
             ((Player) in[0].get(sc)).closeInventory(InventoryCloseEvent.Reason.PLUGIN);
         });
+        KajetansPlugin.scriptManager.registerConsumer("inv.clear",
+                (sc, in) -> ((Inventory) in[0].get(sc)).clear());
     }
 }
