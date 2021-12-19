@@ -85,7 +85,7 @@ public class ItemCommands {
                     in[2].getInt(sc), in[3].getInt(sc)), false);
             stack.setItemMeta(meta);
         });
-        KajetansPlugin.scriptManager.registerConsumer("item.hide", (sc, in) -> {
+        KajetansPlugin.scriptManager.registerConsumer("item.addflag", (sc, in) -> {
             ItemStack stack = (ItemStack) in[0].get(sc);
             stack.addItemFlags(ItemFlag.valueOf(in[1].getString(sc)));
         });

@@ -4,6 +4,9 @@ import java.util.HashMap;
 
 public class Table {
     private final static HashMap<Character, Integer> SIZE = new HashMap<>();
+    public static String empty4 = " ";
+    public static String empty2 = "˼";
+    public static String empty1 = "ˈ";
 
     public static void addSizeMapping(char c, int size) {
         SIZE.put(c, size);
@@ -81,15 +84,15 @@ public class Table {
         }
         sb.append("§0");
         while(sum + 4 <= max) {
-            sb.append(' ');
+            sb.append(empty4);
             sum += 4;
         }
         while(sum + 2 <= max) {
-            sb.append('˼');
+            sb.append(empty2);
             sum += 2;
         }
         while(sum + 1 <= max) {
-            sb.append('ˈ');
+            sb.append(empty1);
             sum++;
         }
         return sb.toString();

@@ -109,6 +109,13 @@ public class NMS {
         public void setName(String name);
     }
 
+    private static String cutName(String name) {
+        if(name.length() > 16) {
+            return name.substring(0, 16);
+        }
+        return name;
+    }
+
     private static class RawHuman extends CraftCreature implements Human {
         private static class WrapperHuman extends EntityCreature {
             private EntityPlayer player;
@@ -121,7 +128,7 @@ public class NMS {
 
             private void setPlayer(String name, net.minecraft.world.level.World world) {
                 player = new EntityPlayer(getCraftServer().getServer(), (WorldServer) world,
-                        new GameProfile(cm(), name));
+                        new GameProfile(cm(), cutName(name)));
                 player.e(getBukkitEntity().getEntityId());
             }
 
@@ -175,7 +182,7 @@ public class NMS {
             public void a(NBTTagCompound nbt) {
                 super.a(nbt);
                 if(nbt.b("HumanName", 8)) {
-                    String name = nbt.l("HumanName");
+                    String name = cutName(nbt.l("HumanName"));
                     setPlayer(name, player.t);
                 }
                 if(nbt.b("HumanTexture", 8) && nbt.b("HumanSignature", 8)) {
@@ -245,27 +252,30 @@ public class NMS {
             setPersistent(true);
         }
 
-        private RawHuman(WrapperHuman human, Location l, PlayerProfile profile) {
+        private RawHuman(WrapperHuman human, Location l, String name) {
             this(human);
             human.a(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
+            human.setPlayer(name, human.t);
             human.W().b(human);
         }
 
-        public RawHuman(Location l, PlayerProfile profile) {
-            this(HUMAN_TYPE.a(map(l.getWorld())), l, profile);
+        public RawHuman(Location l, String name) {
+            this(HUMAN_TYPE.a(map(l.getWorld())), l, name);
         }
 
+        @Override
         public void setSkin(String texture, String signature) {
             human.setSkin(texture, signature);
         }
 
+        @Override
         public void setName(String name) {
             human.setName(name);
         }
     }
 
     public static Human createHuman(String name, Location l) {
-        return new RawHuman(l, Bukkit.createProfile(UUID.randomUUID(), name));
+        return new RawHuman(l, name);
     }
 
     private static class PluginConnection extends PlayerConnection {

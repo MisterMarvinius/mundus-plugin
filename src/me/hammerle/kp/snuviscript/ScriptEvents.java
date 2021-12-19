@@ -16,10 +16,13 @@ import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
+import org.bukkit.event.vehicle.VehicleEnterEvent;
+import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.spigotmc.event.entity.EntityDismountEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
@@ -445,6 +448,13 @@ public class ScriptEvents {
         });
     }
 
+    public static void onEntityDismount(EntityDismountEvent e) {
+        handleEvent(e, "entity_dismount", (sc) -> {
+            setEntity(sc, e.getEntity());
+            sc.setVar("mount", e.getDismounted());
+        });
+    }
+
     public static void onPlayerChangedWorld(PlayerChangedWorldEvent e) {
         handleEvent("player_change_world", (sc) -> {
             setPlayer(sc, e.getPlayer());
@@ -616,6 +626,20 @@ public class ScriptEvents {
             sc.setVar("from", e.getFrom());
             sc.setVar("to", e.getTo());
             sc.setVar("cause", cause);
+        });
+    }
+
+    public static void onVehicleEnter(VehicleEnterEvent e) {
+        handleEvent(e, "vehicle_enter", (sc) -> {
+            setEntity(sc, e.getEntered());
+            sc.setVar("vehicle", e.getVehicle());
+        });
+    }
+
+    public static void onVehicleExit(VehicleExitEvent e) {
+        handleEvent(e, "vehicle_exit", (sc) -> {
+            setLiving(sc, e.getExited());
+            sc.setVar("vehicle", e.getVehicle());
         });
     }
 }

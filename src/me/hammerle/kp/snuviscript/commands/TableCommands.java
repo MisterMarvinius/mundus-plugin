@@ -31,5 +31,14 @@ public class TableCommands {
         KajetansPlugin.scriptManager.registerConsumer("table.setsize", (sc, in) -> {
             Table.addSizeMapping(in[0].getString(sc).charAt(0), in[1].getInt(sc));
         });
+        KajetansPlugin.scriptManager.registerConsumer("table.setempty4", (sc, in) -> {
+            Table.empty4 = in[0].getString(sc);
+        });
+        KajetansPlugin.scriptManager.registerConsumer("table.setempty2", (sc, in) -> {
+            Table.empty2 = in[0].getString(sc);
+        });
+        KajetansPlugin.scriptManager.registerConsumer("table.setempty1", (sc, in) -> {
+            Table.empty1 = in[0].getString(sc);
+        });
     }
 }

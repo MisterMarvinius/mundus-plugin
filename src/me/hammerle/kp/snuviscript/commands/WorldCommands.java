@@ -11,7 +11,8 @@ import me.hammerle.kp.KajetansPlugin;
 public class WorldCommands {
     @SuppressWarnings("")
     public static void registerFunctions() {
-        KajetansPlugin.scriptManager.registerAlias("players.toworldlist", "world.getplayers");
+        KajetansPlugin.scriptManager.registerFunction("world.getplayers",
+                (sc, in) -> new ArrayList<>(((World) in[0].get(sc)).getPlayers()));
         KajetansPlugin.scriptManager.registerFunction("world.get",
                 (sc, in) -> Bukkit.getServer().getWorld(in[0].getString(sc)));
         KajetansPlugin.scriptManager.registerFunction("world.getname",
@@ -31,7 +32,9 @@ public class WorldCommands {
                 (sc, in) -> ((World) in[0].get(sc)).setTime(in[1].getLong(sc)));
         KajetansPlugin.scriptManager.registerFunction("world.gettime",
                 (sc, in) -> (double) ((World) in[0].get(sc)).getTime());
-        KajetansPlugin.scriptManager.registerFunction("world.hasstorm",
+        KajetansPlugin.scriptManager.registerFunction("world.hasrain",
+                (sc, in) -> ((World) in[0].get(sc)).hasStorm());
+        KajetansPlugin.scriptManager.registerFunction("world.hasthunder",
                 (sc, in) -> ((World) in[0].get(sc)).isThundering());
         KajetansPlugin.scriptManager.registerConsumer("world.clearweather", (sc, in) -> {
             ((World) in[0].get(sc)).setClearWeatherDuration(in[1].getInt(sc));
@@ -46,17 +49,11 @@ public class WorldCommands {
             w.setThundering(true);
             w.setThunderDuration(in[1].getInt(sc));
         });
-        KajetansPlugin.scriptManager.registerFunction("world.getentities", (sc, in) -> {
-            return new ArrayList<>(((World) in[0].get(sc)).getEntities());
-        });
-        KajetansPlugin.scriptManager.registerFunction("world.load", (sc, in) -> {
-            return Bukkit.createWorld(WorldCreator.name(in[0].getString(sc)));
-        });
-        KajetansPlugin.scriptManager.registerConsumer("world.unload", (sc, in) -> {
-            Bukkit.unloadWorld((World) in[0].get(sc), true);
-        });
-        KajetansPlugin.scriptManager.registerFunction("world.getall", (sc, in) -> {
-            return new ArrayList<>(Bukkit.getWorlds());
-        });
+        KajetansPlugin.scriptManager.registerFunction("world.getentities",
+                (sc, in) -> new ArrayList<>(((World) in[0].get(sc)).getEntities()));
+        KajetansPlugin.scriptManager.registerFunction("world.load",
+                (sc, in) -> Bukkit.createWorld(WorldCreator.name(in[0].getString(sc))));
+        KajetansPlugin.scriptManager.registerFunction("world.unload",
+                (sc, in) -> Bukkit.unloadWorld((World) in[0].get(sc), true));
     }
 }

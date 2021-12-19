@@ -8,53 +8,22 @@ import net.kyori.adventure.text.Component;
 public class ScoreboardCommands {
     public static void registerFunctions() {
         KajetansPlugin.scriptManager.registerConsumer("sb.settitle", (sc, in) -> {
-            Component title = (Component) in[1].get(sc);
-            CommandUtils.doForGroup(in[0].get(sc), sc, cs -> {
-                Player p = (Player) cs;
-                PlayerData data = PlayerData.get(p);
-                data.setTitle(title);
-            });
+            PlayerData.get((Player) in[0].get(sc)).setTitle((Component) in[1].get(sc));
         });
         KajetansPlugin.scriptManager.registerConsumer("sb.add", (sc, in) -> {
-            int id = in[1].getInt(sc);
-            String message = in[2].getString(sc);
-            CommandUtils.doForGroup(in[0].get(sc), sc, cs -> {
-                Player p = (Player) cs;
-                PlayerData data = PlayerData.get(p);
-                data.setText(id, message);
-            });
+            PlayerData.get((Player) in[0].get(sc)).setText(in[1].getInt(sc), in[2].getString(sc));
         });
         KajetansPlugin.scriptManager.registerConsumer("sb.remove", (sc, in) -> {
-            int id = in[1].getInt(sc);
-            CommandUtils.doForGroup(in[0].get(sc), sc, cs -> {
-                Player p = (Player) cs;
-                PlayerData data = PlayerData.get(p);
-                data.removeText(id);
-            });
+            PlayerData.get((Player) in[0].get(sc)).removeText(in[1].getInt(sc));
         });
         KajetansPlugin.scriptManager.registerConsumer("sb.addraw", (sc, in) -> {
-            int id = in[1].getInt(sc);
-            String message = in[2].getString(sc);
-            CommandUtils.doForGroup(in[0].get(sc), sc, cs -> {
-                Player p = (Player) cs;
-                PlayerData data = PlayerData.get(p);
-                data.setRaw(id, message);
-            });
+            PlayerData.get((Player) in[0].get(sc)).setRaw(in[1].getInt(sc), in[2].getString(sc));
         });
         KajetansPlugin.scriptManager.registerConsumer("sb.removeraw", (sc, in) -> {
-            String message = in[1].getString(sc);
-            CommandUtils.doForGroup(in[0].get(sc), sc, cs -> {
-                Player p = (Player) cs;
-                PlayerData data = PlayerData.get(p);
-                data.removeRaw(message);
-            });
+            PlayerData.get((Player) in[0].get(sc)).removeRaw(in[1].getString(sc));
         });
         KajetansPlugin.scriptManager.registerConsumer("sb.clear", (sc, in) -> {
-            CommandUtils.doForGroup(in[0].get(sc), sc, cs -> {
-                Player p = (Player) cs;
-                PlayerData data = PlayerData.get(p);
-                data.clearTexts();
-            });
+            PlayerData.get((Player) in[0].get(sc)).clearTexts();
         });
     }
 }

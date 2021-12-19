@@ -9,7 +9,6 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -229,8 +228,6 @@ public class PlayerCommands {
                 (sc, in) -> (double) Bukkit.getOnlinePlayers().size());
         KajetansPlugin.scriptManager.registerFunction("players.tolist",
                 (sc, in) -> new ArrayList<>(Bukkit.getOnlinePlayers()));
-        KajetansPlugin.scriptManager.registerFunction("players.toworldlist",
-                (sc, in) -> new ArrayList<>(((World) in[0].get(sc)).getPlayers()));
         KajetansPlugin.scriptManager.registerFunction("players.near", (sc, in) -> {
             Location l = (Location) in[0].get(sc);
             return l.getWorld().getNearbyPlayers(l, in[1].getDouble(sc));

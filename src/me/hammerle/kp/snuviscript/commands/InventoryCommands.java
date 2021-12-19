@@ -1,8 +1,5 @@
 package me.hammerle.kp.snuviscript.commands;
 
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
@@ -23,15 +20,6 @@ public class InventoryCommands {
                 return (double) ((SnuviInventoryHolder) inv.getHolder()).getId();
             }
             return -1;
-        });
-        KajetansPlugin.scriptManager.registerFunction("inv.loadchest", (sc, in) -> {
-            Location l = (Location) in[0].get(sc);
-            Block b = l.getBlock();
-            if(b instanceof Chest) {
-                Chest chest = (Chest) b;
-                return chest.getBlockInventory();
-            }
-            return null;
         });
         KajetansPlugin.scriptManager.registerConsumer("inv.setitem", (sc, in) -> {
             Inventory inv = (Inventory) in[0].get(sc);

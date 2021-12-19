@@ -89,7 +89,7 @@ public class EntityCommands {
             ((Entity) in[0].get(sc)).setSilent(in[1].getBoolean(sc));
         });
         KajetansPlugin.scriptManager.registerConsumer("entity.mount", (sc, in) -> {
-            ((Entity) in[1].get(sc)).addPassenger(((Entity) in[1].get(sc)));
+            ((Entity) in[1].get(sc)).addPassenger(((Entity) in[0].get(sc)));
         });
         KajetansPlugin.scriptManager.registerConsumer("entity.unmount", (sc, in) -> {
             ((Entity) in[0].get(sc)).leaveVehicle();
@@ -148,7 +148,7 @@ public class EntityCommands {
             ((Ageable) in[0].get(sc)).setAge(in[1].getInt(sc));
         });
         KajetansPlugin.scriptManager.registerFunction("entity.gettype",
-                (sc, in) -> NMS.map(((Entity) in[0].get(sc))).ad());
+                (sc, in) -> NMS.map(((Entity) in[0].get(sc))).ad().id);
         KajetansPlugin.scriptManager.registerFunction("sheep.issheared",
                 (sc, in) -> ((Sheep) in[0].get(sc)).isSheared());
         KajetansPlugin.scriptManager.registerFunction("sheep.getcolor",
@@ -172,6 +172,18 @@ public class EntityCommands {
         KajetansPlugin.scriptManager.registerFunction("entity.getuuid", (sc, in) -> {
             Tameable t = (Tameable) in[0].get(sc);
             return t.getOwner();
+        });
+        KajetansPlugin.scriptManager.registerConsumer("entity.frame.hide", (sc, in) -> {
+            ItemFrame frame = (ItemFrame) in[0].get(sc);
+            frame.setVisible(false);
+        });
+        KajetansPlugin.scriptManager.registerConsumer("entity.frame.show", (sc, in) -> {
+            ItemFrame frame = (ItemFrame) in[0].get(sc);
+            frame.setVisible(true);
+        });
+        KajetansPlugin.scriptManager.registerConsumer("entity.frame.setfixed", (sc, in) -> {
+            ItemFrame frame = (ItemFrame) in[0].get(sc);
+            frame.setFixed(in[1].getBoolean(sc));
         });
     }
 }

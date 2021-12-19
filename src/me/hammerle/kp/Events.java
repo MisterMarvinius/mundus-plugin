@@ -8,8 +8,11 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.server.ServerCommandEvent;
+import org.bukkit.event.vehicle.VehicleEnterEvent;
+import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.WorldLoadEvent;
+import org.spigotmc.event.entity.EntityDismountEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
@@ -209,6 +212,11 @@ public class Events implements Listener {
     }
 
     @EventHandler
+    public void onEntityDismount(EntityDismountEvent e) {
+        ScriptEvents.onEntityDismount(e);
+    }
+
+    @EventHandler
     public void onPlayerChangedWorld(PlayerChangedWorldEvent e) {
         ScriptEvents.onPlayerChangedWorld(e);
     }
@@ -311,5 +319,15 @@ public class Events implements Listener {
     @EventHandler
     public void onPrepareItemEnchant(PrepareItemEnchantEvent e) {
         CustomItems.onPrepareItemEnchant(e);
+    }
+
+    @EventHandler
+    public void onVehicleEnter(VehicleEnterEvent e) {
+        ScriptEvents.onVehicleEnter(e);
+    }
+
+    @EventHandler
+    public void onVehicleExit(VehicleExitEvent e) {
+        ScriptEvents.onVehicleExit(e);
     }
 }

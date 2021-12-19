@@ -229,6 +229,9 @@ public class PlotMap {
     public boolean hasPlotAt(int x, int y, int z) {
         ArrayList<Plot> list = plots[hash(Math.floorDiv(x, SIZE_FACTOR),
                 Math.floorDiv(z, SIZE_FACTOR), plots.length)];
+        if(list == null) {
+            return false;
+        }
         for(Plot p : list) {
             if(p.isInside(x, y, z)) {
                 return true;
