@@ -6,6 +6,7 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -105,45 +106,11 @@ public class LivingCommands {
         });
         KajetansPlugin.scriptManager.registerConsumer("living.setequip", (sc, in) -> {
             LivingEntity liv = (LivingEntity) in[0].get(sc);
-            ItemStack stack = ((ItemStack) in[2].get(sc));
-            switch(in[1].getString(sc)) {
-                case "hand":
-                    liv.getEquipment().setItemInMainHand(stack);
-                    return;
-                case "head":
-                    liv.getEquipment().setHelmet(stack);
-                    return;
-                case "chest":
-                    liv.getEquipment().setChestplate(stack);
-                    return;
-                case "legs":
-                    liv.getEquipment().setLeggings(stack);
-                    return;
-                case "feet":
-                    liv.getEquipment().setBoots(stack);
-                    return;
-                case "offhand":
-                    liv.getEquipment().setItemInOffHand(stack);
-                    return;
-            }
+            liv.getEquipment().setItem((EquipmentSlot) in[1].get(sc), (ItemStack) in[2].get(sc));
         });
         KajetansPlugin.scriptManager.registerFunction("living.getequip", (sc, in) -> {
             LivingEntity liv = (LivingEntity) in[0].get(sc);
-            switch(in[1].getString(sc)) {
-                case "hand":
-                    return liv.getEquipment().getItemInMainHand();
-                case "head":
-                    return liv.getEquipment().getHelmet();
-                case "chest":
-                    return liv.getEquipment().getChestplate();
-                case "legs":
-                    return liv.getEquipment().getLeggings();
-                case "feet":
-                    return liv.getEquipment().getBoots();
-                case "offhand":
-                    return liv.getEquipment().getItemInOffHand();
-            }
-            return null;
+            return liv.getEquipment().getItem((EquipmentSlot) in[1].get(sc));
         });
         KajetansPlugin.scriptManager.registerConsumer("living.setinvisible", (sc, in) -> {
             ((LivingEntity) in[0].get(sc)).setInvisible(in[1].getBoolean(sc));

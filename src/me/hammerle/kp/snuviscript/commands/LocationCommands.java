@@ -92,6 +92,13 @@ public class LocationCommands {
             }
         });
         KajetansPlugin.scriptManager.registerFunction("loc.iterator", (sc, in) -> {
+            Object o = in[0].get(sc);
+            if(o instanceof Location) {
+                Location l1 = (Location) o;
+                Location l2 = (Location) in[1].get(sc);
+                return new LocationIterator(l1.getWorld(), l1.getBlockX(), l1.getBlockY(),
+                        l1.getBlockZ(), l2.getBlockX(), l2.getBlockY(), l2.getBlockZ());
+            }
             return new LocationIterator((World) in[0].get(sc), in[1].getInt(sc), in[2].getInt(sc),
                     in[3].getInt(sc), in[4].getInt(sc), in[5].getInt(sc), in[6].getInt(sc));
         });

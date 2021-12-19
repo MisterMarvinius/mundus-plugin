@@ -28,8 +28,14 @@ public class ReadCommands {
                 (sc, in) -> UUID.fromString(in[0].getString(sc)));
         KajetansPlugin.scriptManager.registerFunction("read.slot",
                 (sc, in) -> EquipmentSlot.valueOf(in[0].getString(sc)));
-        KajetansPlugin.scriptManager.registerFunction("read.blockdata",
-                (sc, in) -> Bukkit.createBlockData(in[0].getString(sc)));
+        KajetansPlugin.scriptManager.registerFunction("read.blockdata", (sc, in) -> {
+            String s = in[0].getString(sc);
+            try {
+                return Bukkit.createBlockData(s);
+            } catch(Exception ex) {
+                return null;
+            }
+        });
         KajetansPlugin.scriptManager.registerFunction("read.blockentity",
                 (sc, in) -> NMS.getBlockEntity(in[0].getString(sc)));
     }

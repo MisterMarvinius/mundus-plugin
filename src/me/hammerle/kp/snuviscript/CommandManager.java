@@ -30,7 +30,7 @@ public class CommandManager {
             UUID.fromString("51e240f9-ab10-4ea6-8a5d-779319f51257");
     private final static HashMap<String, KajetanCommand> COMMANDS = new HashMap<>();
     private final static HashSet<String> SNUVI_COMMANDS = new HashSet<>();
-    private final static ArrayList<CommandNode<?>> CUSTOM_NODES = new ArrayList<>();
+    private final static HashMap<String, CommandNode<?>> CUSTOM_NODES = new HashMap<>();
     private final static HashSet<String> IGNORED_COMMANDS = new HashSet<>();
 
     public static void clearCustomNodes() {
@@ -46,7 +46,7 @@ public class CommandManager {
     }
 
     public static void addCustomNode(CommandNode<?> node) {
-        CUSTOM_NODES.add(node);
+        CUSTOM_NODES.put(node.getName(), node);
     }
 
     public static void add(KajetanCommand command) {
@@ -153,7 +153,7 @@ public class CommandManager {
         map.put(vanilla, rootNode);
         CommandListenerWrapper cs = p.cQ();
         commandSourceNodesToSuggestionNodes(true, vanilla, rootNode, cs, map);
-        for(CommandNode node : CUSTOM_NODES) {
+        for(CommandNode node : CUSTOM_NODES.values()) {
             commandSourceNodesToSuggestionNodes(node, rootNode, cs, map);
         }
         p.b.a(new PacketPlayOutCommands(rootNode));

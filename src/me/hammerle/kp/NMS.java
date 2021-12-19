@@ -39,15 +39,20 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EnumCreatureType;
 import net.minecraft.world.entity.item.EntityItem;
 import net.minecraft.world.entity.monster.EntityMonster;
+import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.entity.projectile.EntityFireballFireball;
 import net.minecraft.world.entity.projectile.EntityFireworks;
 import net.minecraft.world.entity.projectile.EntityWitherSkull;
 import net.minecraft.world.level.block.entity.TileEntity;
 import net.minecraft.world.level.block.state.IBlockData;
+import net.minecraft.world.phys.Vec3D;
 import net.minecraft.world.entity.ai.attributes.AttributeDefaults;
 import net.minecraft.world.entity.ai.attributes.AttributeProvider;
 import net.minecraft.world.entity.ai.attributes.GenericAttributes;
+import net.minecraft.world.entity.ai.goal.PathfinderGoalFloat;
+import net.minecraft.world.entity.ai.goal.PathfinderGoalLookAtPlayer;
+import net.minecraft.world.entity.ai.goal.PathfinderGoalRandomLookaround;
 
 public class NMS {
     private final static HashMap<String, DamageSource> DAMAGE_SOURCES = new HashMap<>();
@@ -118,6 +123,12 @@ public class NMS {
                 player = new EntityPlayer(getCraftServer().getServer(), (WorldServer) world,
                         new GameProfile(cm(), name));
                 player.e(getBukkitEntity().getEntityId());
+            }
+
+            @Override
+            public void k() {
+                super.k();
+                o(ce()); // setYRot(getYHeadRot());
             }
 
             @Override
@@ -210,6 +221,20 @@ public class NMS {
                 setPlayer(name, player.t);
                 sync();
             }
+
+            @Override
+            protected void u() { // registerGoals()
+                // goalSelector.addGoal
+                this.bR.a(0, new PathfinderGoalFloat(this));
+                this.bR.a(1, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 6.0f));
+                this.bR.a(2, new PathfinderGoalRandomLookaround(this));
+            }
+
+            @Override
+            public void g(Vec3D velocity) {} // setDeltaMovement
+
+            @Override
+            public void n(double x, double y, double z) {} // setDeltaMovement
         }
 
         public final WrapperHuman human;

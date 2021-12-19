@@ -18,11 +18,12 @@ public class LocationIterator implements Iterator<Location> {
 
     public LocationIterator(World world, int minX, int minY, int minZ, int maxX, int maxY,
             int maxZ) {
-        this.minX = minX;
-        this.minY = minY;
-        this.maxX = maxX;
-        this.maxY = maxY;
-        this.maxZ = maxZ;
+        this.minX = Math.min(minX, maxX);
+        this.minY = Math.min(minY, maxY);
+        this.maxX = Math.max(minX, maxX);
+        this.maxY = Math.max(minY, maxY);
+        this.maxZ = Math.max(minZ, maxZ);
+        minZ = Math.min(minZ, maxZ);
 
         current = new Location(world, minX, minY, minZ, 0, 0);
         x = minX;
