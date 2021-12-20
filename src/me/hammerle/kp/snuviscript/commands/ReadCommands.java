@@ -24,8 +24,13 @@ public class ReadCommands {
         KajetansPlugin.scriptManager.registerFunction("read.spawnmob", (sc, in) -> {
             return NMS.parseEntity(in[1].getString(sc), (Location) in[0].get(sc));
         });
-        KajetansPlugin.scriptManager.registerFunction("read.uuid",
-                (sc, in) -> UUID.fromString(in[0].getString(sc)));
+        KajetansPlugin.scriptManager.registerFunction("read.uuid", (sc, in) -> {
+            try {
+                return UUID.fromString(in[0].getString(sc));
+            } catch(Exception ex) {
+                return null;
+            }
+        });
         KajetansPlugin.scriptManager.registerFunction("read.slot",
                 (sc, in) -> EquipmentSlot.valueOf(in[0].getString(sc)));
         KajetansPlugin.scriptManager.registerFunction("read.blockdata", (sc, in) -> {

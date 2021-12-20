@@ -1,5 +1,7 @@
 package me.hammerle.kp.snuviscript.commands;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.kp.NMS;
@@ -15,9 +17,25 @@ public class HumanCommands {
             Human h = (Human) in[0].get(sc);
             h.setSkin(in[1].getString(sc), in[2].getString(sc));
         });
+        KajetansPlugin.scriptManager.registerConsumer("human.setskinuuid", (sc, in) -> {
+            Human h = (Human) in[0].get(sc);
+            PlayerProfile profile = Bukkit.createProfile(CommandUtils.getUUID(in[1].get(sc)));
+            KajetansPlugin.scheduleAsyncTask(() -> {
+                profile.complete();
+                KajetansPlugin.scheduleTask(() -> h.setSkin(profile));
+            });
+        });
         KajetansPlugin.scriptManager.registerConsumer("human.setname", (sc, in) -> {
             Human h = (Human) in[0].get(sc);
             h.setName(in[1].getString(sc));
+        });
+        KajetansPlugin.scriptManager.registerConsumer("human.canmove", (sc, in) -> {
+            Human h = (Human) in[0].get(sc);
+            h.canMove(in[1].getBoolean(sc));
+        });
+        KajetansPlugin.scriptManager.registerConsumer("human.setai", (sc, in) -> {
+            Human h = (Human) in[0].get(sc);
+            h.setAI(in[1].getInt(sc));
         });
     }
 }

@@ -206,8 +206,8 @@ public class ScriptEvents {
         });
     }
 
-    public static boolean onHumanHurt(DamageSource ds, Human h, float amount) {
-        WrappedBool wb = new WrappedBool(true);
+    public static boolean onHumanHurt(DamageSource ds, Human h, float amount, boolean cancel) {
+        WrappedBool wb = new WrappedBool(cancel);
         KajetansPlugin.scriptManager.callEvent("human_damage", sc -> {
             sc.setVar("human", h);
             sc.setVar("damage_source", ds);

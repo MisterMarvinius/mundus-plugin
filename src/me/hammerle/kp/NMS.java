@@ -8,8 +8,10 @@ import java.util.Map;
 import java.util.UUID;
 import com.destroystokyo.paper.profile.CraftPlayerProfile;
 import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
 import org.bukkit.craftbukkit.v1_18_R1.entity.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -29,6 +31,7 @@ import net.minecraft.nbt.MojangsonParser;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.syncher.DataWatcherObject;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
@@ -52,7 +55,11 @@ import net.minecraft.world.entity.ai.attributes.AttributeProvider;
 import net.minecraft.world.entity.ai.attributes.GenericAttributes;
 import net.minecraft.world.entity.ai.goal.PathfinderGoalFloat;
 import net.minecraft.world.entity.ai.goal.PathfinderGoalLookAtPlayer;
+import net.minecraft.world.entity.ai.goal.PathfinderGoalMeleeAttack;
 import net.minecraft.world.entity.ai.goal.PathfinderGoalRandomLookaround;
+import net.minecraft.world.entity.ai.goal.PathfinderGoalRandomStrollLand;
+import net.minecraft.world.entity.ai.goal.PathfinderGoalSelector;
+import net.minecraft.world.entity.ai.goal.target.PathfinderGoalNearestAttackableTarget;
 
 public class NMS {
     private final static HashMap<String, DamageSource> DAMAGE_SOURCES = new HashMap<>();
@@ -85,7 +92,7 @@ public class NMS {
             attributesMap = new HashMap<>(attributesMap);
             attributesMap.put(HUMAN_TYPE,
                     EntityMonster.fD().a(GenericAttributes.a, 20.0).a(GenericAttributes.f, 1)
-                            .a(GenericAttributes.d, 0.1).a(GenericAttributes.h).a());
+                            .a(GenericAttributes.d, 0.23).a(GenericAttributes.h).a());
             unsafe.putObject(base, offset, attributesMap);
 
             AttributeDefaults.a();
@@ -107,6 +114,12 @@ public class NMS {
         public void setSkin(String texture, String signature);
 
         public void setName(String name);
+
+        public void setSkin(PlayerProfile profile);
+
+        public void canMove(boolean b);
+
+        public void setAI(int type);
     }
 
     private static String cutName(String name) {
@@ -118,7 +131,9 @@ public class NMS {
 
     private static class RawHuman extends CraftCreature implements Human {
         private static class WrapperHuman extends EntityCreature {
-            private EntityPlayer player;
+            private EntityPlayer player = null;
+            private boolean canMove = false;
+            private int ai = 0;
 
             public WrapperHuman(EntityTypes<? extends WrapperHuman> type,
                     net.minecraft.world.level.World world) {
@@ -127,20 +142,28 @@ public class NMS {
             }
 
             private void setPlayer(String name, net.minecraft.world.level.World world) {
-                player = new EntityPlayer(getCraftServer().getServer(), (WorldServer) world,
-                        new GameProfile(cm(), cutName(name)));
-                player.e(getBukkitEntity().getEntityId());
+                EntityPlayer newPlayer =
+                        new EntityPlayer(getCraftServer().getServer(), (WorldServer) world,
+                                new GameProfile(cm(), cutName(name)));
+                if(player != null) {
+                    PropertyMap newProps = newPlayer.fp().getProperties();
+                    for(var entry : player.fp().getProperties().entries()) {
+                        newProps.put(entry.getKey(), entry.getValue());
+                    }
+                }
+                newPlayer.e(ae());
+                player = newPlayer;
             }
 
             @Override
-            public void k() {
+            public void k() { // tick
                 super.k();
                 o(ce()); // setYRot(getYHeadRot());
             }
 
             @Override
-            public boolean a(DamageSource ds, float amount) {
-                if(ScriptEvents.onHumanHurt(ds, getWrappedEntity(), amount)) {
+            public boolean a(DamageSource ds, float amount) { // hurt
+                if(ScriptEvents.onHumanHurt(ds, getWrappedEntity(), amount, ai == 0)) {
                     return false;
                 }
                 return super.a(ds, amount);
@@ -161,8 +184,30 @@ public class NMS {
                 return player;
             }
 
+            private void activateSkinOverlays() {
+                player.ai().b(EntityHuman.bQ, (byte) 0xFF);
+            }
+
+            @SuppressWarnings({"unchecked", "rawtypes"})
+            private void copyMeta() {
+                var playerData = player.ai();
+                for(var item : ai().c()) {
+                    DataWatcherObject o = item.a();
+                    Object po = playerData.a(o);
+                    if(po.getClass() == item.b().getClass()) {
+                        playerData.b(o, item.b());
+                    }
+                }
+            }
+
+            public PacketPlayOutEntityMetadata update(PacketPlayOutEntityMetadata p) {
+                copyMeta();
+                activateSkinOverlays();
+                return new PacketPlayOutEntityMetadata(p.c(), player.ai(), true);
+            }
+
             @Override
-            public void b(NBTTagCompound nbt) {
+            public void b(NBTTagCompound nbt) { // addAdditionalSaveData
                 super.b(nbt);
 
                 GameProfile gp = player.fp();
@@ -176,10 +221,13 @@ public class NMS {
                         break;
                     }
                 }
+
+                nbt.a("HumanCanMove", canMove);
+                nbt.a("HumanAI", ai);
             }
 
             @Override
-            public void a(NBTTagCompound nbt) {
+            public void a(NBTTagCompound nbt) { // readAdditionalSaveData
                 super.a(nbt);
                 if(nbt.b("HumanName", 8)) {
                     String name = cutName(nbt.l("HumanName"));
@@ -189,6 +237,13 @@ public class NMS {
                     String texture = nbt.l("HumanTexture");
                     String signature = nbt.l("HumanSignature");
                     setSkinWithoutPacket(texture, signature);
+                }
+                if(nbt.b("HumanCanMove", 1)) {
+                    canMove = nbt.q("HumanCanMove");
+                }
+                if(nbt.b("HumanAI", 3)) {
+                    ai = nbt.h("HumanAI");
+                    setAI(ai);
                 }
             }
 
@@ -208,6 +263,10 @@ public class NMS {
                 PacketPlayOutPlayerInfo info = new PacketPlayOutPlayerInfo(
                         PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, player);
                 PacketPlayOutNamedEntitySpawn spawn = new PacketPlayOutNamedEntitySpawn(player);
+                copyMeta();
+                activateSkinOverlays();
+                PacketPlayOutEntityMetadata meta =
+                        new PacketPlayOutEntityMetadata(player.ae(), player.ai(), true);
 
                 Location center = getBukkitEntity().getLocation();
                 for(EntityPlayer p : ((WorldServer) this.W()).z()) {
@@ -215,6 +274,7 @@ public class NMS {
                     if(distance < 100.0) {
                         p.b.a(info);
                         p.b.a(spawn);
+                        p.b.a(meta);
                     }
                 }
             }
@@ -229,19 +289,73 @@ public class NMS {
                 sync();
             }
 
-            @Override
-            protected void u() { // registerGoals()
-                // goalSelector.addGoal
-                this.bR.a(0, new PathfinderGoalFloat(this));
-                this.bR.a(1, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 6.0f));
-                this.bR.a(2, new PathfinderGoalRandomLookaround(this));
+            public void setSkin(PlayerProfile profile) {
+                GameProfile gp = player.fp();
+                gp.getProperties().clear();
+                for(ProfileProperty prop : profile.getProperties()) {
+                    gp.getProperties().put(prop.getName(),
+                            new Property(prop.getName(), prop.getValue(), prop.getSignature()));
+                }
+                sync();
             }
 
             @Override
-            public void g(Vec3D velocity) {} // setDeltaMovement
+            protected void u() { // registerGoals
+                setAI(ai);
+            }
+
+            private void removeGoals(PathfinderGoalSelector p) {
+                var iter = p.c().iterator();
+                while(iter.hasNext()) {
+                    var next = iter.next();
+                    if(next.g()) { // isRunning
+                        next.d(); // stop
+                    }
+                    iter.remove();
+                }
+            }
+
+            public void setAI(int type) {
+                ai = type;
+                removeGoals(bR);
+                removeGoals(bS);
+                switch(type) {
+                    case 1:
+                        bR.a(4, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8.0F));
+                        bR.a(3, new PathfinderGoalRandomLookaround(this));
+                        bR.a(0, new PathfinderGoalMeleeAttack(this, 1.0, false));
+                        bR.a(2, new PathfinderGoalRandomStrollLand(this, 1.0D));
+                        bS.a(1, new PathfinderGoalNearestAttackableTarget<>(this, EntityHuman.class,
+                                true));
+                        break;
+                    default:
+                        bR.a(0, new PathfinderGoalFloat(this));
+                        bR.a(1, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 6.0f));
+                        bR.a(2, new PathfinderGoalRandomLookaround(this));
+                }
+            }
 
             @Override
-            public void n(double x, double y, double z) {} // setDeltaMovement
+            public void g(Vec3D velocity) { // setDeltaMovement
+                if(canMove) {
+                    super.g(velocity);
+                    return;
+                }
+                super.g(new Vec3D(0.0, velocity.c, 0.0));
+            }
+
+            @Override
+            public void n(double x, double y, double z) { // setDeltaMovement
+                if(canMove) {
+                    super.n(x, y, z);
+                    return;
+                }
+                super.n(0.0, y, 0.0);
+            }
+
+            public void canMove(boolean b) {
+                canMove = b;
+            }
         }
 
         public final WrapperHuman human;
@@ -249,7 +363,7 @@ public class NMS {
         private RawHuman(WrapperHuman human) {
             super(getCraftServer(), human);
             this.human = human;
-            setPersistent(true);
+            setRemoveWhenFarAway(false);
         }
 
         private RawHuman(WrapperHuman human, Location l, String name) {
@@ -271,6 +385,21 @@ public class NMS {
         @Override
         public void setName(String name) {
             human.setName(name);
+        }
+
+        @Override
+        public void setSkin(PlayerProfile profile) {
+            human.setSkin(profile);
+        }
+
+        @Override
+        public void canMove(boolean b) {
+            human.canMove(b);
+        }
+
+        @Override
+        public void setAI(int type) {
+            human.setAI(type);
         }
     }
 
@@ -312,7 +441,12 @@ public class NMS {
         }
 
         private boolean handle(PacketPlayOutEntityMetadata p) {
-            return getById(p.c()) != null;
+            RawHuman.WrapperHuman h = getById(p.c());
+            if(h == null) {
+                return false;
+            }
+            super.a(h.update(p));
+            return true;
         }
 
         private void handle(PacketPlayOutEntityDestroy p) {

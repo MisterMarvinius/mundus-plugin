@@ -267,5 +267,13 @@ public class PlayerCommands {
             Player p = (Player) in[0].get(sc);
             p.getInventory().setHeldItemSlot(in[1].getInt(sc));
         });
+        KajetansPlugin.scriptManager.registerConsumer("player.profile", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            var profile = p.getPlayerProfile();
+            KajetansPlugin.log(String.valueOf(profile.hasTextures()));
+            for(var prop : profile.getProperties()) {
+                KajetansPlugin.log(prop.getSignature() + " " + prop.getValue());
+            }
+        });
     }
 }
