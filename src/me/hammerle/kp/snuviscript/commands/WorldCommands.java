@@ -37,7 +37,10 @@ public class WorldCommands {
         KajetansPlugin.scriptManager.registerFunction("world.hasthunder",
                 (sc, in) -> ((World) in[0].get(sc)).isThundering());
         KajetansPlugin.scriptManager.registerConsumer("world.clearweather", (sc, in) -> {
-            ((World) in[0].get(sc)).setClearWeatherDuration(in[1].getInt(sc));
+            World w = (World) in[0].get(sc);
+            w.setStorm(false);
+            w.setThundering(false);
+            w.setClearWeatherDuration(in[1].getInt(sc));
         });
         KajetansPlugin.scriptManager.registerConsumer("world.setrain", (sc, in) -> {
             World w = (World) in[0].get(sc);

@@ -4,8 +4,10 @@ import java.util.Iterator;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.event.Event;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
@@ -20,7 +22,8 @@ public class PlotEvents {
     }
 
     private static boolean shouldBeProtected(Entity e) {
-        return !e.getType().isAlive() || e instanceof Animals;
+        EntityType type = e.getType();
+        return !e.getType().isAlive() || e instanceof Animals || type == EntityType.ARMOR_STAND;
     }
 
     public static void onBlockPlace(BlockPlaceEvent e) {
@@ -92,8 +95,7 @@ public class PlotEvents {
         Player p;
         if(indirect instanceof Player) {
             p = (Player) indirect;
-        }
-        if(direct instanceof Player) {
+        } else if(direct instanceof Player) {
             p = (Player) direct;
         } else {
             if(WorldPlotMap.hasPlotAt(e.getEntity().getLocation())) {
@@ -120,6 +122,9 @@ public class PlotEvents {
     }
 
     public static void onPlayerInteract(PlayerInteractEvent e) {
+        if(e.getAction() == Action.PHYSICAL) {
+            return;
+        }
         Block b = e.getClickedBlock();
         if(b == null) {
             return;
@@ -127,10 +132,19 @@ public class PlotEvents {
         Player p = e.getPlayer();
         if(!canBypass(p) && !WorldPlotMap.canInteractWithBlock(b.getLocation(), p)) {
             e.setCancelled(true);
+            e.setUseItemInHand(Event.Result.ALLOW);
         }
     }
 
     public static void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
+        Player p = e.getPlayer();
+        if(!canBypass(p)
+                && !WorldPlotMap.canInteractWithEntity(e.getRightClicked().getLocation(), p)) {
+            e.setCancelled(true);
+        }
+    }
+
+    public static void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent e) {
         Player p = e.getPlayer();
         if(!canBypass(p)
                 && !WorldPlotMap.canInteractWithEntity(e.getRightClicked().getLocation(), p)) {

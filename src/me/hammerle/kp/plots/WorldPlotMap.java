@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.kp.plots.PlotMap.Plot;
 
 public class WorldPlotMap {
@@ -52,7 +53,14 @@ public class WorldPlotMap {
     }
 
     public static boolean canInteractWithBlock(Location l, Player p) {
-        return canDoSomething(l, p, BLOCK_INTERACT_FLAG, true);
+        boolean canDo = canDoSomething(l, p, BLOCK_INTERACT_FLAG, true);
+        if(!canDo) {
+            PlotMap map = MAPS.get(l.getWorld());
+            if(map != null && map.hasInteractBlock(l.getBlockX(), l.getBlockY(), l.getBlockZ())) {
+                return true;
+            }
+        }
+        return canDo;
     }
 
     public static boolean canInteractWithEntity(Location l, Player p) {
@@ -101,6 +109,34 @@ public class WorldPlotMap {
         }
     }
 
+    public static void addInteractBlock(Location l) {
+        getOrCreate(l.getWorld()).addInteractBlock(l.getBlockX(), l.getBlockY(), l.getBlockZ());
+    }
+
+    public static void removeInteractBlock(Location l) {
+        PlotMap map = MAPS.get(l.getWorld());
+        if(map == null) {
+            return;
+        }
+        map.removeInteractBlock(l.getBlockX(), l.getBlockY(), l.getBlockZ());
+    }
+
+    public static boolean hasInteractBlock(Location l) {
+        PlotMap map = MAPS.get(l.getWorld());
+        if(map == null) {
+            return false;
+        }
+        return map.hasInteractBlock(l.getBlockX(), l.getBlockY(), l.getBlockZ());
+    }
+
+    public static Iterator<PlotMap.Position> getBlockIterator(World w) {
+        PlotMap map = MAPS.get(w);
+        if(map != null) {
+            return map.getBlockIterator();
+        }
+        return Collections.<PlotMap.Position>emptyList().iterator();
+    }
+
     public static Iterator<PlotMap.Plot> getIterator(World w) {
         PlotMap map = MAPS.get(w);
         if(map != null) {
@@ -127,6 +163,7 @@ public class WorldPlotMap {
     }
 
     public static void save() {
+        KajetansPlugin.log("Saving plots");
         File f = new File("plot_storage");
         f.mkdir();
         MAPS.entrySet().forEach((entry) -> {
@@ -156,6 +193,7 @@ public class WorldPlotMap {
         PlotMap pm = new PlotMap();
         MAPS.put(w, pm);
         pm.read(new File("plot_storage/" + worldName));
+        pm.readInteractionBlocks(new File("plot_storage/" + worldName + "_blocks"));
         return false;
     }
 }

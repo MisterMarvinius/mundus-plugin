@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +16,44 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class PlotMap {
+    public static final class Position {
+        private final int x;
+        private final int y;
+        private final int z;
+
+        public Position(int x, int y, int z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public int getY() {
+            return y;
+        }
+
+        public int getZ() {
+            return z;
+        }
+
+        @Override
+        public int hashCode() {
+            return x + y * 3276671 + z * 1034147;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(o.getClass() != Position.class) {
+                return false;
+            }
+            Position other = (Position) o;
+            return x == other.x && y == other.y && z == other.z;
+        }
+    }
+
     public static class Plot {
         private Plot previous = null;
         private Plot next = null;
@@ -145,6 +184,7 @@ public class PlotMap {
     @SuppressWarnings("unchecked")
     private ArrayList<Plot>[] plots = new ArrayList[PRIMES[primeIndex]];
     private Plot last = null;
+    private HashSet<Position> interactBlocks = new HashSet<>();
 
     public PlotMap() {}
 
@@ -289,6 +329,10 @@ public class PlotMap {
         }
     }
 
+    public Iterator<Position> getBlockIterator() {
+        return interactBlocks.iterator();
+    }
+
     public Iterator<Plot> getIterator() {
         return new Iterator<PlotMap.Plot>() {
             private Plot current = last;
@@ -370,6 +414,33 @@ public class PlotMap {
         } catch(IOException ex) {
             ex.printStackTrace();
         }
+        f = new File(path + "_blocks");
+        try(DataOutputStream out = new DataOutputStream(new FileOutputStream(f))) {
+            for(Position pos : interactBlocks) {
+                out.writeInt(pos.x);
+                out.writeInt(pos.y);
+                out.writeInt(pos.z);
+            }
+        } catch(IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void readInteractionBlocks(File f) {
+        if(!f.exists()) {
+            return;
+        }
+        try(DataInputStream in = new DataInputStream(new FileInputStream(f))) {
+            while(true) {
+                int x = in.readInt();
+                int y = in.readInt();
+                int z = in.readInt();
+                addInteractBlock(x, y, z);
+            }
+        } catch(EOFException ex) {
+        } catch(IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void read(File f) {
@@ -434,5 +505,17 @@ public class PlotMap {
         }
 
         return list;
+    }
+
+    public void addInteractBlock(int x, int y, int z) {
+        interactBlocks.add(new Position(x, y, z));
+    }
+
+    public void removeInteractBlock(int x, int y, int z) {
+        interactBlocks.remove(new Position(x, y, z));
+    }
+
+    public boolean hasInteractBlock(int x, int y, int z) {
+        return interactBlocks.contains(new Position(x, y, z));
     }
 }

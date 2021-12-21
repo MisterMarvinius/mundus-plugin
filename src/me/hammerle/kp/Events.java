@@ -172,6 +172,11 @@ public class Events implements Listener {
     }
 
     @EventHandler
+    public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent e) {
+        PlotEvents.onPlayerInteractAtEntity(e);
+    }
+
+    @EventHandler
     public void onPlayerArmSwing(PlayerArmSwingEvent e) {
         ScriptEvents.onPlayerArmSwing(e);
     }

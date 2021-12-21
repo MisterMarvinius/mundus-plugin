@@ -51,11 +51,11 @@ public class PlotCommands {
         KajetansPlugin.scriptManager.registerFunction("plot.getid",
                 (sc, in) -> (double) ((PlotMap.Plot) in[0].get(sc)).getId());
         KajetansPlugin.scriptManager.registerFunction("plot.iterator", (sc, in) -> {
-            World word = (World) in[0].get(sc);
+            World w = (World) in[0].get(sc);
             if(in.length >= 2) {
-                return WorldPlotMap.getIterator(word, CommandUtils.getUUID(in[1].get(sc)));
+                return WorldPlotMap.getIterator(w, CommandUtils.getUUID(in[1].get(sc)));
             }
-            return WorldPlotMap.getIterator(word);
+            return WorldPlotMap.getIterator(w);
         });
         KajetansPlugin.scriptManager.registerFunction("plot.intersecting",
                 (sc, in) -> WorldPlotMap.getIntersectingPlots((World) in[0].get(sc),
@@ -73,5 +73,27 @@ public class PlotCommands {
                 (sc, in) -> (double) ((PlotMap.Plot) in[0].get(sc)).getMaxY());
         KajetansPlugin.scriptManager.registerFunction("plot.getmaxz",
                 (sc, in) -> (double) ((PlotMap.Plot) in[0].get(sc)).getMaxZ());
+        KajetansPlugin.scriptManager.registerConsumer("plot.addblock", (sc, in) -> {
+            WorldPlotMap.addInteractBlock((Location) in[0].get(sc));
+        });
+        KajetansPlugin.scriptManager.registerConsumer("plot.removeblock", (sc, in) -> {
+            WorldPlotMap.removeInteractBlock((Location) in[0].get(sc));
+        });
+        KajetansPlugin.scriptManager.registerFunction("plot.hasblock", (sc, in) -> {
+            return WorldPlotMap.hasInteractBlock((Location) in[0].get(sc));
+        });
+        KajetansPlugin.scriptManager.registerFunction("plot.blockiterator", (sc, in) -> {
+            World w = (World) in[0].get(sc);
+            return WorldPlotMap.getBlockIterator(w);
+        });
+        KajetansPlugin.scriptManager.registerFunction("plot.position.getx", (sc, in) -> {
+            return (double) ((PlotMap.Position) in[0].get(sc)).getX();
+        });
+        KajetansPlugin.scriptManager.registerFunction("plot.position.gety", (sc, in) -> {
+            return (double) ((PlotMap.Position) in[0].get(sc)).getY();
+        });
+        KajetansPlugin.scriptManager.registerFunction("plot.position.getz", (sc, in) -> {
+            return (double) ((PlotMap.Position) in[0].get(sc)).getZ();
+        });
     }
 }
