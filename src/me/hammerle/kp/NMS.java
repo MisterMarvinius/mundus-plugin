@@ -2,8 +2,10 @@ package me.hammerle.kp;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.UUID;
 import com.destroystokyo.paper.profile.CraftPlayerProfile;
@@ -12,6 +14,7 @@ import com.destroystokyo.paper.profile.ProfileProperty;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
+import com.mojang.datafixers.util.Pair;
 import org.bukkit.craftbukkit.v1_18_R1.entity.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -37,11 +40,15 @@ import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityCreature;
+import net.minecraft.world.entity.EntityInsentient;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EnumCreatureType;
+import net.minecraft.world.entity.EnumItemSlot;
 import net.minecraft.world.entity.item.EntityItem;
+import net.minecraft.world.entity.monster.EntityCreeper;
 import net.minecraft.world.entity.monster.EntityMonster;
+import net.minecraft.world.entity.monster.IMonster;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.entity.projectile.EntityFireballFireball;
@@ -56,9 +63,11 @@ import net.minecraft.world.entity.ai.attributes.GenericAttributes;
 import net.minecraft.world.entity.ai.goal.PathfinderGoalFloat;
 import net.minecraft.world.entity.ai.goal.PathfinderGoalLookAtPlayer;
 import net.minecraft.world.entity.ai.goal.PathfinderGoalMeleeAttack;
+import net.minecraft.world.entity.ai.goal.PathfinderGoalMoveTowardsTarget;
 import net.minecraft.world.entity.ai.goal.PathfinderGoalRandomLookaround;
 import net.minecraft.world.entity.ai.goal.PathfinderGoalRandomStrollLand;
 import net.minecraft.world.entity.ai.goal.PathfinderGoalSelector;
+import net.minecraft.world.entity.ai.goal.target.PathfinderGoalHurtByTarget;
 import net.minecraft.world.entity.ai.goal.target.PathfinderGoalNearestAttackableTarget;
 
 public class NMS {
@@ -120,6 +129,10 @@ public class NMS {
         public void canMove(boolean b);
 
         public void setAI(int type);
+
+        public int moveTo(double x, double y, double z);
+
+        public int getAI();
     }
 
     private static String cutName(String name) {
@@ -131,9 +144,27 @@ public class NMS {
 
     private static class RawHuman extends CraftCreature implements Human {
         private static class WrapperHuman extends EntityCreature {
+            private static class Goal {
+                private static int ids = 0;
+                private int id = ids++;
+                private double x;
+                private double y;
+                private double z;
+                private int ticks = 20 * 30;
+
+                public Goal(double x, double y, double z) {
+                    this.x = x;
+                    this.y = y;
+                    this.z = z;
+                }
+            };
+
             private EntityPlayer player = null;
             private boolean canMove = false;
             private int ai = 0;
+            private LinkedList<Goal> goals = new LinkedList<>();
+            private EntityLiving lastAttacker = null;
+            private int attackTimer = 0;
 
             public WrapperHuman(EntityTypes<? extends WrapperHuman> type,
                     net.minecraft.world.level.World world) {
@@ -155,14 +186,57 @@ public class NMS {
                 player = newPlayer;
             }
 
+            private void tickGoals() {
+                if(goals.isEmpty()) {
+                    return;
+                }
+                Goal g = goals.getFirst();
+                double diffX = dc() - g.x;
+                double diffY = de() - g.y;
+                double diffZ = di() - g.z;
+                double distance = diffX * diffX + diffY * diffY + diffZ * diffZ;
+                if(distance < 1.0f) {
+                    goals.removeFirst();
+                    Human h = getWrappedEntity();
+                    ScriptEvents.onHumanGoalReach(h, new Location(h.getWorld(), g.x, g.y, g.z),
+                            g.id);
+                    return;
+                }
+                g.ticks--;
+                if(g.ticks <= 0) {
+                    goals.removeFirst();
+                    Human h = getWrappedEntity();
+                    ScriptEvents.onHumanGoalTimeout(h, new Location(h.getWorld(), g.x, g.y, g.z),
+                            g.id);
+                    return;
+                }
+                stopGoals();
+                D().a(g.x, g.y, g.z, 1.0);
+            }
+
             @Override
             public void k() { // tick
+                tickGoals();
                 super.k();
                 o(ce()); // setYRot(getYHeadRot());
+
+                if(attackTimer > 0) {
+                    attackTimer--;
+                    if(attackTimer == 0) {
+                        lastAttacker = null;
+                    }
+                }
             }
 
             @Override
             public boolean a(DamageSource ds, float amount) { // hurt
+                if(ds.l() instanceof EntityLiving) {
+                    lastAttacker = (EntityLiving) ds.l();
+                    attackTimer = 20 * 60;
+                } else if(ds.k() instanceof EntityLiving) {
+                    lastAttacker = (EntityLiving) ds.k();
+                    attackTimer = 20 * 60;
+                }
                 if(ScriptEvents.onHumanHurt(ds, getWrappedEntity(), amount, ai == 0)) {
                     return false;
                 }
@@ -268,15 +342,19 @@ public class NMS {
                 PacketPlayOutEntityMetadata meta =
                         new PacketPlayOutEntityMetadata(player.ae(), player.ai(), true);
 
-                Location center = getBukkitEntity().getLocation();
-                for(EntityPlayer p : ((WorldServer) this.W()).z()) {
-                    double distance = center.distanceSquared(p.getBukkitEntity().getLocation());
-                    if(distance < 100.0) {
-                        p.b.a(info);
-                        p.b.a(spawn);
-                        p.b.a(meta);
-                    }
+                ArrayList<Pair<EnumItemSlot, net.minecraft.world.item.ItemStack>> list =
+                        new ArrayList<>();
+                for(EnumItemSlot slot : EnumItemSlot.values()) {
+                    list.add(new Pair<>(slot, this.b(slot)));
                 }
+                PacketPlayOutEntityEquipment equip =
+                        new PacketPlayOutEntityEquipment(player.ae(), list);
+
+                var channel = ((WorldServer) t).k();
+                channel.a(this, info);
+                channel.a(this, spawn);
+                channel.a(this, meta);
+                channel.a(this, equip);
             }
 
             public void setSkin(String texture, String signature) {
@@ -304,6 +382,21 @@ public class NMS {
                 setAI(ai);
             }
 
+            private void stopGoals(PathfinderGoalSelector p) {
+                var iter = p.c().iterator();
+                while(iter.hasNext()) {
+                    var next = iter.next();
+                    if(next.g()) { // isRunning
+                        next.d(); // stop
+                    }
+                }
+            }
+
+            private void stopGoals() {
+                stopGoals(bR);
+                stopGoals(bS);
+            }
+
             private void removeGoals(PathfinderGoalSelector p) {
                 var iter = p.c().iterator();
                 while(iter.hasNext()) {
@@ -315,18 +408,37 @@ public class NMS {
                 }
             }
 
+            public boolean angryAt(EntityLiving liv) {
+                return lastAttacker == liv;
+            }
+
             public void setAI(int type) {
                 ai = type;
                 removeGoals(bR);
                 removeGoals(bS);
                 switch(type) {
                     case 1:
-                        bR.a(4, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8.0F));
+                        bR.a(4, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8.0f));
                         bR.a(3, new PathfinderGoalRandomLookaround(this));
                         bR.a(0, new PathfinderGoalMeleeAttack(this, 1.0, false));
-                        bR.a(2, new PathfinderGoalRandomStrollLand(this, 1.0D));
+                        bR.a(2, new PathfinderGoalRandomStrollLand(this, 1.0));
                         bS.a(1, new PathfinderGoalNearestAttackableTarget<>(this, EntityHuman.class,
                                 true));
+                        break;
+                    case 2:
+                        bR.a(1, new PathfinderGoalMeleeAttack(this, 1.2, true));
+                        bR.a(2, new PathfinderGoalMoveTowardsTarget(this, 1.2, 32.0f));
+                        bR.a(4, new PathfinderGoalRandomStrollLand(this, 1.0));
+                        bR.a(5, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 6.0f));
+                        bR.a(6, new PathfinderGoalRandomLookaround(this));
+                        bS.a(2, new PathfinderGoalHurtByTarget(this, new Class[0]));
+                        bS.a(3, new PathfinderGoalNearestAttackableTarget<>(this, EntityHuman.class,
+                                10, true, false, this::angryAt));
+                        bS.a(3, new PathfinderGoalNearestAttackableTarget<>(this,
+                                EntityInsentient.class, 5, false, false, (liv) -> {
+                                    return liv instanceof IMonster
+                                            && !(liv instanceof EntityCreeper);
+                                }));
                         break;
                     default:
                         bR.a(0, new PathfinderGoalFloat(this));
@@ -355,6 +467,12 @@ public class NMS {
 
             public void canMove(boolean b) {
                 canMove = b;
+            }
+
+            public int moveTo(double x, double y, double z) {
+                Goal g = new Goal(x, y, z);
+                goals.add(g);
+                return g.id;
             }
         }
 
@@ -400,6 +518,16 @@ public class NMS {
         @Override
         public void setAI(int type) {
             human.setAI(type);
+        }
+
+        @Override
+        public int moveTo(double x, double y, double z) {
+            return human.moveTo(x, y, z);
+        }
+
+        @Override
+        public int getAI() {
+            return human.ai;
         }
     }
 

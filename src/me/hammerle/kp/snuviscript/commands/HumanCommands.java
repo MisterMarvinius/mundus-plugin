@@ -37,5 +37,13 @@ public class HumanCommands {
             Human h = (Human) in[0].get(sc);
             h.setAI(in[1].getInt(sc));
         });
+        KajetansPlugin.scriptManager.registerFunction("human.getai", (sc, in) -> {
+            Human h = (Human) in[0].get(sc);
+            return (double) h.getAI();
+        });
+        KajetansPlugin.scriptManager.registerFunction("human.moveto", (sc, in) -> {
+            Human h = (Human) in[0].get(sc);
+            return (double) h.moveTo(in[1].getDouble(sc), in[2].getDouble(sc), in[3].getDouble(sc));
+        });
     }
 }

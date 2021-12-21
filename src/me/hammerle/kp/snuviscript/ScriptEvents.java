@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -224,6 +225,22 @@ public class ScriptEvents {
             }
         });
         return wb.wrapped;
+    }
+
+    public static void onHumanGoalReach(Human h, Location goal, int id) {
+        KajetansPlugin.scriptManager.callEvent("human_goal_reach", sc -> {
+            sc.setVar("human", h);
+            sc.setVar("goal", goal);
+            sc.setVar("id", (double) id);
+        }, ScriptEvents::nothing);
+    }
+
+    public static void onHumanGoalTimeout(Human h, Location goal, int id) {
+        KajetansPlugin.scriptManager.callEvent("human_goal_timeout", sc -> {
+            sc.setVar("human", h);
+            sc.setVar("goal", goal);
+            sc.setVar("id", (double) id);
+        }, ScriptEvents::nothing);
     }
 
     public static void onPlayerPreRespawn(PlayerRespawnEvent e) {
