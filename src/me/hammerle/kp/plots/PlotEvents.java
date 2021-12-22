@@ -62,7 +62,8 @@ public class PlotEvents {
 
     public static void onPlayerBucket(PlayerBucketEvent e) {
         Block b = e.getBlockClicked();
-        if(!WorldPlotMap.canUseBucket(b.getLocation(), e.getPlayer())) {
+        if(!canBypass(e.getPlayer())
+                && !WorldPlotMap.canUseBucket(b.getLocation(), e.getPlayer())) {
             e.setCancelled(true);
         }
     }
