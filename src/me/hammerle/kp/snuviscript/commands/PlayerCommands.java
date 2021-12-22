@@ -56,8 +56,18 @@ public class PlayerCommands {
             return (double) count;
         });
         KajetansPlugin.scriptManager.registerFunction("player.additem", (sc, in) -> {
-            // TODO
-            return 0.0f;
+            Player p = (Player) in[0].get(sc);
+            ItemStack stack = (ItemStack) in[1].get(sc);
+            ItemStack[] content = p.getInventory().getContents();
+            HashMap<Integer, ItemStack> left = p.getInventory().addItem(stack);
+            int count = 0;
+            for(ItemStack lStack : left.values()) {
+                count += lStack.getAmount();
+            }
+            if(count != 0) {
+                p.getInventory().setContents(content);
+            }
+            return (double) count;
         });
         KajetansPlugin.scriptManager.registerConsumer("player.respawn",
                 (sc, in) -> ((Player) in[0].get(sc)).spigot().respawn());
