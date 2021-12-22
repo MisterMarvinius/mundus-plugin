@@ -133,6 +133,8 @@ public class NMS {
         public int moveTo(double x, double y, double z);
 
         public int getAI();
+
+        public String getName();
     }
 
     private static String cutName(String name) {
@@ -528,6 +530,11 @@ public class NMS {
         @Override
         public int getAI() {
             return human.ai;
+        }
+
+        @Override
+        public String getName() {
+            return human.player.fp().getName();
         }
     }
 

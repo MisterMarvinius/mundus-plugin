@@ -45,5 +45,9 @@ public class HumanCommands {
             Human h = (Human) in[0].get(sc);
             return (double) h.moveTo(in[1].getDouble(sc), in[2].getDouble(sc), in[3].getDouble(sc));
         });
+        KajetansPlugin.scriptManager.registerFunction("human.getname", (sc, in) -> {
+            Human h = (Human) in[0].get(sc);
+            return h.getName();
+        });
     }
 }
