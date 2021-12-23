@@ -10,11 +10,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.kp.plots.PlotMap.Plot;
 
 public class WorldPlotMap {
-    private final static HashMap<World, PlotMap> MAPS = new HashMap<>();
+    private final static HashMap<UUID, PlotMap> MAPS = new HashMap<>();
     private final static int PLACE_FLAG = (1 << 0);
     private final static int BREAK_FLAG = (1 << 1);
     private final static int BUCKET_FLAG = (1 << 2);
@@ -23,7 +22,7 @@ public class WorldPlotMap {
     private final static int ENTITY_INTERACT_FLAG = (1 << 5);
 
     public static boolean canDoSomething(Location l, Player p, int flag, boolean empty) {
-        PlotMap map = MAPS.get(l.getWorld());
+        PlotMap map = MAPS.get(l.getWorld().getUID());
         if(map == null) {
             return empty;
         }
@@ -55,7 +54,7 @@ public class WorldPlotMap {
     public static boolean canInteractWithBlock(Location l, Player p) {
         boolean canDo = canDoSomething(l, p, BLOCK_INTERACT_FLAG, true);
         if(!canDo) {
-            PlotMap map = MAPS.get(l.getWorld());
+            PlotMap map = MAPS.get(l.getWorld().getUID());
             if(map != null && map.hasInteractBlock(l.getBlockX(), l.getBlockY(), l.getBlockZ())) {
                 return true;
             }
@@ -68,7 +67,7 @@ public class WorldPlotMap {
     }
 
     public static List<PlotMap.Plot> getPlots(Location l) {
-        PlotMap map = MAPS.get(l.getWorld());
+        PlotMap map = MAPS.get(l.getWorld().getUID());
         if(map == null) {
             return Collections.<PlotMap.Plot>emptyList();
         }
@@ -76,7 +75,7 @@ public class WorldPlotMap {
     }
 
     public static boolean hasPlotAt(Location l) {
-        PlotMap map = MAPS.get(l.getWorld());
+        PlotMap map = MAPS.get(l.getWorld().getUID());
         if(map == null) {
             return false;
         }
@@ -84,10 +83,10 @@ public class WorldPlotMap {
     }
 
     private static PlotMap getOrCreate(World w) {
-        PlotMap map = MAPS.get(w);
+        PlotMap map = MAPS.get(w.getUID());
         if(map == null) {
             map = new PlotMap();
-            MAPS.put(w, map);
+            MAPS.put(w.getUID(), map);
         }
         return map;
     }
@@ -103,7 +102,7 @@ public class WorldPlotMap {
     }
 
     public static void remove(World w, Plot p) {
-        PlotMap map = MAPS.get(w);
+        PlotMap map = MAPS.get(w.getUID());
         if(map != null) {
             map.remove(p);
         }
@@ -114,7 +113,7 @@ public class WorldPlotMap {
     }
 
     public static void removeInteractBlock(Location l) {
-        PlotMap map = MAPS.get(l.getWorld());
+        PlotMap map = MAPS.get(l.getWorld().getUID());
         if(map == null) {
             return;
         }
@@ -122,7 +121,7 @@ public class WorldPlotMap {
     }
 
     public static boolean hasInteractBlock(Location l) {
-        PlotMap map = MAPS.get(l.getWorld());
+        PlotMap map = MAPS.get(l.getWorld().getUID());
         if(map == null) {
             return false;
         }
@@ -130,7 +129,7 @@ public class WorldPlotMap {
     }
 
     public static Iterator<PlotMap.Position> getBlockIterator(World w) {
-        PlotMap map = MAPS.get(w);
+        PlotMap map = MAPS.get(w.getUID());
         if(map != null) {
             return map.getBlockIterator();
         }
@@ -138,7 +137,7 @@ public class WorldPlotMap {
     }
 
     public static Iterator<PlotMap.Plot> getIterator(World w) {
-        PlotMap map = MAPS.get(w);
+        PlotMap map = MAPS.get(w.getUID());
         if(map != null) {
             return map.getIterator();
         }
@@ -146,7 +145,7 @@ public class WorldPlotMap {
     }
 
     public static Iterator<PlotMap.Plot> getIterator(World w, UUID uuid) {
-        PlotMap map = MAPS.get(w);
+        PlotMap map = MAPS.get(w.getUID());
         if(map != null) {
             return map.getIterator(uuid);
         }
@@ -155,20 +154,25 @@ public class WorldPlotMap {
 
     public static List<Plot> getIntersectingPlots(World w, int minX, int minY, int minZ, int maxX,
             int maxY, int maxZ) {
-        PlotMap map = MAPS.get(w);
+        PlotMap map = MAPS.get(w.getUID());
         if(map != null) {
             return map.getIntersectingPlots(minX, minY, minZ, maxX, maxY, maxZ);
         }
         return Collections.<Plot>emptyList();
     }
 
-    public static void save() {
-        KajetansPlugin.log("Saving plots");
-        File f = new File("plot_storage");
-        f.mkdir();
-        MAPS.entrySet().forEach((entry) -> {
-            entry.getValue().save("plot_storage/" + entry.getKey().getName());
-        });
+    public static void savePlots(World w) {
+        PlotMap map = MAPS.get(w.getUID());
+        if(map != null) {
+            map.scheduleSavePlots(w.getName());
+        }
+    }
+
+    public static void saveBlocks(World w) {
+        PlotMap map = MAPS.get(w.getUID());
+        if(map != null) {
+            map.scheduleSaveBlocks(w.getName());
+        }
     }
 
     public static void read() {
@@ -191,7 +195,7 @@ public class WorldPlotMap {
             return true;
         }
         PlotMap pm = new PlotMap();
-        MAPS.put(w, pm);
+        MAPS.put(w.getUID(), pm);
         pm.read(new File("plot_storage/" + worldName));
         pm.readInteractionBlocks(new File("plot_storage/" + worldName + "_blocks"));
         return false;

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import me.hammerle.kp.KajetansPlugin;
 
 public class PlotMap {
     public static final class Position {
@@ -185,6 +186,8 @@ public class PlotMap {
     private ArrayList<Plot>[] plots = new ArrayList[PRIMES[primeIndex]];
     private Plot last = null;
     private HashSet<Position> interactBlocks = new HashSet<>();
+    private volatile boolean shouldSavePlots = false;
+    private volatile boolean shouldSaveBlocks = false;
 
     public PlotMap() {}
 
@@ -388,8 +391,22 @@ public class PlotMap {
         };
     }
 
-    public void save(String path) {
-        File f = new File(path);
+    public void scheduleSavePlots(String worldName) {
+        if(shouldSavePlots) {
+            return;
+        }
+        shouldSavePlots = true;
+        KajetansPlugin.scheduleTask(() -> {
+            KajetansPlugin.log("Saving plots in '" + worldName + "'");
+            savePlots(worldName);
+            shouldSavePlots = false;
+        }, 20 * 60 * 5);
+    }
+
+    private void savePlots(String worldName) {
+        File f = new File("plot_storage");
+        f.mkdir();
+        f = new File("plot_storage/" + worldName);
         try(DataOutputStream out = new DataOutputStream(new FileOutputStream(f))) {
             Iterator<Plot> iter = getIterator();
             while(iter.hasNext()) {
@@ -414,7 +431,24 @@ public class PlotMap {
         } catch(IOException ex) {
             ex.printStackTrace();
         }
-        f = new File(path + "_blocks");
+    }
+
+    public void scheduleSaveBlocks(String worldName) {
+        if(shouldSaveBlocks) {
+            return;
+        }
+        shouldSaveBlocks = true;
+        KajetansPlugin.scheduleTask(() -> {
+            KajetansPlugin.log("Saving blocks in '" + worldName + "'");
+            saveBlocks(worldName);
+            shouldSaveBlocks = false;
+        }, 20 * 60 * 5);
+    }
+
+    private void saveBlocks(String worldName) {
+        File f = new File("plot_storage");
+        f.mkdir();
+        f = new File("plot_storage/" + worldName + "_blocks");
         try(DataOutputStream out = new DataOutputStream(new FileOutputStream(f))) {
             for(Position pos : interactBlocks) {
                 out.writeInt(pos.x);

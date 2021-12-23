@@ -95,5 +95,11 @@ public class PlotCommands {
         KajetansPlugin.scriptManager.registerFunction("plot.position.getz", (sc, in) -> {
             return (double) ((PlotMap.Position) in[0].get(sc)).getZ();
         });
+        KajetansPlugin.scriptManager.registerConsumer("plot.saveplots", (sc, in) -> {
+            WorldPlotMap.savePlots((World) in[0].get(sc));
+        });
+        KajetansPlugin.scriptManager.registerConsumer("plot.saveblocks", (sc, in) -> {
+            WorldPlotMap.saveBlocks((World) in[0].get(sc));
+        });
     }
 }

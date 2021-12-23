@@ -154,8 +154,6 @@ public class KajetansPlugin extends JavaPlugin implements ISnuviScheduler {
         }
 
         scheduleTask(() -> WorldPlotMap.read());
-        long time = 20 * 60 * 30; // all 30 minutes
-        scheduleRepeatingTask(() -> WorldPlotMap.save(), time, time);
 
         getServer().getPluginManager().registerEvents(new Events(), instance);
 
