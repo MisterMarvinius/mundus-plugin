@@ -130,7 +130,7 @@ public class LivingCommands {
         KajetansPlugin.scriptManager.registerFunction("living.geteffectamplifier", (sc, in) -> {
             PotionEffect effect = ((LivingEntity) in[0].get(sc))
                     .getPotionEffect(PotionEffectType.getByName(in[1].getString(sc)));
-            return effect == null ? 0 : effect.getAmplifier() + 1;
+            return (double) (effect == null ? -1 : effect.getAmplifier());
         });
     }
 }

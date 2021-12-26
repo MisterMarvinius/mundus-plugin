@@ -773,8 +773,12 @@ public class NMS {
         return MojangsonParser.a(s);
     }
 
-    public static ItemStack parseItemStack(String stack) throws Exception {
-        return CraftItemStack.asCraftMirror(net.minecraft.world.item.ItemStack.a(parse(stack)));
+    public static ItemStack parseItemStack(String stack) {
+        try {
+            return CraftItemStack.asCraftMirror(net.minecraft.world.item.ItemStack.a(parse(stack)));
+        } catch(Exception ex) {
+            return null;
+        }
     }
 
     public static String toString(Entity ent) {
@@ -783,16 +787,20 @@ public class NMS {
         return c.toString();
     }
 
-    public static Entity parseEntity(String stack, Location l) throws Exception {
-        NBTTagCompound c = parse(stack);
-        var nmsWorld = map(l.getWorld());
-        net.minecraft.world.entity.Entity ent =
-                net.minecraft.world.entity.EntityTypes.a(c, nmsWorld, e -> {
-                    e.a_(UUID.randomUUID());
-                    e.a(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
-                    return nmsWorld.b(e) ? e : null;
-                });
-        return map(ent);
+    public static Entity parseEntity(String stack, Location l) {
+        try {
+            NBTTagCompound c = parse(stack);
+            var nmsWorld = map(l.getWorld());
+            net.minecraft.world.entity.Entity ent =
+                    net.minecraft.world.entity.EntityTypes.a(c, nmsWorld, e -> {
+                        e.a_(UUID.randomUUID());
+                        e.a(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
+                        return nmsWorld.b(e) ? e : null;
+                    });
+            return map(ent);
+        } catch(Exception ex) {
+            return null;
+        }
     }
 
     private static BlockPosition convert(Location l) {
@@ -814,8 +822,12 @@ public class NMS {
         }
     }
 
-    public static NBTTagCompound getBlockEntity(String s) throws Exception {
-        return parse(s);
+    public static NBTTagCompound getBlockEntity(String s) {
+        try {
+            return parse(s);
+        } catch(Exception ex) {
+            return null;
+        }
     }
 
     public static NBTTagCompound getEntity(Block b) {

@@ -31,6 +31,10 @@ public class TextCommands {
             Component c = (Component) in[0].get(sc);
             return c.clickEvent(ClickEvent.runCommand(in[1].getString(sc)));
         });
+        KajetansPlugin.scriptManager.registerFunction("text.item", (sc, in) -> {
+            Component c = (Component) in[0].get(sc);
+            return c.hoverEvent(((ItemStack) in[1].get(sc)).asHoverEvent());
+        });
         KajetansPlugin.scriptManager.registerFunction("text.hover", (sc, in) -> {
             Component c = (Component) in[0].get(sc);
             return c.hoverEvent(HoverEvent.showText((Component) in[1].get(sc)));

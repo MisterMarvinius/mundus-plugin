@@ -25,14 +25,21 @@ public class ReadCommands {
             return NMS.parseEntity(in[1].getString(sc), (Location) in[0].get(sc));
         });
         KajetansPlugin.scriptManager.registerFunction("read.uuid", (sc, in) -> {
+            String s = in[0].getString(sc);
             try {
-                return UUID.fromString(in[0].getString(sc));
+                return UUID.fromString(s);
             } catch(Exception ex) {
                 return null;
             }
         });
-        KajetansPlugin.scriptManager.registerFunction("read.slot",
-                (sc, in) -> EquipmentSlot.valueOf(in[0].getString(sc)));
+        KajetansPlugin.scriptManager.registerFunction("read.slot", (sc, in) -> {
+            String s = in[0].getString(sc);
+            try {
+                return EquipmentSlot.valueOf(s);
+            } catch(Exception ex) {
+                return null;
+            }
+        });
         KajetansPlugin.scriptManager.registerFunction("read.blockdata", (sc, in) -> {
             String s = in[0].getString(sc);
             try {

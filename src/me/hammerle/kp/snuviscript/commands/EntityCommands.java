@@ -6,7 +6,6 @@ import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.entity.ItemFrame;
@@ -63,7 +62,7 @@ public class EntityCommands {
         });
         KajetansPlugin.scriptManager.registerFunction("entity.getname",
                 (sc, in) -> ((Entity) in[0].get(sc)).customName());
-        KajetansPlugin.scriptManager.registerConsumer("entity.throw", (sc, in) -> {
+        KajetansPlugin.scriptManager.registerConsumer("entity.setmotion", (sc, in) -> {
             Entity ent = (Entity) in[0].get(sc);
             ent.setVelocity(
                     new Vector(in[1].getDouble(sc), in[2].getDouble(sc), in[3].getDouble(sc)));
@@ -94,14 +93,6 @@ public class EntityCommands {
         KajetansPlugin.scriptManager.registerConsumer("entity.unmount", (sc, in) -> {
             ((Entity) in[0].get(sc)).leaveVehicle();
         });
-        KajetansPlugin.scriptManager.registerConsumer("entity.spawnitemframe", (sc, in) -> {
-            Location l = ((Location) in[0].get(sc));
-            ItemFrame frame = l.getWorld().spawn(l, ItemFrame.class);
-            frame.setFacingDirection(BlockFace.valueOf(in[1].getString(sc)));
-            frame.setItem((ItemStack) in[2].get(sc));
-        });
-        KajetansPlugin.scriptManager.registerFunction("entity.getitemfromframe",
-                (sc, in) -> ((ItemFrame) in[0].get(sc)).getItem());
         KajetansPlugin.scriptManager.registerFunction("entity.get", (sc, in) -> {
             Location l = (Location) in[0].get(sc);
             double min = Double.MAX_VALUE;
@@ -123,9 +114,6 @@ public class EntityCommands {
         });
         KajetansPlugin.scriptManager.registerFunction("entity.iswet",
                 (sc, in) -> ((Entity) in[0].get(sc)).isInWater());
-        KajetansPlugin.scriptManager.registerConsumer("entity.setpickupdelay", (sc, in) -> {
-            ((Item) in[0].get(sc)).setPickupDelay(in[1].getInt(sc));
-        });
         KajetansPlugin.scriptManager.registerFunction("entity.spawn", (sc, in) -> {
             Location l = ((Location) in[0].get(sc));
             return l.getWorld().spawnEntity(l, EntityType.valueOf(in[1].getString(sc)));
@@ -152,7 +140,7 @@ public class EntityCommands {
         KajetansPlugin.scriptManager.registerFunction("sheep.issheared",
                 (sc, in) -> ((Sheep) in[0].get(sc)).isSheared());
         KajetansPlugin.scriptManager.registerFunction("sheep.getcolor",
-                (sc, in) -> ((Sheep) in[0].get(sc)).getColor());
+                (sc, in) -> ((Sheep) in[0].get(sc)).getColor().toString());
         KajetansPlugin.scriptManager.registerConsumer("creeper.explode",
                 (sc, in) -> ((Creeper) in[0].get(sc)).ignite());
         KajetansPlugin.scriptManager.registerFunction("pet.istamed", (sc, in) -> {
@@ -169,10 +157,6 @@ public class EntityCommands {
             Tameable t = (Tameable) in[0].get(sc);
             return t.getOwner();
         });
-        KajetansPlugin.scriptManager.registerFunction("entity.getuuid", (sc, in) -> {
-            Tameable t = (Tameable) in[0].get(sc);
-            return t.getOwner();
-        });
         KajetansPlugin.scriptManager.registerConsumer("entity.frame.hide", (sc, in) -> {
             ItemFrame frame = (ItemFrame) in[0].get(sc);
             frame.setVisible(false);
@@ -185,5 +169,13 @@ public class EntityCommands {
             ItemFrame frame = (ItemFrame) in[0].get(sc);
             frame.setFixed(in[1].getBoolean(sc));
         });
+        KajetansPlugin.scriptManager.registerConsumer("entity.frame.spawn", (sc, in) -> {
+            Location l = ((Location) in[0].get(sc));
+            ItemFrame frame = l.getWorld().spawn(l, ItemFrame.class);
+            frame.setFacingDirection(BlockFace.valueOf(in[1].getString(sc)));
+            frame.setItem((ItemStack) in[2].get(sc));
+        });
+        KajetansPlugin.scriptManager.registerFunction("entity.frame.getitem",
+                (sc, in) -> ((ItemFrame) in[0].get(sc)).getItem());
     }
 }

@@ -14,10 +14,9 @@ public class EnchantmentCommands {
                 (sc, in) -> Enchantment.getByKey(NamespacedKey.fromString(in[0].getString(sc))));
         KajetansPlugin.scriptManager.registerFunction("enchantment.getmaxlevel",
                 (sc, in) -> (double) ((Enchantment) in[0].get(sc)).getMaxLevel());
-        KajetansPlugin.scriptManager.registerFunction("enchantment.add", (sc, in) -> {
+        KajetansPlugin.scriptManager.registerConsumer("enchantment.add", (sc, in) -> {
             ((ItemStack) in[1].get(sc)).addUnsafeEnchantment((Enchantment) in[0].get(sc),
                     in[2].getInt(sc));
-            return true;
         });
         KajetansPlugin.scriptManager.registerFunction("enchantment.getlevel",
                 (sc, in) -> (double) ((ItemStack) in[1].get(sc))

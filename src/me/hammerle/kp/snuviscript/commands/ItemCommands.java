@@ -36,8 +36,13 @@ public class ItemCommands {
 
         KajetansPlugin.scriptManager.registerFunction("item.custom.getall",
                 (sc, in) -> CustomItem.values());
-        KajetansPlugin.scriptManager.registerFunction("item.custom.get",
-                (sc, in) -> CustomItem.valueOf(in[0].getString(sc)));
+        KajetansPlugin.scriptManager.registerFunction("item.custom.get", (sc, in) -> {
+            try {
+                return CustomItem.valueOf(in[0].getString(sc));
+            } catch(IllegalArgumentException ex) {
+                return null;
+            }
+        });
         KajetansPlugin.scriptManager.registerFunction("item.custom.new", (sc, in) -> CustomItems
                 .build((CustomItem) in[0].get(sc), in.length >= 2 ? in[1].getInt(sc) : 1));
         KajetansPlugin.scriptManager.registerFunction("item.getcustom",
@@ -46,9 +51,9 @@ public class ItemCommands {
         KajetansPlugin.scriptManager.registerFunction("item.new",
                 (sc, in) -> new ItemStack((Material) in[0].get(sc),
                         in.length >= 2 ? in[1].getInt(sc) : 1));
-        KajetansPlugin.scriptManager.registerConsumer("item.drop", (sc, in) -> {
-            Location l = (Location) in[0].get(sc);
-            l.getWorld().dropItem(l, (ItemStack) in[1].get(sc));
+        KajetansPlugin.scriptManager.registerFunction("item.drop", (sc, in) -> {
+            Location l = (Location) in[1].get(sc);
+            return l.getWorld().dropItem(l, (ItemStack) in[0].get(sc));
         });
         KajetansPlugin.scriptManager.registerFunction("item.gettag",
                 (sc, in) -> Bukkit.getTag(Tag.REGISTRY_ITEMS,
