@@ -32,6 +32,7 @@ import net.minecraft.core.BlockPosition;
 import net.minecraft.core.IRegistry;
 import net.minecraft.nbt.MojangsonParser;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.chat.ChatComponentText;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.DataWatcherObject;
@@ -74,6 +75,8 @@ public class NMS {
     private final static HashMap<String, DamageSource> DAMAGE_SOURCES = new HashMap<>();
 
     private static EntityTypes<RawHuman.WrapperHuman> HUMAN_TYPE;
+    public static String humanPrefix = "A";
+    public static String humanSuffix = "B";
 
     @SuppressWarnings("unchecked")
     public static void init() {
@@ -255,6 +258,7 @@ public class NMS {
             }
 
             public EntityPlayer update(PacketPlayOutSpawnEntityLiving p) {
+                setTabName();
                 player.e(p.b()); // set id, get id
                 player.a(p.e(), p.f(), p.g(), 0.0f, 0.0f);
                 return player;
@@ -334,8 +338,14 @@ public class NMS {
                 gp.getProperties().put("textures", new Property("textures", texture, signature));
             }
 
+            private void setTabName() {
+                player.listName =
+                        new ChatComponentText(humanPrefix + player.fp().getName() + humanSuffix);
+            }
+
             private void sync() {
                 updatePosition();
+                setTabName();
                 PacketPlayOutPlayerInfo info = new PacketPlayOutPlayerInfo(
                         PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, player);
                 PacketPlayOutNamedEntitySpawn spawn = new PacketPlayOutNamedEntitySpawn(player);

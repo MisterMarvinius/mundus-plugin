@@ -49,5 +49,11 @@ public class HumanCommands {
             Human h = (Human) in[0].get(sc);
             return h.getName();
         });
+        KajetansPlugin.scriptManager.registerConsumer("human.setprefix", (sc, in) -> {
+            NMS.humanPrefix = in[0].getString(sc);
+        });
+        KajetansPlugin.scriptManager.registerConsumer("human.setsuffix", (sc, in) -> {
+            NMS.humanSuffix = in[0].getString(sc);
+        });
     }
 }
