@@ -16,6 +16,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.Openable;
 import org.bukkit.block.data.type.Door;
+import org.bukkit.block.data.type.Leaves;
 import org.bukkit.entity.LivingEntity;
 import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.kp.NMS;
@@ -142,5 +143,18 @@ public class BlockCommands {
         });
         KajetansPlugin.scriptManager.registerFunction("block.isdirectional",
                 (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Directional);
+        KajetansPlugin.scriptManager.registerConsumer("block.setpersistent", (sc, in) -> {
+            Block b = (Block) in[0].get(sc);
+            Leaves o = (Leaves) b.getBlockData();
+            o.setPersistent(in[1].getBoolean(sc));
+            b.setBlockData(o);
+        });
+        KajetansPlugin.scriptManager.registerFunction("block.ispersistent", (sc, in) -> {
+            Block b = (Block) in[0].get(sc);
+            Leaves o = (Leaves) b.getBlockData();
+            return o.isPersistent();
+        });
+        KajetansPlugin.scriptManager.registerFunction("block.isleaves",
+                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Leaves);
     }
 }
