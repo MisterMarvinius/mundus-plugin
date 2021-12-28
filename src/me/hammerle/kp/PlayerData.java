@@ -2,7 +2,6 @@ package me.hammerle.kp;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -22,7 +21,9 @@ public class PlayerData {
     private Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
     private Objective objective;
     private HashMap<String, Object> data = new HashMap<>();
-    private ConcurrentHashMap<String, Integer> timers = new ConcurrentHashMap<>();
+    private HashMap<String, Integer> timers = new HashMap<>();
+    private HashMap<String, Integer> timerQueue = new HashMap<>();
+    private boolean iterating = false;
 
     private PlayerData(Player p) {
         objective = scoreboard.registerNewObjective("kajetansplugin", "dummy",
@@ -94,6 +95,10 @@ public class PlayerData {
     }
 
     public void setTimer(String name, int time) {
+        if(iterating) {
+            timerQueue.put(name, time);
+            return;
+        }
         if(time <= 0) {
             timers.remove(name);
             return;
@@ -111,6 +116,7 @@ public class PlayerData {
     }
 
     public void tick(Player p) {
+        iterating = true;
         timers.entrySet().removeIf(entry -> {
             int time = entry.getValue() - 1;
             if(time <= 0) {
@@ -122,6 +128,9 @@ public class PlayerData {
             entry.setValue(time);
             return false;
         });
+        iterating = false;
+        timers.putAll(timerQueue);
+        timerQueue.clear();
     }
 
     public static PlayerData get(Player p) {

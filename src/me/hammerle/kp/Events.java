@@ -1,5 +1,6 @@
 package me.hammerle.kp;
 
+import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -40,14 +41,16 @@ public class Events implements Listener {
 
     @EventHandler
     public void onCommandPreprocess(PlayerCommandPreprocessEvent e) {
-        CommandManager.execute(e.getPlayer(), e.getMessage());
-        e.setCancelled(true);
+        if(CommandManager.execute(e.getPlayer(), e.getMessage())) {
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
     public void onServerCommand(ServerCommandEvent e) {
-        CommandManager.execute(e.getSender(), e.getCommand());
-        e.setCancelled(true);
+        if(CommandManager.execute(e.getSender(), e.getCommand())) {
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
@@ -163,6 +166,7 @@ public class Events implements Listener {
         PlotEvents.onPlayerInteract(e);
         ScriptEvents.onPlayerInteract(e);
         CustomItems.onPlayerInteract(e);
+        e.setUseItemInHand(Event.Result.ALLOW);
     }
 
     @EventHandler

@@ -21,6 +21,10 @@ public class CommandCommands {
                 (sc, in) -> CommandManager.addIgnored(in[0].getString(sc)));
         KajetansPlugin.scriptManager.registerConsumer("command.clearignored",
                 (sc, in) -> CommandManager.clearIgnored());
+        KajetansPlugin.scriptManager.registerConsumer("command.addnoperm",
+                (sc, in) -> CommandManager.addNoPerm(in[0].getString(sc)));
+        KajetansPlugin.scriptManager.registerConsumer("command.clearnoperm",
+                (sc, in) -> CommandManager.clearNoPerm());
         KajetansPlugin.scriptManager.registerFunction("command.newhelp", (sc, in) -> {
             final String perm = in[1].getString(sc);
             return CommandDispatcher.a(in[0].getString(sc))

@@ -32,6 +32,7 @@ public class CommandManager {
     private final static HashSet<String> SNUVI_COMMANDS = new HashSet<>();
     private final static HashMap<String, CommandNode<?>> CUSTOM_NODES = new HashMap<>();
     private final static HashSet<String> IGNORED_COMMANDS = new HashSet<>();
+    private final static HashSet<String> NO_PERM_COMMANDS = new HashSet<>();
 
     public static void clearCustomNodes() {
         CUSTOM_NODES.clear();
@@ -43,6 +44,14 @@ public class CommandManager {
 
     public static void clearIgnored() {
         IGNORED_COMMANDS.clear();
+    }
+
+    public static void addNoPerm(String command) {
+        NO_PERM_COMMANDS.add(command);
+    }
+
+    public static void clearNoPerm() {
+        NO_PERM_COMMANDS.clear();
     }
 
     public static void addCustomNode(CommandNode<?> node) {
@@ -102,43 +111,41 @@ public class CommandManager {
         return list.toArray(new String[list.size()]);
     }
 
-    public static void execute(CommandSender cs, String rawCommand) {
+    public static boolean execute(CommandSender cs, String rawCommand) {
         String commandName = getCommandName(rawCommand);
 
         KajetanCommand command = COMMANDS.get(commandName);
         if(command != null) {
             if(cs.hasPermission(command.getName())) {
                 command.execute(cs, getArguments(rawCommand));
-                return;
+                return true;
             }
-            ScriptEvents.onMissingPermission(cs, command.getName());
-            return;
+            ScriptEvents.onMissingPermission(cs, command.getName(), command.getName());
+            return true;
         }
 
         if(hasCustom(commandName)) {
             ScriptEvents.onCustomCommand(cs, commandName, getArguments(rawCommand));
-            return;
+            return true;
         }
 
-        if(!cs.hasPermission(commandName)) {
-            ScriptEvents.onMissingPermission(cs, commandName);
-            return;
-        } else if(cs instanceof Player && ScriptEvents.onCommand((Player) cs, commandName)) {
-            return;
-        }
         Command bCommand = Bukkit.getServer().getCommandMap().getCommand(commandName);
         if(bCommand == null) {
             ScriptEvents.onMissingCommand(cs, commandName);
-            return;
+            return true;
         }
+
         String perm = bCommand.getPermission();
-        PermissionAttachment pa = cs.addAttachment(KajetansPlugin.instance, perm, true);
-        try {
-            bCommand.execute(cs, commandName, getArguments(rawCommand));
-        } catch(Throwable ex) {
-            KajetansPlugin.warn(ex.getMessage());
+        if(perm == null || perm.isEmpty()) {
+            perm = "missing." + bCommand.getName();
         }
-        cs.removeAttachment(pa);
+        if(!cs.hasPermission(perm)) {
+            ScriptEvents.onMissingPermission(cs, commandName, perm);
+            return true;
+        } else if(cs instanceof Player && ScriptEvents.onCommand((Player) cs, commandName)) {
+            return true;
+        }
+        return false;
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -153,10 +160,22 @@ public class CommandManager {
         map.put(vanilla, rootNode);
         CommandListenerWrapper cs = p.cQ();
         commandSourceNodesToSuggestionNodes(true, vanilla, rootNode, cs, map);
+        commandSourceNodesToSuggestionNodes(true, p.c.aB.c.a().getRoot(), rootNode, cs, map);
         for(CommandNode node : CUSTOM_NODES.values()) {
             commandSourceNodesToSuggestionNodes(node, rootNode, cs, map);
         }
         p.b.a(new PacketPlayOutCommands(rootNode));
+    }
+
+    private static boolean checkNoPerm(boolean first, CommandNode<CommandListenerWrapper> c,
+            CommandListenerWrapper source) {
+        if(!first) {
+            return true;
+        }
+        if(NO_PERM_COMMANDS.contains(c.getName())) {
+            return source.getBukkitSender().hasPermission("missing." + c.getName());
+        }
+        return true;
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -168,8 +187,7 @@ public class CommandManager {
             if(first && IGNORED_COMMANDS.contains(childNode.getName())) {
                 continue;
             }
-            if((first && source.getBukkitSender().hasPermission(childNode.getName())
-                    || (!first && childNode.canUse(source)))) {
+            if(childNode.canUse(source) && checkNoPerm(first, childNode, source)) {
                 ArgumentBuilder<ICompletionProvider, ?> arg =
                         (ArgumentBuilder) childNode.createBuilder();
                 arg.requires(a -> true);

@@ -7,7 +7,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
-import org.bukkit.event.Event;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
@@ -133,7 +132,6 @@ public class PlotEvents {
         Player p = e.getPlayer();
         if(!canBypass(p) && !WorldPlotMap.canInteractWithBlock(b.getLocation(), p)) {
             e.setCancelled(true);
-            e.setUseItemInHand(Event.Result.ALLOW);
         }
     }
 

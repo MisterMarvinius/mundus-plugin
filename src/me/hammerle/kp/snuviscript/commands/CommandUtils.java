@@ -45,6 +45,8 @@ public class CommandUtils {
             case "server":
                 c.accept(Bukkit.getServer().getConsoleSender());
                 return;
+            default:
+                throw new IllegalArgumentException();
         }
     }
 }

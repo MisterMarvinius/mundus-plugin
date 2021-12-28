@@ -561,10 +561,11 @@ public class ScriptEvents {
         });
     }
 
-    public static void onMissingPermission(CommandSender cs, String command) {
+    public static void onMissingPermission(CommandSender cs, String command, String perm) {
         handleEvent("missing_perm", (sc) -> {
             sc.setVar("sender", cs);
             sc.setVar("command", command);
+            sc.setVar("perm", perm);
         });
     }
 
