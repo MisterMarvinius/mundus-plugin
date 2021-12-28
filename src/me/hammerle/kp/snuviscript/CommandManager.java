@@ -111,6 +111,18 @@ public class CommandManager {
         return list.toArray(new String[list.size()]);
     }
 
+    private static boolean checkPerm(CommandSender cs, String perm) {
+        if(cs.hasPermission(perm)) {
+            return true;
+        }
+        int point = perm.indexOf(".");
+        if(point != -1) {
+            String all = perm.substring(0, point) + ".*";
+            return cs.hasPermission(all);
+        }
+        return false;
+    }
+
     public static boolean execute(CommandSender cs, String rawCommand) {
         String commandName = getCommandName(rawCommand);
 
@@ -139,10 +151,12 @@ public class CommandManager {
         if(perm == null || perm.isEmpty()) {
             perm = "missing." + bCommand.getName();
         }
-        if(!cs.hasPermission(perm)) {
+
+        if(!checkPerm(cs, perm)) {
             ScriptEvents.onMissingPermission(cs, commandName, perm);
             return true;
-        } else if(cs instanceof Player && ScriptEvents.onCommand((Player) cs, commandName)) {
+        }
+        if(cs instanceof Player && ScriptEvents.onCommand((Player) cs, commandName)) {
             return true;
         }
         return false;
