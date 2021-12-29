@@ -287,6 +287,7 @@ public class Events implements Listener {
         if(e.getBlock().getType() == Material.FARMLAND) {
             e.setCancelled(true);
         }
+        PlotEvents.onEntityChangeBlock(e);
         ScriptEvents.onEntityChangeBlock(e);
     }
 

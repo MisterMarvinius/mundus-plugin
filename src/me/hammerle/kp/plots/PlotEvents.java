@@ -150,4 +150,13 @@ public class PlotEvents {
             e.setCancelled(true);
         }
     }
+
+    public static void onEntityChangeBlock(EntityChangeBlockEvent e) {
+        if(e.getEntity() instanceof Player) {
+            return;
+        }
+        if(WorldPlotMap.hasPlotAt(e.getEntity().getLocation())) {
+            e.setCancelled(true);
+        }
+    }
 }
