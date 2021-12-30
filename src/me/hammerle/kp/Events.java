@@ -23,6 +23,7 @@ import me.hammerle.kp.snuviscript.MoveEvents;
 import me.hammerle.kp.snuviscript.ScriptEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -287,7 +288,9 @@ public class Events implements Listener {
         if(e.getBlock().getType() == Material.FARMLAND) {
             e.setCancelled(true);
         }
-        PlotEvents.onEntityChangeBlock(e);
+        if(e.getEntityType() != EntityType.FALLING_BLOCK) {
+            PlotEvents.onEntityChangeBlock(e);
+        }
         ScriptEvents.onEntityChangeBlock(e);
     }
 
