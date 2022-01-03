@@ -25,7 +25,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
-import io.papermc.paper.event.player.AsyncChatEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.kp.NMS;
@@ -522,7 +521,8 @@ public class ScriptEvents {
         });
     }
 
-    public static void onAsyncChat(AsyncChatEvent e) {
+    @SuppressWarnings("deprecation")
+    public static void onChat(io.papermc.paper.event.player.ChatEvent e) {
         KajetansPlugin.scriptManager.callEvent("chat", sc -> {
             setPlayer(sc, e.getPlayer());
             sc.setVar("message", e.message());

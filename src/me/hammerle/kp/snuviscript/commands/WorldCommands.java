@@ -18,7 +18,7 @@ public class WorldCommands {
         KajetansPlugin.scriptManager.registerFunction("world.getname",
                 (sc, in) -> ((World) in[0].get(sc)).getName());
         KajetansPlugin.scriptManager.registerConsumer("world.setdifficulty", (sc, in) -> {
-            ((World) in[0].get(sc)).setDifficulty(Difficulty.valueOf(in[0].getString(sc)));
+            ((World) in[0].get(sc)).setDifficulty(Difficulty.valueOf(in[1].getString(sc)));
         });
         KajetansPlugin.scriptManager.registerConsumer("world.setspawn", (sc, in) -> {
             Location l = ((Location) in[0].get(sc));

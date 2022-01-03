@@ -15,7 +15,6 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
-import io.papermc.paper.event.player.AsyncChatEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import me.hammerle.kp.plots.PlotEvents;
 import me.hammerle.kp.snuviscript.CommandManager;
@@ -242,8 +241,9 @@ public class Events implements Listener {
     }
 
     @EventHandler
-    public void onAsyncChat(AsyncChatEvent e) {
-        ScriptEvents.onAsyncChat(e);
+    @SuppressWarnings("deprecation")
+    public void onChat(io.papermc.paper.event.player.ChatEvent e) {
+        ScriptEvents.onChat(e);
     }
 
     @EventHandler
