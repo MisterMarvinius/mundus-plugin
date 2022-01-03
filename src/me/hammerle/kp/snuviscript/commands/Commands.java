@@ -1,5 +1,6 @@
 package me.hammerle.kp.snuviscript.commands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import me.hammerle.kp.KajetansPlugin;
@@ -26,6 +27,9 @@ public class Commands {
         KajetansPlugin.scriptManager.registerConsumer("config.saveasync", (sc, in) -> {
             SnuviConfig config = (SnuviConfig) in[0].get(sc);
             KajetansPlugin.scheduleAsyncTask(() -> config.save(sc));
+        });
+        KajetansPlugin.scriptManager.registerConsumer("stop", (sc, in) -> {
+            Bukkit.shutdown();
         });
     }
 }
