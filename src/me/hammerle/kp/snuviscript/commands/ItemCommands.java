@@ -21,6 +21,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import me.hammerle.kp.CustomItems;
 import me.hammerle.kp.KajetansPlugin;
+import me.hammerle.kp.NMS;
 import me.hammerle.kp.CustomItems.CustomItem;
 import net.kyori.adventure.text.Component;
 
@@ -64,7 +65,7 @@ public class ItemCommands {
         KajetansPlugin.scriptManager.registerFunction("item.gettype",
                 (sc, in) -> ((ItemStack) in[0].get(sc)).getType());
         KajetansPlugin.scriptManager.registerFunction("item.getmaxamount",
-                (sc, in) -> (double) ((ItemStack) in[0].get(sc)).getMaxStackSize());
+                (sc, in) -> (double) NMS.map((ItemStack) in[0].get(sc)).d());
         KajetansPlugin.scriptManager.registerFunction("item.getamount",
                 (sc, in) -> (double) ((ItemStack) in[0].get(sc)).getAmount());
         KajetansPlugin.scriptManager.registerConsumer("item.setamount",

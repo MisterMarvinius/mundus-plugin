@@ -27,5 +27,22 @@ public class BanCommands {
         KajetansPlugin.scriptManager.registerConsumer("ban.remove", (sc, in) -> {
             Bukkit.getBanList(BanList.Type.NAME).pardon(in[0].getString(sc));
         });
+        KajetansPlugin.scriptManager.registerConsumer("whitelist.enable", (sc, in) -> {
+            Bukkit.setWhitelist(true);
+        });
+        KajetansPlugin.scriptManager.registerConsumer("whitelist.disable", (sc, in) -> {
+            Bukkit.setWhitelist(false);
+        });
+        KajetansPlugin.scriptManager.registerConsumer("whitelist.add", (sc, in) -> {
+            Bukkit.getWhitelistedPlayers()
+                    .add(Bukkit.getOfflinePlayer(CommandUtils.getUUID(in[0].get(sc))));
+        });
+        KajetansPlugin.scriptManager.registerConsumer("whitelist.remove", (sc, in) -> {
+            Bukkit.getWhitelistedPlayers()
+                    .remove(Bukkit.getOfflinePlayer(CommandUtils.getUUID(in[0].get(sc))));
+        });
+        KajetansPlugin.scriptManager.registerConsumer("whitelist.clear", (sc, in) -> {
+            Bukkit.getWhitelistedPlayers().clear();
+        });
     }
 }

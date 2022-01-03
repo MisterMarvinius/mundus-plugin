@@ -11,7 +11,10 @@ public class ErrorCommands {
             return (double) KajetansPlugin.logger.getErrorHistory().getLength();
         });
         KajetansPlugin.scriptManager.registerFunction("error.getindex", (sc, in) -> {
-            return KajetansPlugin.logger.getErrorHistory().get(in[0].getInt(sc));
+            return KajetansPlugin.logger.getErrorHistory().get(in[0].getInt(sc)).message;
+        });
+        KajetansPlugin.scriptManager.registerFunction("error.getindextime", (sc, in) -> {
+            return (double) KajetansPlugin.logger.getErrorHistory().get(in[0].getInt(sc)).timestamp;
         });
         KajetansPlugin.scriptManager.registerConsumer("error.setconsoleprint", (sc, in) -> {
             KajetansPlugin.logger.setConsoleErrorLogging(in[0].getBoolean(sc));
@@ -23,7 +26,10 @@ public class ErrorCommands {
             return KajetansPlugin.logger.getDebugHistory().getLength();
         });
         KajetansPlugin.scriptManager.registerFunction("debug.getindex", (sc, in) -> {
-            return KajetansPlugin.logger.getDebugHistory().get(in[0].getInt(sc));
+            return KajetansPlugin.logger.getDebugHistory().get(in[0].getInt(sc)).message;
+        });
+        KajetansPlugin.scriptManager.registerFunction("debug.getindextime", (sc, in) -> {
+            return (double) KajetansPlugin.logger.getDebugHistory().get(in[0].getInt(sc)).timestamp;
         });
         KajetansPlugin.scriptManager.registerConsumer("debug.setconsoleprint", (sc, in) -> {
             KajetansPlugin.logger.setConsoleDebugLogging(in[0].getBoolean(sc));

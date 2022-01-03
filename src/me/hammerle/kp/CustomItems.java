@@ -62,8 +62,6 @@ public class CustomItems {
         GEAR(80, "Gear", 64),
         MINUS_GREEN(82, "Green Minus", 64),
         MINUS_RED(84, "Red Minus", 64),
-        MUSHROOM_STICK_COOKED(86, "Raw Mushroom Stick", 64),
-        MUSHROOM_STICK_RAW(88, "Cooked Mushroom Stick", 64),
         WOLF_FUR(94, "Wolf Fur", 64),
         SCROLL(96, "Scroll", 64);
 

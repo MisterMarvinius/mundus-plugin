@@ -9,8 +9,19 @@ import me.hammerle.snuviscript.exceptions.StackTrace;
 public class SnuviLogger implements ISnuviLogger {
     private boolean printErrorToConsole = true;
     private boolean printDebugToConsole = true;
-    private final RingArray<String> debugHistory = new RingArray<>(100);
-    private final RingArray<String> errorHistory = new RingArray<>(100);
+
+    public static class Message {
+        public final String message;
+        public final long timestamp;
+
+        public Message(String message) {
+            this.message = message;
+            this.timestamp = System.currentTimeMillis();
+        }
+    }
+
+    private final RingArray<Message> debugHistory = new RingArray<>(100);
+    private final RingArray<Message> errorHistory = new RingArray<>(100);
 
     public void setConsoleErrorLogging(boolean b) {
         printErrorToConsole = b;
@@ -20,11 +31,11 @@ public class SnuviLogger implements ISnuviLogger {
         printDebugToConsole = b;
     }
 
-    public RingArray<String> getDebugHistory() {
+    public RingArray<Message> getDebugHistory() {
         return debugHistory;
     }
 
-    public RingArray<String> getErrorHistory() {
+    public RingArray<Message> getErrorHistory() {
         return errorHistory;
     }
 
@@ -70,13 +81,13 @@ public class SnuviLogger implements ISnuviLogger {
 
         String msg = sb.toString();
         if(ex == null) {
-            debugHistory.add(msg);
+            debugHistory.add(new Message(msg));
             if(printDebugToConsole) {
                 KajetansPlugin.log(msg);
             }
             sendToPlayers(msg, "script.debug");
         } else {
-            errorHistory.add(msg);
+            errorHistory.add(new Message(msg));
             if(printErrorToConsole) {
                 KajetansPlugin.log(msg);
             }
