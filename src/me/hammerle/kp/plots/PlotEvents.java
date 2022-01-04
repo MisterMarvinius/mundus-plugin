@@ -159,4 +159,26 @@ public class PlotEvents {
             e.setCancelled(true);
         }
     }
+
+    public static void onBlockIgnite(BlockIgniteEvent e) {
+        Entity ent = e.getIgnitingEntity();
+        if(ent == null) {
+            return;
+        }
+        Player p;
+        if(ent instanceof Player) {
+            p = (Player) ent;
+        } else if(ent instanceof Projectile) {
+            ProjectileSource source = ((Projectile) ent).getShooter();
+            if(!(source instanceof Player)) {
+                return;
+            }
+            p = (Player) source;
+        } else {
+            return;
+        }
+        if(!canBypass(p) && !WorldPlotMap.canInteractWithBlock(e.getBlock().getLocation(), p)) {
+            e.setCancelled(true);
+        }
+    }
 }

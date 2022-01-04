@@ -315,6 +315,11 @@ public class Events implements Listener {
     }
 
     @EventHandler
+    public void onBlockIgnite(BlockIgniteEvent e) {
+        PlotEvents.onBlockIgnite(e);
+    }
+
+    @EventHandler
     public void onPlayerItemDamage(PlayerItemDamageEvent e) {
         CustomItems.onPlayerItemDamage(e);
     }
