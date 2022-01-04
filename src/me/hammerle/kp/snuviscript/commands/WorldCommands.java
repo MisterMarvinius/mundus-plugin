@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import me.hammerle.kp.KajetansPlugin;
+import me.hammerle.kp.plots.WorldPlotMap;
 
 public class WorldCommands {
     @SuppressWarnings("")
@@ -54,8 +55,11 @@ public class WorldCommands {
         });
         KajetansPlugin.scriptManager.registerFunction("world.getentities",
                 (sc, in) -> new ArrayList<>(((World) in[0].get(sc)).getEntities()));
-        KajetansPlugin.scriptManager.registerFunction("world.load",
-                (sc, in) -> Bukkit.createWorld(WorldCreator.name(in[0].getString(sc))));
+        KajetansPlugin.scriptManager.registerFunction("world.load", (sc, in) -> {
+            World w = Bukkit.createWorld(WorldCreator.name(in[0].getString(sc)));
+            WorldPlotMap.read(w.getName());
+            return w;
+        });
         KajetansPlugin.scriptManager.registerFunction("world.unload",
                 (sc, in) -> Bukkit.unloadWorld((World) in[0].get(sc), true));
     }
