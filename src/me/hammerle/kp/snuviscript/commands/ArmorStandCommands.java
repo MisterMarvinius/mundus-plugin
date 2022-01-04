@@ -55,14 +55,14 @@ public class ArmorStandCommands {
                 (sc, in) -> ((ArmorStand) in[0].get(sc))
                         .setRightLegPose((EulerAngle) in[1].get(sc)));
 
-        KajetansPlugin.scriptManager.registerConsumer("euler.new",
+        KajetansPlugin.scriptManager.registerFunction("euler.new",
                 (sc, in) -> new EulerAngle(in[0].getDouble(sc), in[1].getDouble(sc),
                         in[2].getDouble(sc)));
-        KajetansPlugin.scriptManager.registerConsumer("euler.getx",
+        KajetansPlugin.scriptManager.registerFunction("euler.getx",
                 (sc, in) -> ((EulerAngle) in[0].get(sc)).getX());
-        KajetansPlugin.scriptManager.registerConsumer("euler.gety",
+        KajetansPlugin.scriptManager.registerFunction("euler.gety",
                 (sc, in) -> ((EulerAngle) in[0].get(sc)).getY());
-        KajetansPlugin.scriptManager.registerConsumer("euler.getz",
+        KajetansPlugin.scriptManager.registerFunction("euler.getz",
                 (sc, in) -> ((EulerAngle) in[0].get(sc)).getZ());
         KajetansPlugin.scriptManager.registerConsumer("euler.setx",
                 (sc, in) -> ((EulerAngle) in[0].get(sc)).setX(in[1].getDouble(sc)));

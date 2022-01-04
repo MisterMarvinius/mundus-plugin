@@ -1,6 +1,7 @@
 package me.hammerle.kp.snuviscript;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
@@ -198,12 +199,29 @@ public class ScriptEvents {
         if(!(e.getPlayer() instanceof Player)) {
             return;
         }
+        Inventory inv = e.getInventory();
         Player p = (Player) e.getPlayer();
         handleEvent("inv_close", sc -> {
             setPlayer(sc, p);
-            sc.setVar("inv", e.getInventory());
+            sc.setVar("inv", inv);
             sc.setVar("inv_title", e.getView().title());
         });
+
+        if(inv.getHolder() instanceof SnuviInventoryHolder) {
+            SnuviInventoryHolder snuvi = (SnuviInventoryHolder) inv.getHolder();
+            Location l = p.getLocation();
+            for(int i = 0; i < inv.getSize(); i++) {
+                if(snuvi.getSlotType(i) == SnuviInventoryHolder.SnuviSlotType.NORMAL) {
+                    ItemStack stack = inv.getItem(i);
+                    if(stack != null) {
+                        HashMap<Integer, ItemStack> map = p.getInventory().addItem(stack);
+                        for(ItemStack left : map.values()) {
+                            l.getWorld().dropItem(l, left);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public static boolean onHumanHurt(DamageSource ds, Human h, float amount, boolean cancel) {

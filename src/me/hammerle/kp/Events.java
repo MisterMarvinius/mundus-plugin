@@ -12,6 +12,7 @@ import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
+import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
@@ -22,6 +23,7 @@ import me.hammerle.kp.snuviscript.MoveEvents;
 import me.hammerle.kp.snuviscript.ScriptEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -252,13 +254,6 @@ public class Events implements Listener {
     }
 
     @EventHandler
-    public void onEntityPortal(EntityPortalEvent e) {
-        if(e.getEntity() instanceof Item) {
-            e.setCancelled(true);
-        }
-    }
-
-    @EventHandler
     public void onEntitySpawn(EntitySpawnEvent e) {
         ScriptEvents.onEntitySpawn(e);
     }
@@ -342,5 +337,30 @@ public class Events implements Listener {
     @EventHandler
     public void onVehicleExit(VehicleExitEvent e) {
         ScriptEvents.onVehicleExit(e);
+    }
+
+    private static boolean isVanillaWorld(World w) {
+        String name = w.getName();
+        return name.equals("world") || name.equals("world_nether") || name.equals("world_the_end");
+    }
+
+    @EventHandler
+    public void onPortalCreateEvent(PortalCreateEvent e) {
+        if(!isVanillaWorld(e.getWorld())) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onEntityPortal(EntityPortalEvent e) {
+        World from = e.getFrom().getWorld();
+        World to = e.getTo().getWorld();
+        if(!isVanillaWorld(from) || !isVanillaWorld(to)) {
+            e.setCancelled(true);
+        }
+
+        if(e.getEntity() instanceof Item) {
+            e.setCancelled(true);
+        }
     }
 }

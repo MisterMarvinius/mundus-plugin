@@ -1,5 +1,6 @@
 package me.hammerle.kp.snuviscript.commands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
@@ -45,5 +46,13 @@ public class InventoryCommands {
         });
         KajetansPlugin.scriptManager.registerConsumer("inv.clear",
                 (sc, in) -> ((Inventory) in[0].get(sc)).clear());
+        KajetansPlugin.scriptManager.registerConsumer("inv.closeall", (sc, in) -> {
+            for(Player p : Bukkit.getOnlinePlayers()) {
+                Inventory inv = p.getOpenInventory().getTopInventory();
+                if(inv.getHolder() instanceof SnuviInventoryHolder) {
+                    p.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                }
+            }
+        });
     }
 }
