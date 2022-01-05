@@ -95,6 +95,10 @@ public class ItemCommands {
             ItemStack stack = (ItemStack) in[0].get(sc);
             stack.addItemFlags(ItemFlag.valueOf(in[1].getString(sc)));
         });
+        KajetansPlugin.scriptManager.registerConsumer("item.removeflag", (sc, in) -> {
+            ItemStack stack = (ItemStack) in[0].get(sc);
+            stack.removeItemFlags(ItemFlag.valueOf(in[1].getString(sc)));
+        });
         KajetansPlugin.scriptManager.registerConsumer("item.addattribute", (sc, in) -> {
             ItemStack stack = (ItemStack) in[0].get(sc);
             stack.editMeta(meta -> {
