@@ -368,4 +368,13 @@ public class Events implements Listener {
             e.setCancelled(true);
         }
     }
+
+    @EventHandler
+    public void onPlayerPortal(PlayerPortalEvent e) {
+        World from = e.getFrom().getWorld();
+        World to = e.getTo().getWorld();
+        if(!isVanillaWorld(from) || !isVanillaWorld(to)) {
+            e.setCancelled(true);
+        }
+    }
 }
