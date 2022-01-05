@@ -6,9 +6,9 @@ import org.bukkit.util.EulerAngle;
 
 public class ArmorStandCommands {
     public static void registerFunctions() {
-        KajetansPlugin.scriptManager.registerFunction("as.getBodyPose",
+        KajetansPlugin.scriptManager.registerFunction("as.getbodypose",
                 (sc, in) -> ((ArmorStand) in[0].get(sc)).getBodyPose());
-        KajetansPlugin.scriptManager.registerFunction("as.getHeadPose",
+        KajetansPlugin.scriptManager.registerFunction("as.getheadpose",
                 (sc, in) -> ((ArmorStand) in[0].get(sc)).getHeadPose());
         KajetansPlugin.scriptManager.registerFunction("as.getleftarmpose",
                 (sc, in) -> ((ArmorStand) in[0].get(sc)).getLeftArmPose());
@@ -64,11 +64,11 @@ public class ArmorStandCommands {
                 (sc, in) -> ((EulerAngle) in[0].get(sc)).getY());
         KajetansPlugin.scriptManager.registerFunction("euler.getz",
                 (sc, in) -> ((EulerAngle) in[0].get(sc)).getZ());
-        KajetansPlugin.scriptManager.registerConsumer("euler.setx",
+        KajetansPlugin.scriptManager.registerFunction("euler.setx",
                 (sc, in) -> ((EulerAngle) in[0].get(sc)).setX(in[1].getDouble(sc)));
-        KajetansPlugin.scriptManager.registerConsumer("euler.sety",
+        KajetansPlugin.scriptManager.registerFunction("euler.sety",
                 (sc, in) -> ((EulerAngle) in[0].get(sc)).setY(in[1].getDouble(sc)));
-        KajetansPlugin.scriptManager.registerConsumer("euler.setz",
+        KajetansPlugin.scriptManager.registerFunction("euler.setz",
                 (sc, in) -> ((EulerAngle) in[0].get(sc)).setZ(in[1].getDouble(sc)));
     }
 }
