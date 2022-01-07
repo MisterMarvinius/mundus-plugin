@@ -9,11 +9,13 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.Damageable;
 import net.kyori.adventure.text.Component;
 
@@ -121,15 +123,16 @@ public class CustomItems {
         if(stack == null || stack.getType() != Material.NETHERITE_HOE) {
             return;
         }
+        if(getCustomItem(e.getInventory().getFirstItem()) != null
+                || getCustomItem(e.getInventory().getSecondItem()) != null) {
+            e.setResult(null);
+            return;
+        }
         if(getCustomItem(stack) != null) {
             return;
         }
-        Damageable meta = (Damageable) stack.getItemMeta();
-        if((meta.getDamage() & 1) == 0) {
-            meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
-            meta.setDamage(meta.getDamage() - 1);
-        }
-        stack.setItemMeta(meta);
+        correctDamage(stack);
+        e.setResult(stack);
     }
 
     public static void onPrepareItemEnchant(PrepareItemEnchantEvent e) {
@@ -143,7 +146,9 @@ public class CustomItems {
     }
 
     public static CustomItem getCustomItem(ItemStack stack) {
-        if(stack.getType() != Material.NETHERITE_HOE) {
+        if(stack == null) {
+            return null;
+        } else if(stack.getType() != Material.NETHERITE_HOE) {
             return null;
         }
         Damageable d = (Damageable) stack.getItemMeta();
@@ -178,5 +183,31 @@ public class CustomItems {
     public static int getMaxStackSize(ItemStack stack, int vanillaAmount) {
         CustomItem item = getCustomItem(stack);
         return item == null ? vanillaAmount : item.getMaxStackSize();
+    }
+
+    public static void onPrepareItemCraft(PrepareItemCraftEvent e) {
+        Recipe r = e.getRecipe();
+        if(r == null || r.getResult().getType() != Material.NETHERITE_HOE) {
+            return;
+        }
+        for(ItemStack stack : e.getInventory().getMatrix()) {
+            if(getCustomItem(stack) != null) {
+                e.getInventory().setResult(null);
+                return;
+            }
+        }
+
+        ItemStack stack = e.getInventory().getResult();
+        correctDamage(stack);
+        e.getInventory().setResult(stack);
+    }
+
+    private static void correctDamage(ItemStack stack) {
+        Damageable meta = (Damageable) stack.getItemMeta();
+        if((meta.getDamage() & 1) == 0) {
+            meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
+            meta.setDamage(meta.getDamage() - 1);
+        }
+        stack.setItemMeta(meta);
     }
 }

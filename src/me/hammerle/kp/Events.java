@@ -204,6 +204,7 @@ public class Events implements Listener {
 
     @EventHandler
     public void onPrepareItemCraft(PrepareItemCraftEvent e) {
+        CustomItems.onPrepareItemCraft(e);
         ScriptEvents.onPrepareItemCraft(e);
     }
 
