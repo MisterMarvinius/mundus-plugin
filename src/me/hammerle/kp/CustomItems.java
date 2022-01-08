@@ -15,7 +15,6 @@ import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.Damageable;
 import net.kyori.adventure.text.Component;
 
@@ -186,8 +185,8 @@ public class CustomItems {
     }
 
     public static void onPrepareItemCraft(PrepareItemCraftEvent e) {
-        Recipe r = e.getRecipe();
-        if(r == null || r.getResult().getType() != Material.NETHERITE_HOE) {
+        ItemStack result = e.getInventory().getResult();
+        if(result == null || result.getType() != Material.NETHERITE_HOE) {
             return;
         }
         for(ItemStack stack : e.getInventory().getMatrix()) {

@@ -3,6 +3,7 @@ package me.hammerle.kp.snuviscript.commands;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.GameMode;
@@ -18,6 +19,40 @@ import me.hammerle.kp.NMS;
 import net.kyori.adventure.text.Component;
 
 public class PlayerCommands {
+    private static HashMap<Integer, String> idToName = null;
+    private static HashMap<Integer, UUID> idToUUID = null;
+
+    private static void fillDefaults() {
+        if(idToName == null) {
+            idToName = new HashMap<>();
+            for(OfflinePlayer op : Bukkit.getOfflinePlayers()) {
+                idToName.put(op.getUniqueId().hashCode(), op.getName());
+            }
+        }
+        if(idToUUID == null) {
+            idToUUID = new HashMap<>();
+            for(OfflinePlayer op : Bukkit.getOfflinePlayers()) {
+                idToUUID.put(op.getUniqueId().hashCode(), op.getUniqueId());
+            }
+        }
+    }
+
+    public static void join(Player p) {
+        fillDefaults();
+        idToName.put(p.getUniqueId().hashCode(), p.getName());
+        idToUUID.put(p.getUniqueId().hashCode(), p.getUniqueId());
+    }
+
+    private static String getNameFromId(int id) {
+        fillDefaults();
+        return idToName.get(id);
+    }
+
+    private static UUID getUUIDFromId(int id) {
+        fillDefaults();
+        return idToUUID.get(id);
+    }
+
     private static int countItemStack(Player p, ItemStack stack) {
         if(stack.getAmount() == 0) {
             return 0;
@@ -110,24 +145,10 @@ public class PlayerCommands {
                 (sc, in) -> (double) CommandUtils.getUUID(in[0].get(sc)).hashCode());
         KajetansPlugin.scriptManager.registerFunction("player.get",
                 (sc, in) -> Bukkit.getPlayer(CommandUtils.getUUID(in[0].get(sc))));
-        KajetansPlugin.scriptManager.registerFunction("player.getuuidfromid", (sc, in) -> {
-            int id = in[0].getInt(sc);
-            for(OfflinePlayer op : Bukkit.getOfflinePlayers()) {
-                if(op.getUniqueId().hashCode() == id) {
-                    return op.getUniqueId();
-                }
-            }
-            return null;
-        });
-        KajetansPlugin.scriptManager.registerFunction("player.getnamefromid", (sc, in) -> {
-            int id = in[0].getInt(sc);
-            for(OfflinePlayer op : Bukkit.getOfflinePlayers()) {
-                if(op.getUniqueId().hashCode() == id) {
-                    return op.getName();
-                }
-            }
-            return null;
-        });
+        KajetansPlugin.scriptManager.registerFunction("player.getuuidfromid",
+                (sc, in) -> getUUIDFromId(in[0].getInt(sc)));
+        KajetansPlugin.scriptManager.registerFunction("player.getnamefromid",
+                (sc, in) -> getNameFromId(in[0].getInt(sc)));
         KajetansPlugin.scriptManager.registerFunction("player.getip",
                 (sc, in) -> ((Player) in[0].get(sc)).spigot().getRawAddress().toString());
         KajetansPlugin.scriptManager.registerFunction("player.iscreative",

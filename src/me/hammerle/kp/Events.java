@@ -21,6 +21,7 @@ import me.hammerle.kp.plots.PlotEvents;
 import me.hammerle.kp.snuviscript.CommandManager;
 import me.hammerle.kp.snuviscript.MoveEvents;
 import me.hammerle.kp.snuviscript.ScriptEvents;
+import me.hammerle.kp.snuviscript.commands.PlayerCommands;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -67,6 +68,7 @@ public class Events implements Listener {
         Player p = e.getPlayer();
         NMS.patch(p);
         PlayerData.get(p).login(p);
+        PlayerCommands.join(p);
         ScriptEvents.onPlayerJoin(e);
     }
 
