@@ -15,6 +15,7 @@ import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.Openable;
+import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Door;
 import org.bukkit.block.data.type.Leaves;
 import org.bukkit.entity.LivingEntity;
@@ -156,5 +157,18 @@ public class BlockCommands {
         });
         KajetansPlugin.scriptManager.registerFunction("block.isleaves",
                 (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Leaves);
+        KajetansPlugin.scriptManager.registerFunction("block.isbed",
+                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Bed);
+        KajetansPlugin.scriptManager.registerConsumer("block.setbedpart", (sc, in) -> {
+            Block b = (Block) in[0].get(sc);
+            Bed o = (Bed) b.getBlockData();
+            o.setPart(Bed.Part.valueOf(in[1].getString(sc)));
+            b.setBlockData(o);
+        });
+        KajetansPlugin.scriptManager.registerFunction("block.getbedpart", (sc, in) -> {
+            Block b = (Block) in[0].get(sc);
+            Bed o = (Bed) b.getBlockData();
+            return o.getPart().toString();
+        });
     }
 }

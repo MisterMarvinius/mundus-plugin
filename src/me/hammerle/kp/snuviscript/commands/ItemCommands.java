@@ -70,8 +70,13 @@ public class ItemCommands {
                 (sc, in) -> (double) ((ItemStack) in[0].get(sc)).getAmount());
         KajetansPlugin.scriptManager.registerConsumer("item.setamount",
                 (sc, in) -> ((ItemStack) in[0].get(sc)).setAmount(in[1].getInt(sc)));
-        KajetansPlugin.scriptManager.registerFunction("item.hasname",
-                (sc, in) -> ((ItemStack) in[0].get(sc)).getItemMeta().hasDisplayName());
+        KajetansPlugin.scriptManager.registerFunction("item.hasname", (sc, in) -> {
+            ItemStack stack = (ItemStack) in[0].get(sc);
+            if(stack.getItemMeta() == null) {
+                return false;
+            }
+            return stack.getItemMeta().hasDisplayName();
+        });
         KajetansPlugin.scriptManager.registerFunction("item.getname",
                 (sc, in) -> ((ItemStack) in[0].get(sc)).getItemMeta().displayName());
         KajetansPlugin.scriptManager.registerConsumer("item.setname", (sc, in) -> {
