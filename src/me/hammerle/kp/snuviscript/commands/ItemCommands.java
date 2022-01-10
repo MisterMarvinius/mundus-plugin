@@ -1,5 +1,6 @@
 package me.hammerle.kp.snuviscript.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import com.google.common.collect.HashMultimap;
@@ -77,14 +78,24 @@ public class ItemCommands {
             }
             return stack.getItemMeta().hasDisplayName();
         });
-        KajetansPlugin.scriptManager.registerFunction("item.getname",
-                (sc, in) -> ((ItemStack) in[0].get(sc)).getItemMeta().displayName());
+        KajetansPlugin.scriptManager.registerFunction("item.getname", (sc, in) -> {
+            ItemStack stack = (ItemStack) in[0].get(sc);
+            if(stack.getItemMeta() == null) {
+                return null;
+            }
+            return stack.getItemMeta().displayName();
+        });
         KajetansPlugin.scriptManager.registerConsumer("item.setname", (sc, in) -> {
             ((ItemStack) in[0].get(sc))
                     .editMeta(meta -> meta.displayName((Component) in[1].get(sc)));
         });
-        KajetansPlugin.scriptManager.registerFunction("item.getlore",
-                (sc, in) -> ((ItemStack) in[0].get(sc)).getItemMeta().lore());
+        KajetansPlugin.scriptManager.registerFunction("item.getlore", (sc, in) -> {
+            ItemStack stack = (ItemStack) in[0].get(sc);
+            if(stack.getItemMeta() == null) {
+                return new ArrayList<Component>();
+            }
+            return stack.getItemMeta().lore();
+        });
         KajetansPlugin.scriptManager.registerConsumer("item.setlore", (sc, in) -> {
             ((ItemStack) in[0].get(sc))
                     .editMeta(meta -> meta.lore((List<Component>) in[1].get(sc)));
@@ -143,6 +154,9 @@ public class ItemCommands {
         });
         KajetansPlugin.scriptManager.registerFunction("item.hasattributes", (sc, in) -> {
             ItemStack stack = (ItemStack) in[0].get(sc);
+            if(stack.getItemMeta() == null) {
+                return false;
+            }
             return stack.getItemMeta().hasAttributeModifiers();
         });
         KajetansPlugin.scriptManager.registerConsumer("item.adddefaulttags", (sc, in) -> {
