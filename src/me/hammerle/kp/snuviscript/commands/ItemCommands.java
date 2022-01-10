@@ -114,14 +114,17 @@ public class ItemCommands {
 
                 HashMultimap<Attribute, AttributeModifier> map = HashMultimap.create();
                 boolean merged = false;
-                for(var entry : meta.getAttributeModifiers().entries()) {
-                    AttributeModifier m = entry.getValue();
-                    if(entry.getKey() == a && m.getOperation() == o && m.getSlot() == slot) {
-                        map.put(a, new AttributeModifier(UUID.randomUUID(), "modifier",
-                                d + m.getAmount(), o, slot));
-                        merged = true;
-                    } else {
-                        map.put(entry.getKey(), entry.getValue());
+                var oldMap = meta.getAttributeModifiers();
+                if(oldMap != null) {
+                    for(var entry : oldMap.entries()) {
+                        AttributeModifier m = entry.getValue();
+                        if(entry.getKey() == a && m.getOperation() == o && m.getSlot() == slot) {
+                            map.put(a, new AttributeModifier(UUID.randomUUID(), "modifier",
+                                    d + m.getAmount(), o, slot));
+                            merged = true;
+                        } else {
+                            map.put(entry.getKey(), entry.getValue());
+                        }
                     }
                 }
                 if(!merged) {
