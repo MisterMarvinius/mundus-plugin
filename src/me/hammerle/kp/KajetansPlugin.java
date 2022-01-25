@@ -16,6 +16,7 @@ import me.hammerle.kp.snuviscript.SnuviLogger;
 import me.hammerle.kp.snuviscript.commands.*;
 import me.hammerle.kp.plots.WorldPlotMap;
 import me.hammerle.kp.snuviscript.CommandScript;
+import me.hammerle.kp.snuviscript.CommandTest;
 import me.hammerle.kp.snuviscript.CommandManager;
 import me.hammerle.kp.snuviscript.MoveEvents;
 import me.hammerle.kp.snuviscript.ScriptEvents;
@@ -148,6 +149,7 @@ public class KajetansPlugin extends JavaPlugin implements ISnuviScheduler {
         scriptManager = new ScriptManager(logger, this);
 
         CommandManager.add(new CommandScript());
+        CommandManager.add(new CommandTest());
 
         if(!Database.connect(conf.getString(null, "user", "root"),
                 conf.getString(null, "password", ""))) {

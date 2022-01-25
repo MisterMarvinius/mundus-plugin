@@ -19,6 +19,7 @@ import org.spigotmc.event.entity.EntityMountEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import me.hammerle.kp.plots.PlotEvents;
 import me.hammerle.kp.snuviscript.CommandManager;
+import me.hammerle.kp.snuviscript.CommandTest;
 import me.hammerle.kp.snuviscript.MoveEvents;
 import me.hammerle.kp.snuviscript.ScriptEvents;
 import me.hammerle.kp.snuviscript.commands.PlayerCommands;
@@ -36,6 +37,9 @@ import com.destroystokyo.paper.event.server.ServerTickEndEvent;
 public class Events implements Listener {
     @EventHandler
     public void onServerTick(ServerTickEndEvent e) {
+        if(CommandTest.noTick) {
+            return;
+        }
         MoveEvents.tick();
         for(Player p : Bukkit.getOnlinePlayers()) {
             PlayerData.get(p).tick(p);
@@ -58,6 +62,9 @@ public class Events implements Listener {
 
     @EventHandler
     public void onPlayerLogin(PlayerLoginEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         Player p = e.getPlayer();
         CommandManager.clearPermissions(p);
         ScriptEvents.onPlayerLogin(e);
@@ -65,6 +72,9 @@ public class Events implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         Player p = e.getPlayer();
         NMS.patch(p);
         PlayerData.get(p).login(p);
@@ -74,11 +84,17 @@ public class Events implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onPlayerQuit(e);
     }
 
     @EventHandler
     public void onPlayerSendCommandInfo(PlayerCommandSendEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         e.getCommands().clear();
         KajetansPlugin.scheduleTask(() -> {
             CommandManager.send(e.getPlayer());
@@ -87,86 +103,134 @@ public class Events implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onInventoryClick(e);
     }
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onInventoryClose(e);
     }
 
     @EventHandler
     public void onToggleGlide(EntityToggleGlideEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onGlideToggle(e);
     }
 
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onPlayerPreRespawn(e);
     }
 
     @EventHandler
     public void onPlayerPostRespawn(PlayerPostRespawnEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onPlayerPostRespawn(e);
     }
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         PlotEvents.onEntityDamage(e);
         ScriptEvents.onEntityDamage(e);
     }
 
     @EventHandler
     public void onHangingBreakByEntity(HangingBreakByEntityEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         PlotEvents.onHangingBreakByEntity(e);
     }
 
     @EventHandler
     public void onEntityRegainHealth(EntityRegainHealthEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onEntityRegainHealth(e);
     }
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onEntityDeath(e);
     }
 
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onProjectileHit(e);
     }
 
     @EventHandler
     public void onBlockDropItemEvent(BlockDropItemEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onBlockDropItemEvent(e);
     }
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         PlotEvents.onBlockPlace(e);
         ScriptEvents.onBlockPlace(e);
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         PlotEvents.onBlockBreak(e);
         ScriptEvents.onBlockBreak(e);
     }
 
     @EventHandler
     public void onPlayerBucketFill(PlayerBucketFillEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         PlotEvents.onPlayerBucket(e);
         ScriptEvents.onPlayerBucket(e);
     }
 
     @EventHandler
     public void onPlayerBucketEmpty(PlayerBucketEmptyEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         PlotEvents.onPlayerBucket(e);
         ScriptEvents.onPlayerBucket(e);
     }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         PlotEvents.onPlayerInteract(e);
         ScriptEvents.onPlayerInteract(e);
         CustomItems.onPlayerInteract(e);
@@ -175,114 +239,180 @@ public class Events implements Listener {
 
     @EventHandler
     public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         PlotEvents.onPlayerInteractEntity(e);
         ScriptEvents.onPlayerInteractEntity(e);
     }
 
     @EventHandler
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         PlotEvents.onPlayerInteractAtEntity(e);
     }
 
     @EventHandler
     public void onPlayerArmSwing(PlayerArmSwingEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onPlayerArmSwing(e);
     }
 
     @EventHandler
     public void onPlayerItemConsume(PlayerItemConsumeEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onPlayerItemConsume(e);
     }
 
     @EventHandler
     public void onPlayerFish(PlayerFishEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onPlayerFish(e);
     }
 
     @EventHandler
     public void onCraftItem(CraftItemEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onCraftItem(e);
     }
 
     @EventHandler
     public void onPrepareItemCraft(PrepareItemCraftEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         CustomItems.onPrepareItemCraft(e);
         ScriptEvents.onPrepareItemCraft(e);
     }
 
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onPlayerDropItem(e);
     }
 
     @EventHandler
     public void onEntityPickupItem(EntityPickupItemEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onEntityPickupItem(e);
     }
 
     @EventHandler
     public void onEntityMount(EntityMountEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onEntityMount(e);
     }
 
     @EventHandler
     public void onEntityDismount(EntityDismountEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onEntityDismount(e);
     }
 
     @EventHandler
     public void onPlayerChangedWorld(PlayerChangedWorldEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onPlayerChangedWorld(e);
     }
 
     @EventHandler
     public void onPlayerItemHeld(PlayerItemHeldEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onPlayerItemHeld(e);
     }
 
     @EventHandler
     public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onPlayerSwapHandItems(e);
     }
 
     @EventHandler
     @SuppressWarnings("deprecation")
     public void onChat(io.papermc.paper.event.player.ChatEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onChat(e);
     }
 
     @EventHandler
     public void onExplosionPrime(ExplosionPrimeEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onExplosionPrime(e);
     }
 
     @EventHandler
     public void onEntitySpawn(EntitySpawnEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onEntitySpawn(e);
     }
 
     @EventHandler
     public void onCreatureSpawn(CreatureSpawnEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onCreatureSpawn(e);
     }
 
     @EventHandler
     public void onEntityRemoveFromWorld(EntityRemoveFromWorldEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onEntityRemoveFromWorld(e);
     }
 
     @EventHandler
     public void onEntityTame(EntityTameEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onEntityTame(e);
     }
 
     @EventHandler
     public void onPlayerToggleSneak(PlayerToggleSneakEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onPlayerToggleSneak(e);
     }
 
     @EventHandler
     public void onEntityChangeBlock(EntityChangeBlockEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         if(e.getBlock().getType() == Material.FARMLAND) {
             e.setCancelled(true);
         }
@@ -294,56 +424,89 @@ public class Events implements Listener {
 
     @EventHandler
     public void onWorldLoad(WorldLoadEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onWorldLoad(e);
     }
 
     @EventHandler
     public void onPlayerTeleport(PlayerTeleportEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onPlayerTeleport(e);
     }
 
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         PlotEvents.onEntityExplode(e);
     }
 
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         PlotEvents.onBlockExplode(e);
     }
 
     @EventHandler
     public void onLightningStrike(LightningStrikeEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         PlotEvents.onLightningStrike(e);
     }
 
     @EventHandler
     public void onBlockIgnite(BlockIgniteEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         PlotEvents.onBlockIgnite(e);
     }
 
     @EventHandler
     public void onPlayerItemDamage(PlayerItemDamageEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         CustomItems.onPlayerItemDamage(e);
     }
 
     @EventHandler
     public void onPrepareAnvil(PrepareAnvilEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         CustomItems.onPrepareAnvil(e);
     }
 
     @EventHandler
     public void onPrepareItemEnchant(PrepareItemEnchantEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         CustomItems.onPrepareItemEnchant(e);
     }
 
     @EventHandler
     public void onVehicleEnter(VehicleEnterEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onVehicleEnter(e);
     }
 
     @EventHandler
     public void onVehicleExit(VehicleExitEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         ScriptEvents.onVehicleExit(e);
     }
 
@@ -354,6 +517,9 @@ public class Events implements Listener {
 
     @EventHandler
     public void onPortalCreateEvent(PortalCreateEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         if(!isVanillaWorld(e.getWorld())) {
             e.setCancelled(true);
         }
@@ -361,6 +527,9 @@ public class Events implements Listener {
 
     @EventHandler
     public void onEntityPortal(EntityPortalEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         World from = e.getFrom().getWorld();
         World to = e.getTo().getWorld();
         if(!isVanillaWorld(from) || !isVanillaWorld(to)) {
@@ -374,6 +543,9 @@ public class Events implements Listener {
 
     @EventHandler
     public void onPlayerPortal(PlayerPortalEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
         World from = e.getFrom().getWorld();
         World to = e.getTo().getWorld();
         if(!isVanillaWorld(from) || !isVanillaWorld(to)) {
