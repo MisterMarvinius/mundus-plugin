@@ -2,6 +2,7 @@ package me.hammerle.kp.snuviscript.commands;
 
 import java.util.ArrayList;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -62,5 +63,20 @@ public class WorldCommands {
         });
         KajetansPlugin.scriptManager.registerFunction("world.unload",
                 (sc, in) -> Bukkit.unloadWorld((World) in[0].get(sc), true));
+        KajetansPlugin.scriptManager.registerFunction("world.getloadedchunks", (sc, in) -> {
+            return ((World) in[0].get(sc)).getLoadedChunks();
+        });
+        KajetansPlugin.scriptManager.registerFunction("world.unloadchunk", (sc, in) -> {
+            return ((Chunk) in[0].get(sc)).unload();
+        });
+        KajetansPlugin.scriptManager.registerFunction("world.isforceloadedchunk", (sc, in) -> {
+            return ((Chunk) in[0].get(sc)).isForceLoaded();
+        });
+        KajetansPlugin.scriptManager.registerFunction("world.getchunkx", (sc, in) -> {
+            return (double) ((Chunk) in[0].get(sc)).getX();
+        });
+        KajetansPlugin.scriptManager.registerFunction("world.getchunkz", (sc, in) -> {
+            return (double) ((Chunk) in[0].get(sc)).getZ();
+        });
     }
 }
