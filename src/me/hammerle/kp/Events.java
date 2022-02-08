@@ -31,6 +31,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
 import com.destroystokyo.paper.event.server.ServerTickEndEvent;
 
@@ -551,5 +552,30 @@ public class Events implements Listener {
         if(!isVanillaWorld(from) || !isVanillaWorld(to)) {
             e.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void onPlayerEditBook(PlayerEditBookEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        ScriptEvents.onPlayerEditBook(e);
+    }
+
+    @EventHandler
+    public void onPlayerArmorChange(PlayerArmorChangeEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        ScriptEvents.onPlayerArmorChange(e);
+    }
+
+    @EventHandler
+    public void onPlayerTakeLecternBook(PlayerTakeLecternBookEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        PlotEvents.onPlayerTakeLecternBook(e);
+        ScriptEvents.onPlayerTakeLecternBook(e);
     }
 }

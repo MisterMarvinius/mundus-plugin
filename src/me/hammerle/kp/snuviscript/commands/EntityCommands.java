@@ -11,6 +11,7 @@ import org.bukkit.entity.ThrownPotion;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
+import org.bukkit.entity.Slime;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.AbstractArrow.PickupStatus;
 import org.bukkit.inventory.ItemStack;
@@ -177,5 +178,13 @@ public class EntityCommands {
         });
         KajetansPlugin.scriptManager.registerFunction("entity.frame.getitem",
                 (sc, in) -> ((ItemFrame) in[0].get(sc)).getItem());
+        KajetansPlugin.scriptManager.registerFunction("slime.getsize", (sc, in) -> {
+            Slime s = (Slime) in[0].get(sc);
+            return (double) s.getSize();
+        });
+        KajetansPlugin.scriptManager.registerConsumer("slime.setsize", (sc, in) -> {
+            Slime s = (Slime) in[0].get(sc);
+            s.setSize(in[1].getInt(sc));
+        });
     }
 }

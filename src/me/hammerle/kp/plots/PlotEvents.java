@@ -2,6 +2,7 @@ package me.hammerle.kp.plots;
 
 import java.util.Iterator;
 import org.bukkit.block.Block;
+import org.bukkit.block.Lectern;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -12,6 +13,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.weather.LightningStrikeEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.projectiles.ProjectileSource;
 import me.hammerle.kp.NMS;
 
@@ -129,6 +131,13 @@ public class PlotEvents {
         if(b == null) {
             return;
         }
+        if(b.getState() instanceof Lectern) {
+            Lectern l = (Lectern) b.getState();
+            Inventory inv = l.getInventory();
+            if(inv.getSize() > 0 && inv.getItem(0) != null) {
+                return;
+            }
+        }
         Player p = e.getPlayer();
         if(!canBypass(p) && !WorldPlotMap.canInteractWithBlock(b.getLocation(), p)) {
             e.setCancelled(true);
@@ -178,6 +187,14 @@ public class PlotEvents {
             return;
         }
         if(!canBypass(p) && !WorldPlotMap.canInteractWithBlock(e.getBlock().getLocation(), p)) {
+            e.setCancelled(true);
+        }
+    }
+
+    public static void onPlayerTakeLecternBook(PlayerTakeLecternBookEvent e) {
+        Player p = e.getPlayer();
+        if(!canBypass(p)
+                && !WorldPlotMap.canInteractWithBlock(e.getLectern().getLocation(), p)) {
             e.setCancelled(true);
         }
     }

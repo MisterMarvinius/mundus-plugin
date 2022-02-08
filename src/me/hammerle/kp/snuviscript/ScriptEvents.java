@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -676,6 +677,28 @@ public class ScriptEvents {
         handleEvent(e, "vehicle_exit", (sc) -> {
             setLiving(sc, e.getExited());
             sc.setVar("vehicle", e.getVehicle());
+        });
+    }
+
+    public static void onPlayerEditBook(PlayerEditBookEvent e) {
+        handleEvent(e, "player_edit_book", (sc) -> {
+            setPlayer(sc, e.getPlayer());
+            sc.setVar("signing", e.isSigning());
+        });
+    }
+
+    public static void onPlayerArmorChange(PlayerArmorChangeEvent e) {
+        handleEvent("player_armor_change", (sc) -> {
+            setPlayer(sc, e.getPlayer());
+            sc.setVar("new_item", e.getNewItem());
+            sc.setVar("old_item", e.getOldItem());
+        });
+    }
+
+    public static void onPlayerTakeLecternBook(PlayerTakeLecternBookEvent e) {
+        handleEvent(e, "player_take_lectern_book", (sc) -> {
+            setPlayer(sc, e.getPlayer());
+            setBlock(sc, e.getLectern().getBlock());
         });
     }
 }

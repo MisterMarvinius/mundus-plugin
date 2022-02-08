@@ -130,7 +130,8 @@ public class ItemCommands {
                     for(var entry : oldMap.entries()) {
                         AttributeModifier m = entry.getValue();
                         if(entry.getKey() == a && m.getOperation() == o && m.getSlot() == slot) {
-                            map.put(a, new AttributeModifier(UUID.randomUUID(), "modifier",
+                            UUID uuid = UUID.randomUUID();
+                            map.put(a, new AttributeModifier(uuid, uuid.toString(),
                                     d + m.getAmount(), o, slot));
                             merged = true;
                         } else {
@@ -139,7 +140,8 @@ public class ItemCommands {
                     }
                 }
                 if(!merged) {
-                    map.put(a, new AttributeModifier(UUID.randomUUID(), "modifier", d, o, slot));
+                    UUID uuid = UUID.randomUUID();
+                    map.put(a, new AttributeModifier(uuid, uuid.toString(), d, o, slot));
                 }
                 meta.setAttributeModifiers(map);
             });
