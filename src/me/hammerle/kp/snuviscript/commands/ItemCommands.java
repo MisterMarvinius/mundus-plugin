@@ -35,6 +35,8 @@ public class ItemCommands {
             Player p = (Player) in[1].get(sc);
             p.setCooldown((Material) in[0].get(sc), in[2].getInt(sc));
         });
+        KajetansPlugin.scriptManager.registerConsumer("material.getslot",
+                (sc, in) -> ((Material) in[0].get(sc)).getEquipmentSlot());
 
         KajetansPlugin.scriptManager.registerFunction("item.custom.getall",
                 (sc, in) -> CustomItem.values());
@@ -164,12 +166,12 @@ public class ItemCommands {
         KajetansPlugin.scriptManager.registerConsumer("item.adddefaulttags", (sc, in) -> {
             ItemStack stack = (ItemStack) in[0].get(sc);
             stack.editMeta(meta -> {
+                HashMultimap<Attribute, AttributeModifier> full = HashMultimap.create();
                 for(EquipmentSlot slot : EquipmentSlot.values()) {
                     var map = stack.getType().getItemAttributes(slot);
-                    for(var entry : map.entries()) {
-                        meta.addAttributeModifier(entry.getKey(), entry.getValue());
-                    }
+                    full.putAll(map);
                 }
+                meta.setAttributeModifiers(full);
             });
         });
         KajetansPlugin.scriptManager.registerFunction("item.clone",
