@@ -168,7 +168,7 @@ public class ItemCommands {
             stack.editMeta(meta -> {
                 HashMultimap<Attribute, AttributeModifier> full = HashMultimap.create();
                 for(EquipmentSlot slot : EquipmentSlot.values()) {
-                    var map = stack.getType().getItemAttributes(slot);
+                    var map = stack.getType().getDefaultAttributeModifiers(slot);
                     full.putAll(map);
                 }
                 meta.setAttributeModifiers(full);
