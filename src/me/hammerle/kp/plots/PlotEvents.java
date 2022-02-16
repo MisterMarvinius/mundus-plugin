@@ -24,7 +24,8 @@ public class PlotEvents {
 
     private static boolean shouldBeProtected(Entity e) {
         EntityType type = e.getType();
-        return !e.getType().isAlive() || e instanceof Animals || type == EntityType.ARMOR_STAND;
+        return !e.getType().isAlive() || e instanceof Animals || type == EntityType.ARMOR_STAND
+                || type == EntityType.VILLAGER;
     }
 
     public static void onBlockPlace(BlockPlaceEvent e) {
