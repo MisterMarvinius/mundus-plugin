@@ -88,6 +88,8 @@ public class EntityCommands {
         KajetansPlugin.scriptManager.registerConsumer("entity.setsilent", (sc, in) -> {
             ((Entity) in[0].get(sc)).setSilent(in[1].getBoolean(sc));
         });
+        KajetansPlugin.scriptManager.registerConsumer("entity.getmount",
+                (sc, in) -> ((Entity) in[0].get(sc)).getVehicle());
         KajetansPlugin.scriptManager.registerConsumer("entity.mount", (sc, in) -> {
             ((Entity) in[1].get(sc)).addPassenger(((Entity) in[0].get(sc)));
         });
