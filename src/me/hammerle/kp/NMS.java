@@ -39,6 +39,7 @@ import net.minecraft.network.syncher.DataWatcherObject;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
+import net.minecraft.stats.StatisticList;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityCreature;
 import net.minecraft.world.entity.EntityInsentient;
@@ -866,5 +867,10 @@ public class NMS {
 
     public static NBTTagCompound toNBT(Object o) {
         return (NBTTagCompound) o;
+    }
+
+    public static void resetSleepTimer(Player p) {
+        // this.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_REST));
+        map(p).a(StatisticList.i.b(StatisticList.n));
     }
 }

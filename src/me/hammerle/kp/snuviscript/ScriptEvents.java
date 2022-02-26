@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -699,6 +700,12 @@ public class ScriptEvents {
         handleEvent(e, "player_take_lectern_book", (sc) -> {
             setPlayer(sc, e.getPlayer());
             setBlock(sc, e.getLectern().getBlock());
+        });
+    }
+
+    public static void onPlayerJump(PlayerJumpEvent e) {
+        handleEvent(e, "player_jump", (sc) -> {
+            setPlayer(sc, e.getPlayer());
         });
     }
 }
