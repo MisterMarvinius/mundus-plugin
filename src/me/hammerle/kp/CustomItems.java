@@ -17,6 +17,8 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 public class CustomItems {
     private static final UUID CUSTOM_UUID = new UUID(3242, 42343);
@@ -170,7 +172,8 @@ public class CustomItems {
         ItemStack stack = new ItemStack(Material.NETHERITE_HOE, amount);
         Damageable d = (Damageable) stack.getItemMeta();
         d.setDamage(item.getId());
-        d.displayName(Component.text("§f" + item.getName()));
+        d.displayName(Component.text(item.getName()).color(TextColor.color(255, 255, 255))
+                .decoration(TextDecoration.ITALIC, false));
         d.setUnbreakable(true);
         d.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(CUSTOM_UUID,
                 "custom", 0, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlot.HAND));

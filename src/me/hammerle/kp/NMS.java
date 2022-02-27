@@ -117,6 +117,9 @@ public class NMS {
         net.minecraft.world.item.ItemStack.maxStackSizeHook = (stack, vanilla) -> {
             return CustomItems.getMaxStackSize(stack.getBukkitStack(), vanilla);
         };
+        ItemStack.maxStackSizeHook = (stack, vanilla) -> {
+            return CustomItems.getMaxStackSize(stack, vanilla);
+        };
     }
 
     private static CraftServer getCraftServer() {
