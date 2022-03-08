@@ -15,6 +15,7 @@ import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.Openable;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Door;
 import org.bukkit.block.data.type.Leaves;
@@ -170,8 +171,13 @@ public class BlockCommands {
             Bed o = (Bed) b.getBlockData();
             return o.getPart().toString();
         });
-        KajetansPlugin.scriptManager.registerFunction("block.iswaterlogged",
+        KajetansPlugin.scriptManager.registerFunction("block.canhavewater",
                 (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Waterlogged);
+        KajetansPlugin.scriptManager.registerFunction("block.iswaterlogged", (sc, in) -> {
+            Block b = (Block) in[0].get(sc);
+            Waterlogged o = (Waterlogged) b.getBlockData();
+            return o.isWaterlogged();
+        });
         KajetansPlugin.scriptManager.registerConsumer("block.setwaterlogged", (sc, in) -> {
             Block b = (Block) in[0].get(sc);
             Waterlogged o = (Waterlogged) b.getBlockData();
