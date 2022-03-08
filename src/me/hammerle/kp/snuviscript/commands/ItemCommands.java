@@ -31,6 +31,8 @@ public class ItemCommands {
     public static void registerFunctions() {
         KajetansPlugin.scriptManager.registerFunction("material.get",
                 (sc, in) -> Material.matchMaterial(in[0].getString(sc)));
+        KajetansPlugin.scriptManager.registerFunction("material.getall",
+                (sc, in) -> Material.values());
         KajetansPlugin.scriptManager.registerConsumer("material.setcooldown", (sc, in) -> {
             Player p = (Player) in[1].get(sc);
             p.setCooldown((Material) in[0].get(sc), in[2].getInt(sc));

@@ -170,5 +170,13 @@ public class BlockCommands {
             Bed o = (Bed) b.getBlockData();
             return o.getPart().toString();
         });
+        KajetansPlugin.scriptManager.registerFunction("block.iswaterlogged",
+                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Waterlogged);
+        KajetansPlugin.scriptManager.registerConsumer("block.setwaterlogged", (sc, in) -> {
+            Block b = (Block) in[0].get(sc);
+            Waterlogged o = (Waterlogged) b.getBlockData();
+            o.setWaterlogged(in[1].getBoolean(sc));
+            b.setBlockData(o);
+        });
     }
 }
