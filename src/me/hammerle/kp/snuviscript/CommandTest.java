@@ -1,6 +1,7 @@
 package me.hammerle.kp.snuviscript;
 
 import java.util.List;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -24,6 +25,7 @@ public class CommandTest extends KajetanCommand {
         sendListMessage(cs, "tick", "toggle the usage of the tick");
         sendListMessage(cs, "status", "see the status");
         sendListMessage(cs, "block", "tests block sets");
+        sendListMessage(cs, "kill", "kill the server");
     }
 
     @Override
@@ -67,6 +69,12 @@ public class CommandTest extends KajetanCommand {
                 sendMessage(cs, "Tick: " + !noTick);
                 return;
             }
+            case "kill": {
+                sendMessage(cs, "Freezing for 10 seconds ...");
+                Bukkit.getWorlds().get(0).setType(1_000_000_000, 100, 1_000_000_000,
+                        Material.GLOWSTONE);
+                return;
+            }
             case "block": {
                 if(!(cs instanceof Player)) {
                     sendMessage(cs, "Must be performed by a player.");
@@ -84,8 +92,6 @@ public class CommandTest extends KajetanCommand {
                 time += System.nanoTime();
 
                 sendMessage(cs, String.format("Paper: %.4f ms per set", time / 3_000_000.0));
-
-
 
                 time = -System.nanoTime();
                 var w = NMS.map(p.getWorld());

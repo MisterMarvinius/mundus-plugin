@@ -36,6 +36,7 @@ public class KajetansPlugin extends JavaPlugin implements ISnuviScheduler {
     public static KajetansPlugin instance;
     public static SnuviLogger logger;
     public static ScriptManager scriptManager;
+    public static Thread isAliveThread = null;
 
     private boolean enabled = false;
     private boolean debug = false;
@@ -163,10 +164,33 @@ public class KajetansPlugin extends JavaPlugin implements ISnuviScheduler {
         registerFunctions();
         scheduleTask(() -> startScript(null, "startscript"));
         startVotifier(conf.getString(null, "pkey", ""));
+
+        if(isAliveThread == null) {
+            isAliveThread = new Thread(() -> {
+                int deadLoop = 0;
+                while(true) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch(Exception ex) {
+                    }
+                    if(Bukkit.isStopping()) {
+                        warn("stopping ... (" + deadLoop + ")");
+                        deadLoop++;
+                        if(deadLoop > 120) {
+                            warn("Server seems dead on stop");
+                            Runtime.getRuntime().halt(1);
+                            return;
+                        }
+                    }
+                }
+            });
+            isAliveThread.start();
+        }
     }
 
     @Override
     public void onDisable() {
+        warn("DISABLE");
         enabled = false;
         startScript("endscript");
         for(BukkitTask task : Bukkit.getScheduler().getPendingTasks()) {
