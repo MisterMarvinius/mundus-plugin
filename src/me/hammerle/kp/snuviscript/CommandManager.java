@@ -174,7 +174,8 @@ public class CommandManager {
         map.put(vanilla, rootNode);
         CommandListenerWrapper cs = p.cQ();
         commandSourceNodesToSuggestionNodes(true, vanilla, rootNode, cs, map);
-        commandSourceNodesToSuggestionNodes(true, p.c.aB.c.a().getRoot(), rootNode, cs, map);
+        //commandSourceNodesToSuggestionNodes(true, p.c.aB.c.a().getRoot(), rootNode, cs, map);
+        commandSourceNodesToSuggestionNodes(true, p.c.aA().a().getRoot(), rootNode, cs, map);
         for(CommandNode node : CUSTOM_NODES.values()) {
             commandSourceNodesToSuggestionNodes(node, rootNode, cs, map);
         }

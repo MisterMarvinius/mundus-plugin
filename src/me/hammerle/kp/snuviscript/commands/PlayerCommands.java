@@ -216,7 +216,7 @@ public class PlayerCommands {
         });
         KajetansPlugin.scriptManager.registerConsumer("player.damagearmor", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
-            NMS.map(p).fq().a(NMS.toDamageSource(in[2].get(sc)), in[1].getFloat(sc),
+            NMS.map(p).fr().a(NMS.toDamageSource(in[2].get(sc)), in[1].getFloat(sc),
                     new int[] {0, 1, 2, 3});
         });
         KajetansPlugin.scriptManager.registerConsumer("player.addtotalexp", (sc, in) -> {

@@ -71,9 +71,9 @@
                     <include name="netty-all-4.1.68.Final.jar"/>
                     <include name="org.eclipse.sisu.inject-0.3.5.jar"/>
                     <include name="oshi-core-5.8.2.jar"/>
-                    <include name="paper-api-1.18.1-R0.1-SNAPSHOT.jar"/>
-                    <include name="paper-mojangapi-1.18.1-R0.1-SNAPSHOT.jar"/>
-                    <include name="paper-server-1.18.1-R0.1-SNAPSHOT-reobf.jar"/>
+                    <include name="paper-api-1.18.2-R0.1-SNAPSHOT.jar"/>
+                    <include name="paper-mojangapi-1.18.2-R0.1-SNAPSHOT.jar"/>
+                    <include name="paper-server-1.18.2-R0.1-SNAPSHOT-reobf.jar"/>
                     <include name="plexus-interpolation-1.26.jar"/>
                     <include name="plexus-utils-3.3.0.jar"/>
                     <include name="protobuf-java-3.11.4.jar"/>

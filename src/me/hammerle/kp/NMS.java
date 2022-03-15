@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.UUID;
@@ -15,21 +16,22 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.datafixers.util.Pair;
-import org.bukkit.craftbukkit.v1_18_R1.entity.*;
+import org.bukkit.craftbukkit.v1_18_R2.entity.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_18_R1.block.CraftBlock;
-import org.bukkit.craftbukkit.v1_18_R1.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_18_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_18_R2.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_18_R2.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import me.hammerle.kp.snuviscript.ScriptEvents;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.IRegistry;
+import net.minecraft.core.RegistryMaterials;
 import net.minecraft.nbt.MojangsonParser;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.chat.ChatComponentText;
@@ -82,6 +84,14 @@ public class NMS {
     @SuppressWarnings("unchecked")
     public static void init() {
         try {
+            Field f = RegistryMaterials.class.getDeclaredField("bL");
+            f.setAccessible(true);
+            f.set(RegistryMaterials.W, false);
+
+            Field cache = RegistryMaterials.class.getDeclaredField("bN");
+            cache.setAccessible(true);
+            cache.set(RegistryMaterials.W, new IdentityHashMap<>());
+
             Method m = EntityTypes.class.getDeclaredMethod("a", String.class,
                     EntityTypes.Builder.class);
             m.setAccessible(true);
@@ -104,7 +114,7 @@ public class NMS {
                             .get(null);
             attributesMap = new HashMap<>(attributesMap);
             attributesMap.put(HUMAN_TYPE,
-                    EntityMonster.fD().a(GenericAttributes.a, 20.0).a(GenericAttributes.f, 1)
+                    EntityMonster.fE().a(GenericAttributes.a, 20.0).a(GenericAttributes.f, 1)
                             .a(GenericAttributes.d, 0.23).a(GenericAttributes.h).a());
             unsafe.putObject(base, offset, attributesMap);
 
@@ -186,8 +196,8 @@ public class NMS {
                         new EntityPlayer(getCraftServer().getServer(), (WorldServer) world,
                                 new GameProfile(cm(), cutName(name)));
                 if(player != null) {
-                    PropertyMap newProps = newPlayer.fp().getProperties();
-                    for(var entry : player.fp().getProperties().entries()) {
+                    PropertyMap newProps = newPlayer.fq().getProperties();
+                    for(var entry : player.fq().getProperties().entries()) {
                         newProps.put(entry.getKey(), entry.getValue());
                     }
                 }
@@ -269,7 +279,7 @@ public class NMS {
             }
 
             private void activateSkinOverlays() {
-                player.ai().b(EntityHuman.bQ, (byte) 0xFF);
+                player.ai().b(EntityHuman.bP, (byte) 0xFF);
             }
 
             @SuppressWarnings({"unchecked", "rawtypes"})
@@ -294,7 +304,7 @@ public class NMS {
             public void b(NBTTagCompound nbt) { // addAdditionalSaveData
                 super.b(nbt);
 
-                GameProfile gp = player.fp();
+                GameProfile gp = player.fq();
                 nbt.a("HumanName", gp.getName());
 
                 Collection<Property> c = gp.getProperties().get("textures");
@@ -315,7 +325,7 @@ public class NMS {
                 super.a(nbt);
                 if(nbt.b("HumanName", 8)) {
                     String name = cutName(nbt.l("HumanName"));
-                    setPlayer(name, player.t);
+                    setPlayer(name, player.s);
                 }
                 if(nbt.b("HumanTexture", 8) && nbt.b("HumanSignature", 8)) {
                     String texture = nbt.l("HumanTexture");
@@ -337,14 +347,14 @@ public class NMS {
             }
 
             public void setSkinWithoutPacket(String texture, String signature) {
-                GameProfile gp = player.fp();
+                GameProfile gp = player.fq();
                 gp.getProperties().clear();
                 gp.getProperties().put("textures", new Property("textures", texture, signature));
             }
 
             private void setTabName() {
                 player.listName =
-                        new ChatComponentText(humanPrefix + player.fp().getName() + humanSuffix);
+                        new ChatComponentText(humanPrefix + player.fq().getName() + humanSuffix);
             }
 
             private void sync() {
@@ -366,7 +376,7 @@ public class NMS {
                 PacketPlayOutEntityEquipment equip =
                         new PacketPlayOutEntityEquipment(player.ae(), list);
 
-                var channel = ((WorldServer) t).k();
+                var channel = ((WorldServer) s).k();
                 channel.a(this, info);
                 channel.a(this, spawn);
                 channel.a(this, meta);
@@ -379,12 +389,12 @@ public class NMS {
             }
 
             public void setName(String name) {
-                setPlayer(name, player.t);
+                setPlayer(name, player.s);
                 sync();
             }
 
             public void setSkin(PlayerProfile profile) {
-                GameProfile gp = player.fp();
+                GameProfile gp = player.fq();
                 gp.getProperties().clear();
                 for(ProfileProperty prop : profile.getProperties()) {
                     gp.getProperties().put(prop.getName(),
@@ -402,22 +412,22 @@ public class NMS {
                 var iter = p.c().iterator();
                 while(iter.hasNext()) {
                     var next = iter.next();
-                    if(next.g()) { // isRunning
+                    if(next.h()) { // isRunning
                         next.d(); // stop
                     }
                 }
             }
 
             private void stopGoals() {
+                stopGoals(bQ);
                 stopGoals(bR);
-                stopGoals(bS);
             }
 
             private void removeGoals(PathfinderGoalSelector p) {
                 var iter = p.c().iterator();
                 while(iter.hasNext()) {
                     var next = iter.next();
-                    if(next.g()) { // isRunning
+                    if(next.h()) { // isRunning
                         next.d(); // stop
                     }
                     iter.remove();
@@ -430,36 +440,36 @@ public class NMS {
 
             public void setAI(int type) {
                 ai = type;
+                removeGoals(bQ);
                 removeGoals(bR);
-                removeGoals(bS);
                 switch(type) {
                     case 1:
-                        bR.a(4, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8.0f));
-                        bR.a(3, new PathfinderGoalRandomLookaround(this));
-                        bR.a(0, new PathfinderGoalMeleeAttack(this, 1.0, false));
-                        bR.a(2, new PathfinderGoalRandomStrollLand(this, 1.0));
-                        bS.a(1, new PathfinderGoalNearestAttackableTarget<>(this, EntityHuman.class,
+                        bQ.a(4, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8.0f));
+                        bQ.a(3, new PathfinderGoalRandomLookaround(this));
+                        bQ.a(0, new PathfinderGoalMeleeAttack(this, 1.0, false));
+                        bQ.a(2, new PathfinderGoalRandomStrollLand(this, 1.0));
+                        bR.a(1, new PathfinderGoalNearestAttackableTarget<>(this, EntityHuman.class,
                                 true));
                         break;
                     case 2:
-                        bR.a(1, new PathfinderGoalMeleeAttack(this, 1.2, true));
-                        bR.a(2, new PathfinderGoalMoveTowardsTarget(this, 1.2, 32.0f));
-                        bR.a(4, new PathfinderGoalRandomStrollLand(this, 1.0));
-                        bR.a(5, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 6.0f));
-                        bR.a(6, new PathfinderGoalRandomLookaround(this));
-                        bS.a(2, new PathfinderGoalHurtByTarget(this, new Class[0]));
-                        bS.a(3, new PathfinderGoalNearestAttackableTarget<>(this, EntityHuman.class,
+                        bQ.a(1, new PathfinderGoalMeleeAttack(this, 1.2, true));
+                        bQ.a(2, new PathfinderGoalMoveTowardsTarget(this, 1.2, 32.0f));
+                        bQ.a(4, new PathfinderGoalRandomStrollLand(this, 1.0));
+                        bQ.a(5, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 6.0f));
+                        bQ.a(6, new PathfinderGoalRandomLookaround(this));
+                        bR.a(2, new PathfinderGoalHurtByTarget(this, new Class[0]));
+                        bR.a(3, new PathfinderGoalNearestAttackableTarget<>(this, EntityHuman.class,
                                 10, true, false, this::angryAt));
-                        bS.a(3, new PathfinderGoalNearestAttackableTarget<>(this,
+                        bR.a(3, new PathfinderGoalNearestAttackableTarget<>(this,
                                 EntityInsentient.class, 5, false, false, (liv) -> {
                                     return liv instanceof IMonster
                                             && !(liv instanceof EntityCreeper);
                                 }));
                         break;
                     default:
-                        bR.a(0, new PathfinderGoalFloat(this));
-                        bR.a(1, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 6.0f));
-                        bR.a(2, new PathfinderGoalRandomLookaround(this));
+                        bQ.a(0, new PathfinderGoalFloat(this));
+                        bQ.a(1, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 6.0f));
+                        bQ.a(2, new PathfinderGoalRandomLookaround(this));
                 }
             }
 
@@ -503,7 +513,7 @@ public class NMS {
         private RawHuman(WrapperHuman human, Location l, String name) {
             this(human);
             human.a(l.getX(), l.getY(), l.getZ(), l.getYaw(), l.getPitch());
-            human.setPlayer(name, human.t);
+            human.setPlayer(name, human.s);
             human.W().b(human);
         }
 
@@ -548,7 +558,7 @@ public class NMS {
 
         @Override
         public String getName() {
-            return human.player.fp().getName();
+            return human.player.fq().getName();
         }
     }
 
@@ -571,7 +581,7 @@ public class NMS {
         }
 
         private boolean handle(PacketPlayOutSpawnEntityLiving p) {
-            if(p.d() != IRegistry.Z.a(HUMAN_TYPE)) {
+            if(p.d() != IRegistry.W.a(HUMAN_TYPE)) {
                 return false;
             }
             UUID uuid = p.c();
