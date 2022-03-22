@@ -37,8 +37,14 @@ public class ItemCommands {
             Player p = (Player) in[1].get(sc);
             p.setCooldown((Material) in[0].get(sc), in[2].getInt(sc));
         });
-        KajetansPlugin.scriptManager.registerConsumer("material.getslot",
+        KajetansPlugin.scriptManager.registerFunction("material.getslot",
                 (sc, in) -> ((Material) in[0].get(sc)).getEquipmentSlot());
+        KajetansPlugin.scriptManager.registerFunction("material.isitem",
+                (sc, in) -> ((Material) in[0].get(sc)).isItem());
+        KajetansPlugin.scriptManager.registerFunction("material.issolid",
+                (sc, in) -> ((Material) in[0].get(sc)).isSolid());
+        KajetansPlugin.scriptManager.registerFunction("material.isblock",
+                (sc, in) -> ((Material) in[0].get(sc)).isBlock());
 
         KajetansPlugin.scriptManager.registerFunction("item.custom.getall",
                 (sc, in) -> CustomItem.values());

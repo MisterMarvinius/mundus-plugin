@@ -42,6 +42,13 @@ public class EntityCommands {
             o[2] = v.getZ();
             return o;
         });
+        KajetansPlugin.scriptManager.registerConsumer("entity.setlook", (sc, in) -> {
+            Entity e = (Entity) in[0].get(sc);
+            Location l = e.getLocation();
+            l.setDirection(
+                    new Vector(in[1].getDouble(sc), in[2].getDouble(sc), in[3].getDouble(sc)));
+            e.teleport(l);
+        });
         KajetansPlugin.scriptManager.registerFunction("entity.getmotion", (sc, in) -> {
             Object[] o = new Object[3];
             Vector v = ((Entity) in[0].get(sc)).getVelocity();
