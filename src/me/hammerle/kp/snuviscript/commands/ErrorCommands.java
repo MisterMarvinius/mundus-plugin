@@ -23,7 +23,7 @@ public class ErrorCommands {
             KajetansPlugin.logger.getDebugHistory().clear();
         });
         KajetansPlugin.scriptManager.registerFunction("debug.getsize", (sc, in) -> {
-            return KajetansPlugin.logger.getDebugHistory().getLength();
+            return (double) KajetansPlugin.logger.getDebugHistory().getLength();
         });
         KajetansPlugin.scriptManager.registerFunction("debug.getindex", (sc, in) -> {
             return KajetansPlugin.logger.getDebugHistory().get(in[0].getInt(sc)).message;
