@@ -599,7 +599,7 @@ public class ScriptEvents {
     public static void onCreatureSpawn(CreatureSpawnEvent e) {
         String cause = e.getSpawnReason().toString();
         handleEvent(e, "living_spawn", (sc) -> {
-            setEntity(sc, e.getEntity());
+            setLiving(sc, e.getEntity());
             sc.setVar("location", e.getLocation());
             sc.setVar("cause", cause);
         });
