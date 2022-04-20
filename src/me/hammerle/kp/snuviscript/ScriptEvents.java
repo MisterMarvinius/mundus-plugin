@@ -10,6 +10,7 @@ import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -498,11 +499,14 @@ public class ScriptEvents {
         });
     }
 
-    public static boolean onCommand(Player p, String command) {
+    public static boolean onCommand(Player p, String command, Command c) {
         WrappedBool wr = new WrappedBool(false);
+        String name = c.getClass().getName();
         KajetansPlugin.scriptManager.callEvent("command", sc -> {
             sc.setVar("player", p);
             sc.setVar("command", command);
+            sc.setVar("permission", c.getPermission());
+            sc.setVar("command_class", name);
             setCancel(sc, wr.wrapped);
         }, sc -> {
             Variable v = sc.getVar("cancel");

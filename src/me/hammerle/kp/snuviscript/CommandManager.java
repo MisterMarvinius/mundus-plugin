@@ -156,7 +156,7 @@ public class CommandManager {
             ScriptEvents.onMissingPermission(cs, commandName, perm);
             return true;
         }
-        if(cs instanceof Player && ScriptEvents.onCommand((Player) cs, commandName)) {
+        if(cs instanceof Player && ScriptEvents.onCommand((Player) cs, commandName, bCommand)) {
             return true;
         }
         return false;
