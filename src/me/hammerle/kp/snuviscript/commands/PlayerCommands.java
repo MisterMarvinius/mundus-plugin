@@ -249,11 +249,13 @@ public class PlayerCommands {
         });
         KajetansPlugin.scriptManager.registerConsumer("player.hide", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
-            p.hidePlayer(KajetansPlugin.instance, p);
+            Player p2 = (Player) in[1].get(sc);
+            p.hidePlayer(KajetansPlugin.instance, p2);
         });
         KajetansPlugin.scriptManager.registerConsumer("player.show", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
-            p.showPlayer(KajetansPlugin.instance, p);
+            Player p2 = (Player) in[1].get(sc);
+            p.showPlayer(KajetansPlugin.instance, p2);
         });
         KajetansPlugin.scriptManager.registerFunction("players.getamount",
                 (sc, in) -> (double) Bukkit.getOnlinePlayers().size());
