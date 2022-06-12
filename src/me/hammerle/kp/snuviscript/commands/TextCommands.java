@@ -9,6 +9,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class TextCommands {
@@ -27,6 +28,10 @@ public class TextCommands {
 
         KajetansPlugin.scriptManager.registerFunction("text.new",
                 (sc, in) -> Component.text(in[0].getString(sc)));
+        KajetansPlugin.scriptManager.registerFunction("text.color", (sc, in) -> {
+            Component c = (Component) in[0].get(sc);
+            return c.color(TextColor.color(in[1].getInt(sc), in[2].getInt(sc), in[3].getInt(sc)));
+        });
         KajetansPlugin.scriptManager.registerFunction("text.click", (sc, in) -> {
             Component c = (Component) in[0].get(sc);
             return c.clickEvent(ClickEvent.runCommand(in[1].getString(sc)));
