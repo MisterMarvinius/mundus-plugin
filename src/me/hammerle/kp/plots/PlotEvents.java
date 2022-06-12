@@ -82,7 +82,9 @@ public class PlotEvents {
         } else if(direct instanceof Player) {
             p = (Player) direct;
         } else {
-            e.setCancelled(true);
+            if(WorldPlotMap.hasPlotAt(e.getEntity().getLocation())) {
+                e.setCancelled(true);
+            }
             return;
         }
         if(!canBypass(p) && !WorldPlotMap.canHitAmbientEntity(e.getEntity().getLocation(), p)) {
