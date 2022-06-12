@@ -24,8 +24,7 @@ public class PlotEvents {
 
     private static boolean shouldBeProtected(Entity e) {
         EntityType type = e.getType();
-        return !e.getType().isAlive() || e instanceof Animals || type == EntityType.ARMOR_STAND
-                || type == EntityType.VILLAGER;
+        return !e.getType().isAlive() || e instanceof Animals || type == EntityType.ARMOR_STAND;
     }
 
     public static void onBlockPlace(BlockPlaceEvent e) {
@@ -83,6 +82,7 @@ public class PlotEvents {
         } else if(direct instanceof Player) {
             p = (Player) direct;
         } else {
+            e.setCancelled(true);
             return;
         }
         if(!canBypass(p) && !WorldPlotMap.canHitAmbientEntity(e.getEntity().getLocation(), p)) {
