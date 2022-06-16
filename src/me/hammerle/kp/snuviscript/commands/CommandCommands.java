@@ -8,11 +8,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import net.minecraft.commands.CommandDispatcher;
 import net.minecraft.commands.CommandListenerWrapper;
-import net.minecraft.commands.arguments.ArgumentEnchantment;
-import net.minecraft.commands.arguments.ArgumentEntity;
-import net.minecraft.commands.arguments.ArgumentMobEffect;
+import net.minecraft.commands.arguments.*;
 import net.minecraft.commands.arguments.blocks.ArgumentTile;
 import net.minecraft.commands.arguments.item.ArgumentItemStack;
+import net.minecraft.commands.synchronization.CompletionProviders;
 
 public class CommandCommands {
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -127,6 +126,15 @@ public class CommandCommands {
                 case "Player":
                     arg = CommandDispatcher.a(in[1].getString(sc),
                             (ArgumentType) ArgumentEntity.c());
+                    break;
+                case "Particle":
+                    arg = CommandDispatcher.a(in[1].getString(sc),
+                            (ArgumentType) ArgumentParticle.a());
+                    break;
+                case "Sound":
+                    arg = CommandDispatcher.a(in[1].getString(sc),
+                            (ArgumentType) ArgumentMinecraftKeyRegistered.a())
+                            .suggests(CompletionProviders.c); // AVAILABLE_SOUNDS
                     break;
                 default:
                     throw new IllegalArgumentException(
