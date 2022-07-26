@@ -5,85 +5,9 @@
 
     <target name="compile">
         <mkdir dir="build/classes"/>
-        <javac debug="true" includeantruntime="false" srcdir="src" destdir="build/classes">
+        <javac debug="true" includeantruntime="false" srcdir="src" destdir="build/classes" encoding="utf-8">
             <classpath>
-                <fileset dir="lib">
-                    <include name="adventure-api-4.9.3.jar"/>
-                    <include name="adventure-key-4.9.3.jar"/>
-                    <include name="adventure-text-serializer-gson-4.9.3.jar"/>
-                    <include name="adventure-text-serializer-legacy-4.9.3.jar"/>
-                    <include name="adventure-text-serializer-plain-4.9.3.jar"/>
-                    <include name="asm-9.2.jar"/>
-                    <include name="asm-analysis-9.2.jar"/>
-                    <include name="asm-commons-9.2.jar"/>
-                    <include name="asm-tree-9.2.jar"/>
-                    <include name="authlib-3.2.38.jar"/>
-                    <include name="brigadier-1.0.18.jar"/>
-                    <include name="bungeecord-chat-1.16-R0.4.jar"/>
-                    <include name="checker-qual-3.12.0.jar"/>
-                    <include name="commons-codec-1.11.jar"/>
-                    <include name="commons-io-2.11.0.jar"/>
-                    <include name="commons-lang-2.6.jar"/>
-                    <include name="commons-lang3-3.12.0.jar"/>
-                    <include name="datafixerupper-4.0.26.jar"/>
-                    <include name="disruptor-3.4.4.jar"/>
-                    <include name="error_prone_annotations-2.7.1.jar"/>
-                    <include name="examination-api-1.3.0.jar"/>
-                    <include name="examination-string-1.3.0.jar"/>
-                    <include name="failureaccess-1.0.1.jar"/>
-                    <include name="fastutil-8.5.6.jar"/>
-                    <include name="gson-2.8.8.jar"/>
-                    <include name="guava-31.0.1-jre.jar"/>
-                    <include name="httpclient-4.5.13.jar"/>
-                    <include name="httpcore-4.4.14.jar"/>
-                    <include name="j2objc-annotations-1.3.jar"/>
-                    <include name="jansi-2.4.0.jar"/>
-                    <include name="javabridge-1.2.24.jar"/>
-                    <include name="javax.inject-1.jar"/>
-                    <include name="jcl-over-slf4j-1.7.30.jar"/>
-                    <include name="jline-reader-3.20.0.jar"/>
-                    <include name="jline-terminal-3.21.0.jar"/>
-                    <include name="jline-terminal-jansi-3.21.0.jar"/>
-                    <include name="jna-5.9.0.jar"/>
-                    <include name="jna-platform-5.9.0.jar"/>
-                    <include name="jopt-simple-5.0.4.jar"/>
-                    <include name="json-simple-1.1.1.jar"/>
-                    <include name="jsr305-3.0.2.jar"/>
-                    <include name="listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"/>
-                    <include name="log4j-api-2.17.1.jar"/>
-                    <include name="log4j-core-2.17.1.jar"/>
-                    <include name="log4j-iostreams-2.17.1.jar"/>
-                    <include name="log4j-slf4j18-impl-2.17.1.jar"/>
-                    <include name="mapping-io-0.3.0.jar"/>
-                    <include name="maven-artifact-3.8.4.jar"/>
-                    <include name="maven-builder-support-3.8.4.jar"/>
-                    <include name="maven-model-3.8.4.jar"/>
-                    <include name="maven-model-builder-3.8.4.jar"/>
-                    <include name="maven-repository-metadata-3.8.4.jar"/>
-                    <include name="maven-resolver-api-1.7.2.jar"/>
-                    <include name="maven-resolver-connector-basic-1.7.2.jar"/>
-                    <include name="maven-resolver-impl-1.6.3.jar"/>
-                    <include name="maven-resolver-provider-3.8.4.jar"/>
-                    <include name="maven-resolver-spi-1.7.2.jar"/>
-                    <include name="maven-resolver-transport-http-1.7.2.jar"/>
-                    <include name="maven-resolver-util-1.7.2.jar"/>
-                    <include name="mysql-connector-java-8.0.27.jar"/>
-                    <include name="netty-all-4.1.68.Final.jar"/>
-                    <include name="org.eclipse.sisu.inject-0.3.5.jar"/>
-                    <include name="oshi-core-5.8.2.jar"/>
-                    <include name="paper-api-1.18.2-R0.1-SNAPSHOT.jar"/>
-                    <include name="paper-mojangapi-1.18.2-R0.1-SNAPSHOT.jar"/>
-                    <include name="paper-server-1.18.2-R0.1-SNAPSHOT-reobf.jar"/>
-                    <include name="plexus-interpolation-1.26.jar"/>
-                    <include name="plexus-utils-3.3.0.jar"/>
-                    <include name="protobuf-java-3.11.4.jar"/>
-                    <include name="slf4j-api-1.8.0-beta4.jar"/>
-                    <include name="snakeyaml-1.30.jar"/>
-                    <include name="SnuviScriptRecoded.jar"/>
-                    <include name="sqlite-jdbc-3.36.0.3.jar"/>
-                    <include name="terminalconsoleappender-1.3.0.jar"/>
-                    <include name="velocity-native-1.1.0-SNAPSHOT.jar"/>
-                </fileset>
+                <fileset dir="lib" includes="*.jar"/>
             </classpath>
         </javac>
     </target>
