@@ -18,7 +18,7 @@ public class Commands {
         });
         KajetansPlugin.scriptManager.registerFunction("isplayer", (sc, in) -> {
             Object o = in[0].get(sc);
-            return o != null && o instanceof Player;
+            return o != null && o instanceof Player && !((Player)o).hasMetadata("NPC");
         });
         KajetansPlugin.scriptManager.registerFunction("isliving", (sc, in) -> {
             Object o = in[0].get(sc);
