@@ -10,12 +10,14 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.SkullMeta;
 import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.kp.NMS;
+import net.citizensnpcs.api.CitizensAPI;
 import net.kyori.adventure.text.Component;
 
 public class PlayerCommands {
@@ -194,6 +196,14 @@ public class PlayerCommands {
         KajetansPlugin.scriptManager.registerFunction("player.gettargetentity", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             return p.getTargetEntity(in[1].getInt(sc));
+        });
+        KajetansPlugin.scriptManager.registerFunction("player.gettargetcitizen", (sc, in) -> {
+            Player player = (Player) in[0].get(sc);
+            Entity target = player.getTargetEntity(in[1].getInt(sc));
+            if(target != null && CitizensAPI.getNPCRegistry().isNPC(target)) {
+                return CitizensAPI.getNPCRegistry().getNPC(target);
+            }
+            return null;
         });
         KajetansPlugin.scriptManager.registerConsumer("player.action", (sc, in) -> {
             Component text = (Component) in[1].get(sc);

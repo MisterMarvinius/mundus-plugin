@@ -112,6 +112,7 @@ public class KajetansPlugin extends JavaPlugin implements ISnuviScheduler {
         LivingCommands.registerFunctions();
         ArmorStandCommands.registerFunctions();
         HumanCommands.registerFunctions();
+        CitizenCommands.registerFunctions();
         DatabaseCommands.registerFunctions();
         PlotCommands.registerFunctions();
         ScriptCommands.registerFunctions();
