@@ -3,6 +3,7 @@ package me.hammerle.kp.snuviscript.commands;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.Metadatable;
 import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.kp.NMS;
 import me.hammerle.snuviscript.config.SnuviConfig;
@@ -23,6 +24,10 @@ public class Commands {
         KajetansPlugin.scriptManager.registerFunction("isliving", (sc, in) -> {
             Object o = in[0].get(sc);
             return o != null && o instanceof LivingEntity;
+        });
+        KajetansPlugin.scriptManager.registerFunction("iscitizen", (sc, in) -> {
+            Object o = in[0].get(sc);
+            return o != null && ((Metadatable)o).hasMetadata("NPC");
         });
         KajetansPlugin.scriptManager.registerConsumer("config.saveasync", (sc, in) -> {
             SnuviConfig config = (SnuviConfig) in[0].get(sc);
