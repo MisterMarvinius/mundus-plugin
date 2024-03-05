@@ -4,9 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.metadata.Metadatable;
 import me.hammerle.kp.KajetansPlugin;
-import me.hammerle.kp.NMS;
 import me.hammerle.snuviscript.config.SnuviConfig;
 import net.citizensnpcs.api.npc.NPC;
 import net.kyori.adventure.text.Component;
@@ -14,7 +12,10 @@ import net.kyori.adventure.text.Component;
 public class Commands {
     public static void registerFunctions() {
         KajetansPlugin.scriptManager.registerConsumer("setmotd", (sc, in) -> {
-            NMS.setMessageOfTheDay(in[0].getString(sc));
+            org.bukkit.Bukkit.motd(Component.text(in[0].getString(sc)));
+        });
+        KajetansPlugin.scriptManager.registerFunction("getmotd", (sc, in) -> {
+            return org.bukkit.Bukkit.motd();
         });
         KajetansPlugin.scriptManager.registerConsumer("msg", (sc, in) -> {
             CommandUtils.sendMessageToGroup(in[0].get(sc), sc, (Component) in[1].get(sc));

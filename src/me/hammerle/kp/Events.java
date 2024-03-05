@@ -14,8 +14,8 @@ import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.WorldLoadEvent;
-import org.spigotmc.event.entity.EntityDismountEvent;
-import org.spigotmc.event.entity.EntityMountEvent;
+import org.bukkit.event.entity.EntityDismountEvent;
+import org.bukkit.event.entity.EntityMountEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import me.hammerle.kp.plots.PlotEvents;
 import me.hammerle.kp.snuviscript.CommandManager;
@@ -78,7 +78,6 @@ public class Events implements Listener {
             return;
         }
         Player p = e.getPlayer();
-        NMS.patch(p);
         PlayerData.get(p).login(p);
         PlayerCommands.join(p);
         ScriptEvents.onPlayerJoin(e);

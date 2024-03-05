@@ -15,7 +15,6 @@ import org.bukkit.event.player.*;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.projectiles.ProjectileSource;
-import me.hammerle.kp.NMS;
 
 public class PlotEvents {
     private static boolean canBypass(Player p) {
@@ -74,8 +73,8 @@ public class PlotEvents {
         if(!shouldBeProtected(e.getEntity())) {
             return;
         }
-        Entity indirect = NMS.getImmediateSource(NMS.getCurrentDamageSource());
-        Entity direct = NMS.getTrueSource(NMS.getCurrentDamageSource());
+        Entity indirect = e.getDamageSource().getCausingEntity();
+        Entity direct = e.getDamageSource().getDirectEntity();
 
         Player p;
         if(indirect instanceof Player) {

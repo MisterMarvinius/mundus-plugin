@@ -1,8 +1,11 @@
 package me.hammerle.kp.snuviscript.commands;
 
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
@@ -75,11 +78,12 @@ public class LivingCommands {
         KajetansPlugin.scriptManager.registerConsumer("living.damage", (sc, in) -> {
             LivingEntity liv = (LivingEntity) in[0].get(sc);
             float damage = in[1].getFloat(sc);
-            var damageSource = NMS.toDamageSource(in[2].get(sc));
+            DamageSource damageSource = (DamageSource) in[2].get(sc);
+
             StackTrace trace = sc.getStackTrace();
             KajetansPlugin.scheduleTask(() -> {
                 try {
-                    NMS.map(liv).a(damageSource, damage);
+                    liv.damage(damage, damageSource);
                 } catch(Exception ex) {
                     sc.getScriptManager().getLogger().print(null, ex, "living.damage", sc.getName(),
                             sc, trace);
@@ -128,8 +132,9 @@ public class LivingCommands {
             }
         });
         KajetansPlugin.scriptManager.registerFunction("living.geteffectamplifier", (sc, in) -> {
-            PotionEffect effect = ((LivingEntity) in[0].get(sc))
-                    .getPotionEffect(PotionEffectType.getByName(in[1].getString(sc)));
+            NamespacedKey key = NamespacedKey.minecraft(in[1].getString(sc));
+            PotionEffectType effectType = Registry.POTION_EFFECT_TYPE.get(key);
+            PotionEffect effect = ((LivingEntity) in[0].get(sc)).getPotionEffect(effectType);
             return (double) (effect == null ? -1 : effect.getAmplifier());
         });
     }

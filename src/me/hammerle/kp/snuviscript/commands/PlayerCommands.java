@@ -211,23 +211,18 @@ public class PlayerCommands {
         });
         KajetansPlugin.scriptManager.registerFunction("player.getspawn", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
-            return p.getBedSpawnLocation();
+            return p.getRespawnLocation();
         });
         KajetansPlugin.scriptManager.registerConsumer("player.setspawn", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             Location l = (Location) in[1].get(sc);
-            p.setBedSpawnLocation(l, true);
+            p.setRespawnLocation(l, true);
         });
         KajetansPlugin.scriptManager.registerConsumer("player.damageitem", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             ItemStack stack = p.getEquipment().getItemInMainHand();
             NMS.map(stack).a(in[1].getInt(sc), NMS.map(p), c -> {
             });
-        });
-        KajetansPlugin.scriptManager.registerConsumer("player.damagearmor", (sc, in) -> {
-            Player p = (Player) in[0].get(sc);
-            NMS.map(p).fr().a(NMS.toDamageSource(in[2].get(sc)), in[1].getFloat(sc),
-                    new int[] {0, 1, 2, 3});
         });
         KajetansPlugin.scriptManager.registerConsumer("player.addtotalexp", (sc, in) -> {
             ((Player) in[0].get(sc)).giveExp(in[1].getInt(sc));

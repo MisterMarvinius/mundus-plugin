@@ -147,8 +147,9 @@ public class EntityCommands {
         KajetansPlugin.scriptManager.registerConsumer("entity.setgrowingage", (sc, in) -> {
             ((Ageable) in[0].get(sc)).setAge(in[1].getInt(sc));
         });
+        // net.minecraft.world.entity.Entity -> net.minecraft.world.entity.EntityType getType()
         KajetansPlugin.scriptManager.registerFunction("entity.gettype",
-                (sc, in) -> NMS.map(((Entity) in[0].get(sc))).ad().id);
+                (sc, in) -> NMS.map(((Entity) in[0].get(sc))).ai().toString());
         KajetansPlugin.scriptManager.registerFunction("sheep.issheared",
                 (sc, in) -> ((Sheep) in[0].get(sc)).isSheared());
         KajetansPlugin.scriptManager.registerFunction("sheep.getcolor",

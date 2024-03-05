@@ -168,18 +168,20 @@ public class CommandManager {
 
         Map<CommandNode<CommandListenerWrapper>, CommandNode<ICompletionProvider>> map =
                 Maps.newIdentityHashMap();
+        // net.minecraft.server.level.ServerPlayer -> net.minecraft.server.MinecraftServer server
         RootCommandNode<CommandListenerWrapper> vanilla =
-                p.c.vanillaCommandDispatcher.a().getRoot();
+                p.d.vanillaCommandDispatcher.a().getRoot();
         RootCommandNode<ICompletionProvider> rootNode = new RootCommandNode<>();
         map.put(vanilla, rootNode);
-        CommandListenerWrapper cs = p.cQ();
+        //net.minecraft.world.entity.Entity -> net.minecraft.commands.CommandSourceStack createCommandSourceStack()
+        CommandListenerWrapper cs = p.dd();
         commandSourceNodesToSuggestionNodes(true, vanilla, rootNode, cs, map);
-        //commandSourceNodesToSuggestionNodes(true, p.c.aB.c.a().getRoot(), rootNode, cs, map);
-        commandSourceNodesToSuggestionNodes(true, p.c.aA().a().getRoot(), rootNode, cs, map);
+        //aE -> net.minecraft.commands.Commands getCommands()
+        commandSourceNodesToSuggestionNodes(true, p.d.aE().a().getRoot(), rootNode, cs, map);
         for(CommandNode node : CUSTOM_NODES.values()) {
             commandSourceNodesToSuggestionNodes(node, rootNode, cs, map);
         }
-        p.b.a(new PacketPlayOutCommands(rootNode));
+        p.c.a(new PacketPlayOutCommands(rootNode));
     }
 
     private static boolean checkNoPerm(boolean first, CommandNode<CommandListenerWrapper> c,

@@ -12,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -27,17 +28,14 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.spigotmc.event.entity.EntityDismountEvent;
-import org.spigotmc.event.entity.EntityMountEvent;
+import org.bukkit.event.entity.EntityDismountEvent;
+import org.bukkit.event.entity.EntityMountEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import me.hammerle.kp.KajetansPlugin;
-import me.hammerle.kp.NMS;
-import me.hammerle.kp.NMS.Human;
 import me.hammerle.snuviscript.code.Script;
 import me.hammerle.snuviscript.code.SnuviUtils;
 import me.hammerle.snuviscript.inputprovider.Variable;
 import net.kyori.adventure.text.Component;
-import net.minecraft.world.damagesource.DamageSource;
 
 public class ScriptEvents {
     private static class WrappedBool {
@@ -227,42 +225,6 @@ public class ScriptEvents {
         }
     }
 
-    public static boolean onHumanHurt(DamageSource ds, Human h, float amount, boolean cancel) {
-        WrappedBool wb = new WrappedBool(cancel);
-        KajetansPlugin.scriptManager.callEvent("human_damage", sc -> {
-            sc.setVar("human", h);
-            sc.setVar("damage_source", ds);
-            sc.setVar("damage", (double) amount);
-            setCancel(sc, wb.wrapped);
-        }, sc -> {
-            Variable v = sc.getVar("cancel");
-            if(v == null) {
-                return;
-            }
-            try {
-                wb.wrapped = v.getBoolean(sc);
-            } catch(Exception ex) {
-            }
-        });
-        return wb.wrapped;
-    }
-
-    public static void onHumanGoalReach(Human h, Location goal, int id) {
-        KajetansPlugin.scriptManager.callEvent("human_goal_reach", sc -> {
-            sc.setVar("human", h);
-            sc.setVar("goal", goal);
-            sc.setVar("id", (double) id);
-        }, ScriptEvents::nothing);
-    }
-
-    public static void onHumanGoalTimeout(Human h, Location goal, int id) {
-        KajetansPlugin.scriptManager.callEvent("human_goal_timeout", sc -> {
-            sc.setVar("human", h);
-            sc.setVar("goal", goal);
-            sc.setVar("id", (double) id);
-        }, ScriptEvents::nothing);
-    }
-
     public static void onPlayerPreRespawn(PlayerRespawnEvent e) {
         handleEvent("player_pre_respawn", sc -> setPlayer(sc, e.getPlayer()));
     }
@@ -288,12 +250,13 @@ public class ScriptEvents {
     }
 
     public static void onEntityDamage(EntityDamageEvent e) {
-        String cause = e.getCause().toString();
+        String cause = e.getCause().name();
         Block damagerBlock = getBlock(e);
         Entity damagerEntity = getEntity(e);
+        DamageSource damageSource = e.getDamageSource();
         handleEvent(e, "entity_damage", (sc) -> {
             setEntity(sc, e.getEntity());
-            sc.setVar("damage_source", NMS.getCurrentDamageSource());
+            sc.setVar("damage_source", damageSource);
             sc.setVar("cause", cause);
             sc.setVar("damager_block", damagerBlock);
             sc.setVar("damager_entity", damagerEntity);
@@ -303,7 +266,7 @@ public class ScriptEvents {
     }
 
     public static void onEntityRegainHealth(EntityRegainHealthEvent e) {
-        String cause = e.getRegainReason().toString();
+        String cause = e.getRegainReason().name();
         KajetansPlugin.scriptManager.callEvent("entity_heal", sc -> {
             setEntity(sc, e.getEntity());
             sc.setVar("heal", e.getAmount());
@@ -317,8 +280,10 @@ public class ScriptEvents {
 
     public static void onEntityDeath(EntityDeathEvent e) {
         KajetansPlugin.scriptManager.callEvent("living_death", sc -> {
-            setLiving(sc, e.getEntity());
-            sc.setVar("damage_source", NMS.getCurrentDamageSource());
+            LivingEntity living = e.getEntity();
+            setLiving(sc, living);
+            DamageSource damageSource = living.getLastDamageCause().getDamageSource();
+            sc.setVar("damage_source", damageSource);
             sc.setVar("drops", e.getDrops());
             sc.setVar("experience", (double) e.getDroppedExp());
             setCancel(sc, e.isCancelled());

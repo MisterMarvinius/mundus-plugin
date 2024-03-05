@@ -6,16 +6,23 @@ import com.mojang.brigadier.arguments.*;
 import com.mojang.brigadier.builder.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandDispatcher;
 import net.minecraft.commands.CommandListenerWrapper;
 import net.minecraft.commands.arguments.*;
 import net.minecraft.commands.arguments.blocks.ArgumentTile;
 import net.minecraft.commands.arguments.item.ArgumentItemStack;
 import net.minecraft.commands.synchronization.CompletionProviders;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.registries.VanillaRegistries;
 
 public class CommandCommands {
+    private static CommandBuildContext commandbuildcontext = null;
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static void registerFunctions() {
+        commandbuildcontext = CommandDispatcher.a(VanillaRegistries.a());
+
         KajetansPlugin.scriptManager.registerConsumer("command.addignored",
                 (sc, in) -> CommandManager.addIgnored(in[0].getString(sc)));
         KajetansPlugin.scriptManager.registerConsumer("command.clearignored",
@@ -110,18 +117,19 @@ public class CommandCommands {
             switch(name) {
                 case "Item":
                     arg = CommandDispatcher.a(in[1].getString(sc),
-                            (ArgumentType) ArgumentItemStack.a());
+                            (ArgumentType) ArgumentItemStack.a(commandbuildcontext));
                     break;
                 case "Block":
-                    arg = CommandDispatcher.a(in[1].getString(sc), (ArgumentType) ArgumentTile.a());
+                    arg = CommandDispatcher.a(in[1].getString(sc),
+                            (ArgumentType) ArgumentTile.a(commandbuildcontext));
                     break;
                 case "Potion":
                     arg = CommandDispatcher.a(in[1].getString(sc),
-                            (ArgumentType) ArgumentMobEffect.a());
+                            (ArgumentType) ResourceArgument.a(commandbuildcontext, Registries.d));
                     break;
                 case "Enchantment":
                     arg = CommandDispatcher.a(in[1].getString(sc),
-                            (ArgumentType) ArgumentEnchantment.a());
+                            (ArgumentType) ResourceArgument.a(commandbuildcontext, Registries.f));
                     break;
                 case "Player":
                     arg = CommandDispatcher.a(in[1].getString(sc),
@@ -129,7 +137,7 @@ public class CommandCommands {
                     break;
                 case "Particle":
                     arg = CommandDispatcher.a(in[1].getString(sc),
-                            (ArgumentType) ArgumentParticle.a());
+                            (ArgumentType) ArgumentParticle.a(commandbuildcontext)); // will als arg CommandBuildContext registryAccess
                     break;
                 case "Sound":
                     arg = CommandDispatcher.a(in[1].getString(sc),

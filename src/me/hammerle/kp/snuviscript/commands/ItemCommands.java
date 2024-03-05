@@ -76,7 +76,7 @@ public class ItemCommands {
         KajetansPlugin.scriptManager.registerFunction("item.gettype",
                 (sc, in) -> ((ItemStack) in[0].get(sc)).getType());
         KajetansPlugin.scriptManager.registerFunction("item.getmaxamount",
-                (sc, in) -> (double) NMS.map((ItemStack) in[0].get(sc)).e());
+                (sc, in) -> (double) NMS.map((ItemStack) in[0].get(sc)).g());
         KajetansPlugin.scriptManager.registerFunction("item.getamount",
                 (sc, in) -> (double) ((ItemStack) in[0].get(sc)).getAmount());
         KajetansPlugin.scriptManager.registerConsumer("item.setamount",

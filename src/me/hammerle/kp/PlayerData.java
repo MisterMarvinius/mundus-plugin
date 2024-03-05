@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.RenderType;
@@ -26,7 +27,7 @@ public class PlayerData {
     private boolean iterating = false;
 
     private PlayerData(Player p) {
-        objective = scoreboard.registerNewObjective("kajetansplugin", "dummy",
+        objective = scoreboard.registerNewObjective("kajetansplugin", Criteria.create("DUMMY"),
                 Component.text("Default"), RenderType.INTEGER);
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         p.setScoreboard(scoreboard);

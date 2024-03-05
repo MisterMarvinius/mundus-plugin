@@ -19,6 +19,8 @@ import org.bukkit.block.data.Waterlogged;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.block.data.type.Door;
 import org.bukkit.block.data.type.Leaves;
+import org.bukkit.block.sign.Side;
+import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.LivingEntity;
 import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.kp.NMS;
@@ -73,13 +75,21 @@ public class BlockCommands {
         KajetansPlugin.scriptManager.registerConsumer("block.setsign", (sc, in) -> {
             Block b = (Block) in[0].get(sc);
             Sign sign = (Sign) b.getState();
-            sign.line(in[1].getInt(sc), (Component) in[2].get(sc));
+            SignSide side = (SignSide) sign.getSide(Side.valueOf(in[1].getString(sc)));
+            side.line(in[2].getInt(sc), (Component) in[3].get(sc));
             sign.update(true, false);
         });
         KajetansPlugin.scriptManager.registerFunction("block.getsign", (sc, in) -> {
             Block b = (Block) in[0].get(sc);
             Sign sign = (Sign) b.getState();
-            return sign.line(in[1].getInt(sc));
+            SignSide side = (SignSide) sign.getSide(Side.valueOf(in[1].getString(sc)));
+            return side.line(in[2].getInt(sc));
+        });
+        KajetansPlugin.scriptManager.registerConsumer("block.signsetwaxed", (sc, in) -> {
+            Block b = (Block) in[0].get(sc);
+            Sign sign = (Sign) b.getState();
+            sign.setWaxed(in[1].getBoolean(sc));
+            sign.update(true, false);
         });
         KajetansPlugin.scriptManager.registerFunction("block.getinventory", (sc, in) -> {
             BlockState state = ((Block) in[0].get(sc)).getState();

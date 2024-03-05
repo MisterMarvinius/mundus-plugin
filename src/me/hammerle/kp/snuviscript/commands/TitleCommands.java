@@ -20,7 +20,7 @@ public class TitleCommands {
             int fadeIn = in.length > 3 ? in[3].getInt(sc) : 20;
             int stay = in.length > 4 ? in[4].getInt(sc) : 60;
             int fadeOut = in.length > 5 ? in[5].getInt(sc) : 20;
-            p.sendTitlePart(TitlePart.TIMES, Title.Times.of(Duration.ofMillis(fadeIn * 50),
+            p.sendTitlePart(TitlePart.TIMES, Title.Times.times(Duration.ofMillis(fadeIn * 50),
                     Duration.ofMillis(stay * 50), Duration.ofMillis(fadeOut * 50)));
         });
     }
