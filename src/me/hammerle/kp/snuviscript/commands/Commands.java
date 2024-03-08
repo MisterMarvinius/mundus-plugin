@@ -30,8 +30,13 @@ public class Commands {
         });
         KajetansPlugin.scriptManager.registerFunction("iscitizen", (sc, in) -> {
             Object o = in[0].get(sc);
-            return o != null && (o instanceof Entity && ((Entity) o).hasMetadata("NPC"))
-                    || o instanceof NPC;
+            if(o == null) {
+                return false;
+            }
+            if(o instanceof NPC) {
+                return true;
+            }
+            return o instanceof Entity && ((Entity) o).hasMetadata("NPC");
         });
         KajetansPlugin.scriptManager.registerConsumer("config.saveasync", (sc, in) -> {
             SnuviConfig config = (SnuviConfig) in[0].get(sc);

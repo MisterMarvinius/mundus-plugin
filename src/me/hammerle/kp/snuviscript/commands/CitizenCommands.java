@@ -5,6 +5,7 @@ import org.bukkit.entity.EntityType;
 import me.hammerle.kp.KajetansPlugin;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
+import net.citizensnpcs.trait.LookClose;
 import net.citizensnpcs.trait.SkinTrait;
 
 public class CitizenCommands {
@@ -29,5 +30,12 @@ public class CitizenCommands {
             NPC npc = (NPC) in[0].get(sc);
             return npc.getName();
         });
+        KajetansPlugin.scriptManager.registerConsumer("citizen.lookclose", (sc, in) -> {
+            LookClose lookClose = new LookClose();
+            lookClose.lookClose(true);
+            NPC npc = (NPC) in[0].get(sc);
+            npc.addTrait(lookClose);
+        });
+
     }
 }
