@@ -96,10 +96,10 @@ public class Events implements Listener {
         if(CommandTest.noEvents) {
             return;
         }
-        e.getCommands().clear();
+        /*e.getCommands().clear();
         KajetansPlugin.scheduleTask(() -> {
             CommandManager.send(e.getPlayer());
-        });
+        })*/;
     }
 
     @EventHandler
