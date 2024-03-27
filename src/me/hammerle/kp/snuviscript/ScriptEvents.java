@@ -305,6 +305,7 @@ public class ScriptEvents {
         handleEvent(e, "block_drop", sc -> {
             setPlayer(sc, e.getPlayer());
             sc.setVar("drops", e.getItems());
+            sc.setVar("old_material", e.getBlockState().getBlockData().getMaterial());
             setBlock(sc, b);
         });
     }
