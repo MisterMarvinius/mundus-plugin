@@ -12,8 +12,6 @@ import javax.crypto.Cipher;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandAPIBukkit;
 import me.hammerle.kp.snuviscript.SnuviLogger;
 import me.hammerle.kp.snuviscript.commands.*;
 import me.hammerle.kp.plots.WorldPlotMap;
@@ -99,7 +97,6 @@ public class KajetansPlugin extends JavaPlugin implements ISnuviScheduler {
 
     private static void registerFunctions() {
         CommandCommands.registerFunctions();
-        Command2Commands.registerFunctions();
         PermissionCommands.registerFunctions();
         TableCommands.registerFunctions();
         TitleCommands.registerFunctions();
@@ -136,21 +133,6 @@ public class KajetansPlugin extends JavaPlugin implements ISnuviScheduler {
 
     public static PermissionAttachment addPermissions(Permissible p) {
         return p.addAttachment(instance);
-    }
-
-    @Override
-    public void onLoad() {
-        CommandAPI.unregister("ban", true);
-        CommandAPI.unregister("enchant", true);
-        CommandAPI.unregister("gamemode", true);
-        CommandAPI.unregister("gamerule", true);
-        CommandAPI.unregister("help", true);
-        CommandAPI.unregister("kick", true);
-        CommandAPI.unregister("msg", true);
-        CommandAPI.unregister("teammsg", true);
-        CommandAPI.unregister("teleport", true);
-        CommandAPI.unregister("tell", true);
-        CommandAPI.unregister("time", true);
     }
 
     @Override
@@ -208,39 +190,6 @@ public class KajetansPlugin extends JavaPlugin implements ISnuviScheduler {
             });
             isAliveThread.start();
         }
-
-        CommandAPIBukkit.unregister("/br", true, true);
-        CommandAPIBukkit.unregister("/brush", true, true);
-        CommandAPIBukkit.unregister("/desel", true, true);
-        CommandAPIBukkit.unregister("/deselect", true, true);
-        CommandAPIBukkit.unregister("/sel", true, true);
-        CommandAPIBukkit.unregister("/toggleplace", true, true);
-        CommandAPIBukkit.unregister(";", true, true);
-        CommandAPIBukkit.unregister("brush", true, true);
-        CommandAPIBukkit.unregister("none", true, true);
-        CommandAPIBukkit.unregister("toggleplace", true, true);
-        CommandAPIBukkit.unregister("tool", true, true);
-        CommandAPIBukkit.unregister("br", true, true);
-        CommandAPIBukkit.unregister("icanhasbukkit", true, true);
-        CommandAPIBukkit.unregister("we", true, true);
-        CommandAPIBukkit.unregister("worldedit", true, true);
-        CommandAPIBukkit.unregister("worldedit:/we", true, true);
-        CommandAPIBukkit.unregister("worldedit:/worldedit", true, true);
-        CommandAPIBukkit.unregister("worldedit:/br", true, true);
-        CommandAPIBukkit.unregister("worldedit:/brush", true, true);
-        CommandAPIBukkit.unregister("worldedit:/desel", true, true);
-        CommandAPIBukkit.unregister("worldedit:/deselect", true, true);
-        CommandAPIBukkit.unregister("worldedit:/sel", true, true);
-        CommandAPIBukkit.unregister("worldedit:/toggleplace", true, true);
-        CommandAPIBukkit.unregister("worldedit:;", true, true);
-        CommandAPIBukkit.unregister("worldedit:brush", true, true);
-        CommandAPIBukkit.unregister("worldedit:none", true, true);
-        CommandAPIBukkit.unregister("worldedit:toggleplace", true, true);
-        CommandAPIBukkit.unregister("worldedit:tool", true, true);
-        CommandAPIBukkit.unregister("worldedit:br", true, true);
-        CommandAPIBukkit.unregister("worldedit:icanhasbukkit", true, true);
-        CommandAPIBukkit.unregister("callback", true, true);
-        CommandAPIBukkit.unregister("paper:callback", true, true);
     }
 
     @Override

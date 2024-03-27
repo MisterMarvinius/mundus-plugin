@@ -3,7 +3,6 @@ package me.hammerle.kp.snuviscript;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -12,46 +11,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import me.hammerle.kp.KajetansPlugin;
-import me.hammerle.kp.NMS;
-import net.minecraft.commands.CommandListenerWrapper;
-import net.minecraft.commands.ICompletionProvider;
-import net.minecraft.commands.synchronization.CompletionProviders;
-import net.minecraft.network.protocol.game.PacketPlayOutCommands;
-import net.minecraft.server.level.EntityPlayer;
-import com.google.common.collect.Maps;
-import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.tree.CommandNode;
-import com.mojang.brigadier.tree.RootCommandNode;
 
 public class CommandManager {
     private final static UUID MARVINIUS = UUID.fromString("e41b5335-3c74-46e9-a6c5-dafc6334a477");
     private final static UUID KAJETANJOHANNES =
             UUID.fromString("51e240f9-ab10-4ea6-8a5d-779319f51257");
+    private final static UUID SIRTERENCE7 = UUID.fromString("6cc9f8c7-9dfd-44f4-a3f2-af30054411a8");
     private final static HashMap<String, KajetanCommand> COMMANDS = new HashMap<>();
     private final static HashSet<String> SNUVI_COMMANDS = new HashSet<>();
     private final static HashMap<String, CommandNode<?>> CUSTOM_NODES = new HashMap<>();
-    private final static HashSet<String> IGNORED_COMMANDS = new HashSet<>();
-    private final static HashSet<String> NO_PERM_COMMANDS = new HashSet<>();
 
     public static void clearCustomNodes() {
         CUSTOM_NODES.clear();
-    }
-
-    public static void addIgnored(String command) {
-        IGNORED_COMMANDS.add(command);
-    }
-
-    public static void clearIgnored() {
-        IGNORED_COMMANDS.clear();
-    }
-
-    public static void addNoPerm(String command) {
-        NO_PERM_COMMANDS.add(command);
-    }
-
-    public static void clearNoPerm() {
-        NO_PERM_COMMANDS.clear();
     }
 
     public static void addCustomNode(CommandNode<?> node) {
@@ -162,109 +134,6 @@ public class CommandManager {
         return false;
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public static void send(Player player) {
-        EntityPlayer p = NMS.map(player);
-
-        Map<CommandNode<CommandListenerWrapper>, CommandNode<ICompletionProvider>> map =
-                Maps.newIdentityHashMap();
-        // net.minecraft.server.level.ServerPlayer -> net.minecraft.server.MinecraftServer server
-        RootCommandNode<CommandListenerWrapper> vanilla =
-                p.d.vanillaCommandDispatcher.a().getRoot();
-        RootCommandNode<ICompletionProvider> rootNode = new RootCommandNode<>();
-        map.put(vanilla, rootNode);
-        //net.minecraft.world.entity.Entity -> net.minecraft.commands.CommandSourceStack createCommandSourceStack()
-        CommandListenerWrapper cs = p.dd();
-        commandSourceNodesToSuggestionNodes(true, vanilla, rootNode, cs, map);
-        //aE -> net.minecraft.commands.Commands getCommands()
-        commandSourceNodesToSuggestionNodes(true, p.d.aE().a().getRoot(), rootNode, cs, map);
-        for(CommandNode node : CUSTOM_NODES.values()) {
-            commandSourceNodesToSuggestionNodes(node, rootNode, cs, map);
-        }
-        p.c.a(new PacketPlayOutCommands(rootNode));
-    }
-
-    private static boolean checkNoPerm(boolean first, CommandNode<CommandListenerWrapper> c,
-            CommandListenerWrapper source) {
-        if(!first) {
-            return true;
-        }
-        if(NO_PERM_COMMANDS.contains(c.getName())) {
-            return source.getBukkitSender().hasPermission("missing." + c.getName());
-        }
-        return true;
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private static void commandSourceNodesToSuggestionNodes(boolean first,
-            CommandNode<CommandListenerWrapper> node, CommandNode<ICompletionProvider> suggestion,
-            CommandListenerWrapper source,
-            Map<CommandNode<CommandListenerWrapper>, CommandNode<ICompletionProvider>> map) {
-        for(CommandNode<CommandListenerWrapper> childNode : node.getChildren()) {
-            if(first && IGNORED_COMMANDS.contains(childNode.getName())) {
-                continue;
-            }
-            if(childNode.canUse(source) && checkNoPerm(first, childNode, source)) {
-                ArgumentBuilder<ICompletionProvider, ?> arg =
-                        (ArgumentBuilder) childNode.createBuilder();
-                arg.requires(a -> true);
-                if(arg.getCommand() != null) {
-                    arg.executes(a -> 0);
-                }
-
-                if(arg instanceof RequiredArgumentBuilder) {
-                    RequiredArgumentBuilder<ICompletionProvider, ?> required =
-                            (RequiredArgumentBuilder) arg;
-                    if(required.getSuggestionsProvider() != null) {
-                        required.suggests(CompletionProviders.b(required.getSuggestionsProvider()));
-                    }
-                }
-
-                if(arg.getRedirect() != null) {
-                    arg.redirect(map.get(arg.getRedirect()));
-                }
-
-                CommandNode<ICompletionProvider> commandNode = arg.build();
-                map.put(childNode, commandNode);
-                suggestion.addChild(commandNode);
-                if(!childNode.getChildren().isEmpty()) {
-                    commandSourceNodesToSuggestionNodes(false, childNode, commandNode, source, map);
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private static void commandSourceNodesToSuggestionNodes(
-            CommandNode<CommandListenerWrapper> node, CommandNode<ICompletionProvider> parentNode,
-            CommandListenerWrapper cs,
-            Map<CommandNode<CommandListenerWrapper>, CommandNode<ICompletionProvider>> map) {
-        if(!node.canUse(cs)) {
-            return;
-        }
-        ArgumentBuilder<ICompletionProvider, ?> arg = (ArgumentBuilder) node.createBuilder();
-        arg.requires(a -> true);
-        if(arg.getCommand() != null) {
-            arg.executes(a -> 0);
-        }
-        if(arg instanceof RequiredArgumentBuilder) {
-            RequiredArgumentBuilder<ICompletionProvider, ?> required =
-                    (RequiredArgumentBuilder) arg;
-            if(required.getSuggestionsProvider() != null) {
-                required.suggests(CompletionProviders.b(required.getSuggestionsProvider()));
-            }
-        }
-        if(arg.getRedirect() != null) {
-            arg.redirect(map.get(arg.getRedirect()));
-        }
-        CommandNode<ICompletionProvider> commandNode = arg.build();
-        map.put(node, commandNode);
-        parentNode.addChild(commandNode);
-        for(CommandNode<CommandListenerWrapper> childNode : node.getChildren()) {
-            commandSourceNodesToSuggestionNodes(childNode, commandNode, cs, map);
-        }
-    }
-
     public static void addCustom(String command) {
         SNUVI_COMMANDS.add(command);
     }
@@ -292,7 +161,8 @@ public class CommandManager {
                 p.addAttachment(KajetansPlugin.instance, info.getPermission(), false);
             }
         }
-        if(p.getUniqueId().equals(MARVINIUS) || p.getUniqueId().equals(KAJETANJOHANNES)) {
+        if(p.getUniqueId().equals(MARVINIUS) || p.getUniqueId().equals(KAJETANJOHANNES)
+                || p.getUniqueId().equals(SIRTERENCE7)) {
             PermissionAttachment perm = p.addAttachment(KajetansPlugin.instance, "script", true);
             perm.setPermission("script.debug", true);
             perm.setPermission("script.error", true);

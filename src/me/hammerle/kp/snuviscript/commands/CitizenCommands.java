@@ -2,6 +2,8 @@ package me.hammerle.kp.snuviscript.commands;
 
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
+import net.citizensnpcs.api.trait.trait.Equipment.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import me.hammerle.kp.KajetansPlugin;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
@@ -17,6 +19,14 @@ public class CitizenCommands {
             npc.spawn(l);
             return npc;
         });
+        KajetansPlugin.scriptManager.registerConsumer("citizen.despawn", (sc, in) -> {
+            NPC npc = (NPC) in[0].get(sc);
+            npc.despawn();
+        });
+        KajetansPlugin.scriptManager.registerConsumer("citizen.destroy", (sc, in) -> {
+            NPC npc = (NPC) in[0].get(sc);
+            npc.destroy();
+        });
         KajetansPlugin.scriptManager.registerConsumer("citizen.setskin", (sc, in) -> {
             NPC npc = (NPC) in[0].get(sc);
             SkinTrait skin = npc.getOrAddTrait(SkinTrait.class);
@@ -29,6 +39,15 @@ public class CitizenCommands {
         KajetansPlugin.scriptManager.registerFunction("citizen.getname", (sc, in) -> {
             NPC npc = (NPC) in[0].get(sc);
             return npc.getName();
+        });
+        KajetansPlugin.scriptManager.registerConsumer("citizen.shownameplate", (sc, in) -> {
+            NPC npc = (NPC) in[0].get(sc);
+            npc.data().set(NPC.Metadata.NAMEPLATE_VISIBLE, in[1].getBoolean(sc));
+        });
+        KajetansPlugin.scriptManager.registerConsumer("citizen.setequip", (sc, in) -> {
+            NPC npc = (NPC) in[0].get(sc);
+            npc.getOrAddTrait(net.citizensnpcs.api.trait.trait.Equipment.class)
+                    .set(EquipmentSlot.valueOf(in[1].getString(sc)), (ItemStack) in[2].get(sc));
         });
         KajetansPlugin.scriptManager.registerConsumer("citizen.lookclose", (sc, in) -> {
             LookClose lookClose = new LookClose();

@@ -139,7 +139,7 @@ public class PlotMap {
         }
 
         public boolean hasFlags(int flags) {
-            return (flags & this.flags) == flags;
+            return (flags & this.flags) == flags && flags != 0;
         }
 
         public void setFlag(int flags, boolean b) {

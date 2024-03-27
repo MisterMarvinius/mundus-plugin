@@ -14,8 +14,6 @@ import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.WorldLoadEvent;
-import org.bukkit.event.entity.EntityDismountEvent;
-import org.bukkit.event.entity.EntityMountEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import me.hammerle.kp.plots.PlotEvents;
 import me.hammerle.kp.snuviscript.CommandManager;
@@ -207,6 +205,30 @@ public class Events implements Listener {
         }
         PlotEvents.onBlockBreak(e);
         ScriptEvents.onBlockBreak(e);
+    }
+
+    @EventHandler
+    public void onBlockBurn(BlockBurnEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        ScriptEvents.onBlockBurn(e);
+    }
+
+    @EventHandler
+    public void onBlockSpread(BlockSpreadEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        ScriptEvents.onBlockSpread(e);
+    }
+
+    @EventHandler
+    public void onBlockFade(BlockFadeEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        ScriptEvents.onBlockFade(e);
     }
 
     @EventHandler

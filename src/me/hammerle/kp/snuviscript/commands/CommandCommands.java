@@ -2,177 +2,31 @@ package me.hammerle.kp.snuviscript.commands;
 
 import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.kp.snuviscript.CommandManager;
-import com.mojang.brigadier.arguments.*;
-import com.mojang.brigadier.builder.*;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import net.minecraft.commands.CommandBuildContext;
+import dev.jorel.commandapi.CommandAPI;
+import dev.jorel.commandapi.CommandAPIBukkit;
+import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.arguments.Argument;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
+import dev.jorel.commandapi.arguments.BooleanArgument;
+import dev.jorel.commandapi.arguments.DoubleArgument;
+import dev.jorel.commandapi.arguments.EnchantmentArgument;
+import dev.jorel.commandapi.arguments.FloatArgument;
+import dev.jorel.commandapi.arguments.GreedyStringArgument;
+import dev.jorel.commandapi.arguments.IntegerArgument;
+import dev.jorel.commandapi.arguments.ItemStackArgument;
+import dev.jorel.commandapi.arguments.LiteralArgument;
+import dev.jorel.commandapi.arguments.ParticleArgument;
+import dev.jorel.commandapi.arguments.PlayerArgument;
+import dev.jorel.commandapi.arguments.PotionEffectArgument;
+import dev.jorel.commandapi.arguments.SoundArgument;
+import dev.jorel.commandapi.arguments.StringArgument;
 import net.minecraft.commands.CommandDispatcher;
-import net.minecraft.commands.CommandListenerWrapper;
-import net.minecraft.commands.arguments.*;
-import net.minecraft.commands.arguments.blocks.ArgumentTile;
-import net.minecraft.commands.arguments.item.ArgumentItemStack;
-import net.minecraft.commands.synchronization.CompletionProviders;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
 
 public class CommandCommands {
-    private static CommandBuildContext commandbuildcontext = null;
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public static void registerFunctions() {
-        commandbuildcontext = CommandDispatcher.a(VanillaRegistries.a());
+        CommandDispatcher.a(VanillaRegistries.a());
 
-        KajetansPlugin.scriptManager.registerConsumer("command.addignored",
-                (sc, in) -> CommandManager.addIgnored(in[0].getString(sc)));
-        KajetansPlugin.scriptManager.registerConsumer("command.clearignored",
-                (sc, in) -> CommandManager.clearIgnored());
-        KajetansPlugin.scriptManager.registerConsumer("command.addnoperm",
-                (sc, in) -> CommandManager.addNoPerm(in[0].getString(sc)));
-        KajetansPlugin.scriptManager.registerConsumer("command.clearnoperm",
-                (sc, in) -> CommandManager.clearNoPerm());
-        KajetansPlugin.scriptManager.registerFunction("command.newhelp", (sc, in) -> {
-            final String perm = in[1].getString(sc);
-            return CommandDispatcher.a(in[0].getString(sc))
-                    .requires(p -> p.getBukkitSender().hasPermission(perm));
-        });
-        KajetansPlugin.scriptManager.registerFunction("command.newhelpliteral", (sc, in) -> {
-            LiteralArgumentBuilder<CommandListenerWrapper> arg =
-                    CommandDispatcher.a(in[0].getString(sc));
-            if(in.length >= 2) {
-                final String perm = in[1].getString(sc);
-                arg.requires(p -> p.getBukkitSender().hasPermission(perm));
-            }
-            return arg;
-        });
-        KajetansPlugin.scriptManager.registerFunction("command.newhelpbool", (sc, in) -> {
-            RequiredArgumentBuilder<CommandListenerWrapper, Boolean> arg =
-                    CommandDispatcher.a(in[0].getString(sc), BoolArgumentType.bool());
-            if(in.length >= 2) {
-                final String perm = in[1].getString(sc);
-                arg.requires(p -> p.getBukkitSender().hasPermission(perm));
-            }
-            return arg;
-        });
-        KajetansPlugin.scriptManager.registerFunction("command.newhelpdouble", (sc, in) -> {
-            double min = in[1].getDouble(sc);
-            double max = in[2].getDouble(sc);
-            RequiredArgumentBuilder<CommandListenerWrapper, Double> arg = CommandDispatcher
-                    .a(in[0].getString(sc), DoubleArgumentType.doubleArg(min, max));
-            if(in.length >= 4) {
-                final String perm = in[3].getString(sc);
-                arg.requires(p -> p.getBukkitSender().hasPermission(perm));
-            }
-            return arg;
-        });
-        KajetansPlugin.scriptManager.registerFunction("command.newhelpfloat", (sc, in) -> {
-            float min = in[1].getFloat(sc);
-            float max = in[2].getFloat(sc);
-            RequiredArgumentBuilder<CommandListenerWrapper, Float> arg =
-                    CommandDispatcher.a(in[0].getString(sc), FloatArgumentType.floatArg(min, max));
-            if(in.length >= 4) {
-                final String perm = in[3].getString(sc);
-                arg.requires(p -> p.getBukkitSender().hasPermission(perm));
-            }
-            return arg;
-        });
-        KajetansPlugin.scriptManager.registerFunction("command.newhelpint", (sc, in) -> {
-            int min = in[1].getInt(sc);
-            int max = in[2].getInt(sc);
-            RequiredArgumentBuilder<CommandListenerWrapper, Integer> arg =
-                    CommandDispatcher.a(in[0].getString(sc), IntegerArgumentType.integer(min, max));
-            if(in.length >= 4) {
-                final String perm = in[3].getString(sc);
-                arg.requires(p -> p.getBukkitSender().hasPermission(perm));
-            }
-            return arg;
-        });
-        KajetansPlugin.scriptManager.registerFunction("command.newhelplong", (sc, in) -> {
-            long min = in[1].getLong(sc);
-            long max = in[2].getLong(sc);
-            RequiredArgumentBuilder<CommandListenerWrapper, Long> arg =
-                    CommandDispatcher.a(in[0].getString(sc), LongArgumentType.longArg(min, max));
-            if(in.length >= 4) {
-                final String perm = in[3].getString(sc);
-                arg.requires(p -> p.getBukkitSender().hasPermission(perm));
-            }
-            return arg;
-        });
-        KajetansPlugin.scriptManager.registerFunction("command.newhelpstring", (sc, in) -> {
-            RequiredArgumentBuilder<CommandListenerWrapper, String> arg;
-            if(in[1].getBoolean(sc)) {
-                arg = CommandDispatcher.a(in[0].getString(sc), StringArgumentType.greedyString());
-            } else {
-                arg = CommandDispatcher.a(in[0].getString(sc), StringArgumentType.string());
-            }
-            if(in.length >= 3) {
-                final String perm = in[2].getString(sc);
-                arg.requires(p -> p.getBukkitSender().hasPermission(perm));
-            }
-            return arg;
-        });
-        KajetansPlugin.scriptManager.registerFunction("command.newhelpspecial", (sc, in) -> {
-            RequiredArgumentBuilder<CommandListenerWrapper, ArgumentType<?>> arg = null;
-            String name = in[0].getString(sc);
-            switch(name) {
-                case "Item":
-                    arg = CommandDispatcher.a(in[1].getString(sc),
-                            (ArgumentType) ArgumentItemStack.a(commandbuildcontext));
-                    break;
-                case "Block":
-                    arg = CommandDispatcher.a(in[1].getString(sc),
-                            (ArgumentType) ArgumentTile.a(commandbuildcontext));
-                    break;
-                case "Potion":
-                    arg = CommandDispatcher.a(in[1].getString(sc),
-                            (ArgumentType) ResourceArgument.a(commandbuildcontext, Registries.d));
-                    break;
-                case "Enchantment":
-                    arg = CommandDispatcher.a(in[1].getString(sc),
-                            (ArgumentType) ResourceArgument.a(commandbuildcontext, Registries.f));
-                    break;
-                case "Player":
-                    arg = CommandDispatcher.a(in[1].getString(sc),
-                            (ArgumentType) ArgumentEntity.c());
-                    break;
-                case "Particle":
-                    arg = CommandDispatcher.a(in[1].getString(sc),
-                            (ArgumentType) ArgumentParticle.a(commandbuildcontext)); // will als arg CommandBuildContext registryAccess
-                    break;
-                case "Sound":
-                    arg = CommandDispatcher.a(in[1].getString(sc),
-                            (ArgumentType) ArgumentMinecraftKeyRegistered.a())
-                            .suggests(CompletionProviders.c); // AVAILABLE_SOUNDS
-                    break;
-                default:
-                    throw new IllegalArgumentException(
-                            String.format("'%s' is not a valid special help", name));
-            }
-            if(in.length >= 3) {
-                final String perm = in[2].getString(sc);
-                arg.requires(p -> p.getBukkitSender().hasPermission(perm));
-            }
-            return arg;
-        });
-        KajetansPlugin.scriptManager.registerConsumer("command.sendhelp", (sc, in) -> {
-            if(in.length > 0) {
-                CommandManager.send((Player) in[0].get(sc));
-                return;
-            }
-            Bukkit.getServer().getOnlinePlayers().forEach(p -> CommandManager.send(p));
-        });
-        KajetansPlugin.scriptManager.registerConsumer("command.addhelpalias", (sc, in) -> {
-            ((ArgumentBuilder) in[0].get(sc)).redirect(((ArgumentBuilder) in[1].get(sc)).build());
-        });
-        KajetansPlugin.scriptManager.registerConsumer("command.addhelpchild", (sc, in) -> {
-            ((ArgumentBuilder) in[0].get(sc)).then(((ArgumentBuilder) in[1].get(sc)).build());
-        });
-        KajetansPlugin.scriptManager.registerConsumer("command.addhelp", (sc, in) -> {
-            CommandManager.addCustomNode(
-                    ((LiteralArgumentBuilder<CommandListenerWrapper>) in[0].get(sc)).build());
-        });
-        KajetansPlugin.scriptManager.registerConsumer("command.clearhelp",
-                (sc, in) -> CommandManager.clearCustomNodes());
         KajetansPlugin.scriptManager.registerConsumer("command.add",
                 (sc, in) -> CommandManager.addCustom(in[0].getString(sc)));
         KajetansPlugin.scriptManager.registerConsumer("command.remove",
@@ -181,5 +35,126 @@ public class CommandCommands {
                 (sc, in) -> CommandManager.hasCustom(in[0].getString(sc)));
         KajetansPlugin.scriptManager.registerConsumer("command.clear",
                 (sc, in) -> CommandManager.clearCustom());
+        //commandhelp creation
+        KajetansPlugin.scriptManager.registerFunction("command.newhelp", (sc, in) -> {
+            final String perm = in[1].getString(sc);
+            return new CommandAPICommand(in[0].getString(sc)).withPermission(perm);
+        });
+        KajetansPlugin.scriptManager.registerConsumer("command.addhelpargument", (sc, in) -> {
+            CommandAPICommand cmd = (CommandAPICommand) in[0].get(sc);
+            Argument<?> arg = (Argument<?>) in[1].get(sc);
+            cmd.withArguments(arg);
+        });
+        KajetansPlugin.scriptManager.registerConsumer("command.registerhelp", (sc, in) -> {
+            CommandAPICommand cmd = (CommandAPICommand) in[0].get(sc);
+            cmd.executes((sender, args) -> {
+            });
+            cmd.register();
+        });
+        KajetansPlugin.scriptManager.registerConsumer("command.unregister", (sc, in) -> {
+            String cmd = in[0].getString(sc);
+            CommandAPI.unregister(cmd, true);
+            CommandAPIBukkit.unregister(cmd, true, true);
+        });
+        //commandhelp argument creation
+        KajetansPlugin.scriptManager.registerFunction("command.newhelpstring", (sc, in) -> {
+            Argument<?> arg = null;
+            String name = in[0].getString(sc);
+            if(in[1].getBoolean(sc)) {
+                arg = new GreedyStringArgument(name);
+            } else {
+                arg = new StringArgument(name);
+            }
+            if(in.length >= 3) {
+                final String perm = in[2].getString(sc);
+                arg.withPermission(perm);
+            }
+            return arg;
+        });
+        KajetansPlugin.scriptManager.registerFunction("command.newhelpliteral", (sc, in) -> {
+            String literal = in[0].getString(sc);
+            Argument<?> arg = new LiteralArgument(literal)
+                    .replaceSuggestions(ArgumentSuggestions.strings(literal));
+            if(in.length >= 2) {
+                final String perm = in[1].getString(sc);
+                arg.withPermission(perm);
+            }
+            return arg;
+        });
+        KajetansPlugin.scriptManager.registerFunction("command.newhelpbool", (sc, in) -> {
+            String name = in[0].getString(sc);
+            Argument<?> arg = new BooleanArgument(name);
+            if(in.length >= 2) {
+                final String perm = in[1].getString(sc);
+                arg.withPermission(perm);
+            }
+            return arg;
+        });
+        KajetansPlugin.scriptManager.registerFunction("command.newhelpfloat", (sc, in) -> {
+            float min = in[1].getFloat(sc);
+            float max = in[2].getFloat(sc);
+            String name = in[0].getString(sc);
+            Argument<?> arg = new FloatArgument(name, min, max);
+            if(in.length >= 4) {
+                final String perm = in[3].getString(sc);
+                arg.withPermission(perm);
+            }
+            return arg;
+        });
+        KajetansPlugin.scriptManager.registerFunction("command.newhelpdouble", (sc, in) -> {
+            double min = in[1].getDouble(sc);
+            double max = in[2].getDouble(sc);
+            String name = in[0].getString(sc);
+            Argument<?> arg = new DoubleArgument(name, min, max);
+            if(in.length >= 4) {
+                final String perm = in[3].getString(sc);
+                arg.withPermission(perm);
+            }
+            return arg;
+        });
+        KajetansPlugin.scriptManager.registerFunction("command.newhelpint", (sc, in) -> {
+            int min = in[1].getInt(sc);
+            int max = in[2].getInt(sc);
+            String name = in[0].getString(sc);
+            Argument<?> arg = new IntegerArgument(name, min, max);
+            if(in.length >= 4) {
+                final String perm = in[3].getString(sc);
+                arg.withPermission(perm);
+            }
+            return arg;
+        });
+        KajetansPlugin.scriptManager.registerFunction("command.newhelpspecial", (sc, in) -> {
+            Argument<?> arg = null;
+            String type = in[0].getString(sc);
+            String name = in[1].getString(sc);
+            switch(type) {
+                case "Item":
+                    arg = new ItemStackArgument(name);
+                    break;
+                case "Player":
+                    arg = new PlayerArgument(name);
+                    break;
+                case "Enchantment":
+                    arg = new EnchantmentArgument(name);
+                    break;
+                case "Potion":
+                    arg = new PotionEffectArgument(name);
+                    break;
+                case "Particle":
+                    arg = new ParticleArgument(name);
+                    break;
+                case "Sound":
+                    arg = new SoundArgument(name);
+                    break;
+                default:
+                    throw new IllegalArgumentException(
+                            String.format("'%s' is not a valid special help", type));
+            }
+            if(in.length >= 3) {
+                final String perm = in[2].getString(sc);
+                arg.withPermission(perm);
+            }
+            return arg;
+        });
     }
 }

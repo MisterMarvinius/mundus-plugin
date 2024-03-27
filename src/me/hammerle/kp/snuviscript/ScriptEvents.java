@@ -28,8 +28,6 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.event.entity.EntityDismountEvent;
-import org.bukkit.event.entity.EntityMountEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.snuviscript.code.Script;
@@ -323,6 +321,26 @@ public class ScriptEvents {
             setPlayer(sc, e.getPlayer());
             setBlock(sc, e.getBlockPlaced());
             setHand(sc, e.getHand());
+        });
+    }
+
+    public static void onBlockBurn(BlockBurnEvent e) {
+        handleEvent(e, "block_burn", (sc) -> {
+            setBlock(sc, e.getBlock());
+            sc.setVar("block_source", e.getIgnitingBlock());
+        });
+    }
+
+    public static void onBlockSpread(BlockSpreadEvent e) {
+        handleEvent(e, "block_spread", (sc) -> {
+            setBlock(sc, e.getNewState().getBlock());
+            sc.setVar("block_source", e.getSource());
+        });
+    }
+
+    public static void onBlockFade(BlockFadeEvent e) {
+        handleEvent(e, "block_fade", (sc) -> {
+            setBlock(sc, e.getNewState().getBlock());
         });
     }
 
