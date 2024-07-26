@@ -43,7 +43,6 @@ public class KajetansPlugin extends JavaPlugin implements ISnuviScheduler {
 
     public KajetansPlugin() throws ClassNotFoundException {
         instance = this;
-        NMS.init();
     }
 
     public static void test() {

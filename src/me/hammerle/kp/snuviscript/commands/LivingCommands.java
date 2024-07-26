@@ -122,7 +122,10 @@ public class LivingCommands {
         KajetansPlugin.scriptManager.registerConsumer("living.addeffect", (sc, in) -> {
             LivingEntity base = (LivingEntity) in[0].get(sc);
             boolean showParticles = in.length >= 5 ? in[4].getBoolean(sc) : true;
-            base.addPotionEffect(new PotionEffect(PotionEffectType.getByName(in[1].getString(sc)),
+            String potionEffectName = in[1].getString(sc).toLowerCase();
+            NamespacedKey key = NamespacedKey.minecraft(potionEffectName);
+            PotionEffectType potionEffectType = Registry.POTION_EFFECT_TYPE.get(key);
+            base.addPotionEffect(new PotionEffect(potionEffectType,
                     in[2].getInt(sc), in[3].getInt(sc), showParticles, showParticles));
         });
         KajetansPlugin.scriptManager.registerConsumer("living.cleareffects", (sc, in) -> {

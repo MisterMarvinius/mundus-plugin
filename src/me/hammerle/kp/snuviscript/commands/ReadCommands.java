@@ -3,8 +3,12 @@ package me.hammerle.kp.snuviscript.commands;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import de.tr7zw.nbtapi.NBT;
+import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 import me.hammerle.kp.KajetansPlugin;
 import me.hammerle.kp.NMS;
 
@@ -19,8 +23,14 @@ public class ReadCommands {
             }
             return null;
         });
-        KajetansPlugin.scriptManager.registerFunction("read.item",
-                (sc, in) -> NMS.parseItemStack(in[0].getString(sc)));
+        KajetansPlugin.scriptManager.registerFunction("read.item", (sc, in) -> {
+            String s = in[0].getString(sc);
+            if(s.contains("minecraft:air")) {
+                return new ItemStack(Material.AIR);
+            }
+            ReadWriteNBT nbt = NBT.parseNBT(s);
+            return NBT.itemStackFromNBT(nbt);
+        });
         KajetansPlugin.scriptManager.registerFunction("read.spawnmob", (sc, in) -> {
             return NMS.parseEntity(in[1].getString(sc), (Location) in[0].get(sc));
         });
@@ -48,7 +58,5 @@ public class ReadCommands {
                 return null;
             }
         });
-        KajetansPlugin.scriptManager.registerFunction("read.blockentity",
-                (sc, in) -> NMS.getBlockEntity(in[0].getString(sc)));
     }
 }

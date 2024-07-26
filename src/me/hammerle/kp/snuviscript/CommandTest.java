@@ -98,9 +98,9 @@ public class CommandTest extends KajetanCommand {
                 int x = l.getBlockX();
                 int y = l.getBlockY();
                 int z = l.getBlockZ();
-                w.a(new BlockPosition(x + 1, y, z + 2), Blocks.b.n(), 3);
-                w.a(new BlockPosition(x, y, z + 2), Blocks.b.n(), 3);
-                w.a(new BlockPosition(x - 1, y, z + 2), Blocks.b.n(), 3);
+                w.a(new BlockPosition(x + 1, y, z + 2), Blocks.b.o(), 3);
+                w.a(new BlockPosition(x, y, z + 2), Blocks.b.o(), 3);
+                w.a(new BlockPosition(x - 1, y, z + 2), Blocks.b.o(), 3);
                 time += System.nanoTime();
 
                 sendMessage(cs, String.format("NMS: %.4f ms per set", time / 3_000_000.0));

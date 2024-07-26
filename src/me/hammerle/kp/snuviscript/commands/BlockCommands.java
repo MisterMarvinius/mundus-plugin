@@ -22,8 +22,10 @@ import org.bukkit.block.data.type.Leaves;
 import org.bukkit.block.sign.Side;
 import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.InventoryHolder;
+import de.tr7zw.nbtapi.NBTBlock;
+import de.tr7zw.nbtapi.NBTCompound;
 import me.hammerle.kp.KajetansPlugin;
-import me.hammerle.kp.NMS;
 import net.kyori.adventure.text.Component;
 
 public class BlockCommands {
@@ -43,11 +45,32 @@ public class BlockCommands {
         KajetansPlugin.scriptManager.registerFunction("block.getdata",
                 (sc, in) -> ((Block) in[0].get(sc)).getBlockData());
         KajetansPlugin.scriptManager.registerConsumer("block.clone", (sc, in) -> {
-            Block from = (Block) in[0].get(sc);
-            Location to = (Location) in[1].get(sc);
+            Block fromBlock = (Block) in[0].get(sc);
+            Location toLoc = (Location) in[1].get(sc);
             boolean applyPhysics = in.length > 2 ? in[2].getBoolean(sc) : false;
-            to.getBlock().setBlockData(from.getBlockData(), applyPhysics);
-            NMS.copyTileEntity(from.getLocation(), to);
+
+            toLoc.getBlock().setType(fromBlock.getType(), applyPhysics);
+            toLoc.getBlock().setBlockData(fromBlock.getBlockData(), applyPhysics);
+
+            Block toBlock = toLoc.getBlock();
+
+            NBTBlock fromNBTBlock = new NBTBlock(fromBlock);
+            NBTBlock toNBTBlock = new NBTBlock(toBlock);
+            NBTCompound fromNBT = fromNBTBlock.getData();
+            NBTCompound toNBT = toNBTBlock.getData();
+            toNBT.mergeCompound(fromNBT);
+
+            // Handle InventoryHolder (like chests, furnaces, etc.)
+            if(fromBlock.getState() instanceof InventoryHolder
+                    && toBlock.getState() instanceof InventoryHolder) {
+                InventoryHolder fromHolder = (InventoryHolder) fromBlock.getState();
+                InventoryHolder toHolder = (InventoryHolder) toBlock.getState();
+                toHolder.getInventory().setContents(fromHolder.getInventory().getContents());
+            }
+
+            // Update the block state to apply changes
+            BlockState state = toBlock.getState();
+            state.update(true, applyPhysics);
         });
         KajetansPlugin.scriptManager.registerConsumer("block.break", (sc, in) -> {
             Block b = (Block) in[0].get(sc);
@@ -68,10 +91,6 @@ public class BlockCommands {
             boolean applyPhysics = in.length > 2 ? in[2].getBoolean(sc) : false;
             b.setType((Material) in[1].get(sc), applyPhysics);
         });
-        KajetansPlugin.scriptManager.registerFunction("block.getentity",
-                (sc, in) -> NMS.getEntity((Block) in[0].get(sc)));
-        KajetansPlugin.scriptManager.registerConsumer("block.setentity",
-                (sc, in) -> NMS.setEntity((Block) in[0].get(sc), NMS.toNBT(in[1].get(sc))));
         KajetansPlugin.scriptManager.registerConsumer("block.setsign", (sc, in) -> {
             Block b = (Block) in[0].get(sc);
             Sign sign = (Sign) b.getState();
@@ -187,6 +206,12 @@ public class BlockCommands {
             Block b = (Block) in[0].get(sc);
             Waterlogged o = (Waterlogged) b.getBlockData();
             return o.isWaterlogged();
+        });
+        KajetansPlugin.scriptManager.registerConsumer("block.setwaterlogged", (sc, in) -> {
+            Block b = (Block) in[0].get(sc);
+            Waterlogged o = (Waterlogged) b.getBlockData();
+            o.setWaterlogged(in[1].getBoolean(sc));
+            b.setBlockData(o);
         });
         KajetansPlugin.scriptManager.registerConsumer("block.setwaterlogged", (sc, in) -> {
             Block b = (Block) in[0].get(sc);

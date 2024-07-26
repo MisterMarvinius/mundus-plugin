@@ -16,7 +16,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.SkullMeta;
 import me.hammerle.kp.KajetansPlugin;
-import me.hammerle.kp.NMS;
 import net.citizensnpcs.api.CitizensAPI;
 import net.kyori.adventure.text.Component;
 
@@ -221,8 +220,7 @@ public class PlayerCommands {
         KajetansPlugin.scriptManager.registerConsumer("player.damageitem", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             ItemStack stack = p.getEquipment().getItemInMainHand();
-            NMS.map(stack).a(in[1].getInt(sc), NMS.map(p), c -> {
-            });
+            p.damageItemStack(stack, in[1].getInt(sc));
         });
         KajetansPlugin.scriptManager.registerConsumer("player.addtotalexp", (sc, in) -> {
             ((Player) in[0].get(sc)).giveExp(in[1].getInt(sc));
@@ -306,7 +304,8 @@ public class PlayerCommands {
             p.getInventory().setHeldItemSlot(in[1].getInt(sc));
         });
         KajetansPlugin.scriptManager.registerConsumer("player.resetsleep", (sc, in) -> {
-            NMS.resetSleepTimer((Player) in[0].get(sc));
+            Player p = (Player) in[0].get(sc);
+            p.setStatistic(org.bukkit.Statistic.TIME_SINCE_REST, 0);
         });
     }
 }

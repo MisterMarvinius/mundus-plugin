@@ -1,10 +1,12 @@
 package me.hammerle.kp.snuviscript.commands;
 
+import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
+import de.tr7zw.nbtapi.NBT;
+import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 import me.hammerle.kp.KajetansPlugin;
-import me.hammerle.kp.NMS;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -17,14 +19,22 @@ public class TextCommands {
         KajetansPlugin.scriptManager.registerFunction("string.text",
                 (sc, in) -> PlainTextComponentSerializer.plainText()
                         .serialize((Component) in[0].get(sc)));
-        KajetansPlugin.scriptManager.registerFunction("string.item",
-                (sc, in) -> NMS.toString((ItemStack) in[0].get(sc)));
-        KajetansPlugin.scriptManager.registerFunction("string.entity",
-                (sc, in) -> NMS.toString((Entity) in[0].get(sc)));
+        KajetansPlugin.scriptManager.registerFunction("string.item", (sc, in) -> {
+            ItemStack stack = (ItemStack) in[0].get(sc);
+            if(stack == null || stack.getType() == Material.AIR) {
+                return "{Count:0b,id:\"minecraft:air\"}";
+            }
+            ReadWriteNBT nbt = NBT.itemStackToNBT(stack);
+            return nbt.toString();
+        });
+        KajetansPlugin.scriptManager.registerFunction("string.entity", (sc, in) -> {
+            Entity e = (Entity) in[0].get(sc);
+            ReadWriteNBT nbt = NBT.createNBTObject();
+            NBT.get(e, nbt::mergeCompound);
+            return nbt.toString();
+        });
         KajetansPlugin.scriptManager.registerFunction("string.blockdata",
                 (sc, in) -> ((BlockData) in[0].get(sc)).getAsString());
-        KajetansPlugin.scriptManager.registerFunction("string.blockentity",
-                (sc, in) -> in[0].getString(sc));
 
         KajetansPlugin.scriptManager.registerFunction("text.new",
                 (sc, in) -> Component.text(in[0].getString(sc)));

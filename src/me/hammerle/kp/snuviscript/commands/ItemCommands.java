@@ -2,7 +2,6 @@ package me.hammerle.kp.snuviscript.commands;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import com.google.common.collect.HashMultimap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -14,6 +13,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -22,7 +22,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import me.hammerle.kp.CustomItems;
 import me.hammerle.kp.KajetansPlugin;
-import me.hammerle.kp.NMS;
 import me.hammerle.kp.CustomItems.CustomItem;
 import net.kyori.adventure.text.Component;
 
@@ -76,7 +75,7 @@ public class ItemCommands {
         KajetansPlugin.scriptManager.registerFunction("item.gettype",
                 (sc, in) -> ((ItemStack) in[0].get(sc)).getType());
         KajetansPlugin.scriptManager.registerFunction("item.getmaxamount",
-                (sc, in) -> (double) NMS.map((ItemStack) in[0].get(sc)).g());
+                (sc, in) -> (double) ((ItemStack) in[0].get(sc)).getMaxStackSize());
         KajetansPlugin.scriptManager.registerFunction("item.getamount",
                 (sc, in) -> (double) ((ItemStack) in[0].get(sc)).getAmount());
         KajetansPlugin.scriptManager.registerConsumer("item.setamount",
@@ -132,6 +131,7 @@ public class ItemCommands {
                 double d = in[3].getDouble(sc);
                 Operation o = Operation.valueOf(in[4].getString(sc));
                 EquipmentSlot slot = (EquipmentSlot) in[2].get(sc);
+                EquipmentSlotGroup slotGroup = slot.getGroup();
 
                 HashMultimap<Attribute, AttributeModifier> map = HashMultimap.create();
                 boolean merged = false;
@@ -139,10 +139,13 @@ public class ItemCommands {
                 if(oldMap != null) {
                     for(var entry : oldMap.entries()) {
                         AttributeModifier m = entry.getValue();
-                        if(entry.getKey() == a && m.getOperation() == o && m.getSlot() == slot) {
-                            UUID uuid = UUID.randomUUID();
-                            map.put(a, new AttributeModifier(uuid, uuid.toString(),
-                                    d + m.getAmount(), o, slot));
+                        if(entry.getKey() == a && m.getOperation() == o
+                                && m.getSlotGroup() == slotGroup) {
+                            NamespacedKey key =
+                                    new NamespacedKey(KajetansPlugin.instance, "custom");
+                            AttributeModifier attributeModifier =
+                                    new AttributeModifier(key, d + m.getAmount(), o, slotGroup);
+                            map.put(a, attributeModifier);
                             merged = true;
                         } else {
                             map.put(entry.getKey(), entry.getValue());
@@ -150,8 +153,11 @@ public class ItemCommands {
                     }
                 }
                 if(!merged) {
-                    UUID uuid = UUID.randomUUID();
-                    map.put(a, new AttributeModifier(uuid, uuid.toString(), d, o, slot));
+                    NamespacedKey key =
+                            new NamespacedKey(KajetansPlugin.instance, "custom");
+                    AttributeModifier attributeModifier =
+                            new AttributeModifier(key, d, o, slotGroup);
+                    map.put(a, attributeModifier);
                 }
                 meta.setAttributeModifiers(map);
             });
