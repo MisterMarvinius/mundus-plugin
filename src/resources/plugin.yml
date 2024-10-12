@@ -1,7 +1,7 @@
-main: me.hammerle.kp.KajetansPlugin
-name: KajetansPlugin
-version: "0.0.1"
-api-version: "1.21"
+main: me.hammerle.mp.MundusPlugin
+name: MundusPlugin
+version: "1.0.3"
+api-version: "1.21.1"
 author: AUTHOR
 description: DESCRIPTION
 depend: [CommandAPI]
