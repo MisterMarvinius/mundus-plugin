@@ -13,12 +13,12 @@
     </target>
 
     <target name="jar" depends="compile">
-        <javac includeantruntime="false" srcdir="src" destdir="build/classes"/>
-        <jar destfile="build/MundusPlugin.jar" basedir="build/classes">
-            <manifest>
-                <attribute name="Class-Path" value="lib/SnuviScriptRecoded.jar"/>
-            </manifest>
-            <fileset file="src/resources/plugin.yml"/>
-        </jar>
-    </target>
+    <javac includeantruntime="false" srcdir="src" destdir="build/classes"/>
+    <jar destfile="build/MundusPlugin.jar" basedir="build/classes">
+        <fileset file="src/resources/plugin.yml"/>
+        <!-- Merge the contents of SnuviScriptRecoded.jar into your plugin jar -->
+        <zipgroupfileset dir="lib" includes="SnuviScriptRecoded.jar"/>
+    </jar>
+</target>
+
 </project>

@@ -1,6 +1,8 @@
 package me.hammerle.mp.snuviscript.commands;
 
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
@@ -8,8 +10,8 @@ import me.hammerle.mp.MundusPlugin;
 
 public class SoundCommands {
     public static void registerFunctions() {
-        MundusPlugin.scriptManager.registerFunction("sound.get",
-                (sc, in) -> Sound.valueOf(in[0].getString(sc)));
+        MundusPlugin.scriptManager.registerFunction("sound.getcategory",
+                (sc, in) -> Registry.SOUNDS.get(NamespacedKey.fromString(in[0].getString(sc))));
         MundusPlugin.scriptManager.registerFunction("sound.getcategory",
                 (sc, in) -> SoundCategory.valueOf(in[0].getString(sc)));
         MundusPlugin.scriptManager.registerConsumer("sound.spawn", (sc, in) -> {

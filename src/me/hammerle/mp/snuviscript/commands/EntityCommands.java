@@ -10,6 +10,8 @@ import org.bukkit.entity.Ageable;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Rabbit;
+import org.bukkit.entity.Rabbit.Type;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Tameable;
@@ -154,6 +156,12 @@ public class EntityCommands {
                 (sc, in) -> ((Sheep) in[0].get(sc)).getColor().toString());
         MundusPlugin.scriptManager.registerConsumer("creeper.explode",
                 (sc, in) -> ((Creeper) in[0].get(sc)).ignite());
+        MundusPlugin.scriptManager.registerFunction("rabbit.spawnkillerbunnyw", (sc, in) -> {
+            Location l = ((Location) in[0].get(sc));
+            Rabbit r = (Rabbit) l.getWorld().spawnEntity(l, EntityType.RABBIT);
+            r.setRabbitType(Type.THE_KILLER_BUNNY);
+            return r;
+        });
         MundusPlugin.scriptManager.registerFunction("pet.istamed", (sc, in) -> {
             return ((Tameable) in[0].get(sc)).isTamed();
         });
@@ -168,6 +176,14 @@ public class EntityCommands {
             Tameable t = (Tameable) in[0].get(sc);
             return t.getOwner();
         });
+        MundusPlugin.scriptManager.registerFunction("entity.spawnseat", (sc, in) -> {
+            Location l = ((Location) in[0].get(sc));
+            ItemFrame frame = l.getWorld().spawn(l, ItemFrame.class);
+            frame.setFixed(true);
+            frame.setVisible(false);
+            frame.setFacingDirection(BlockFace.UP);
+            return (ItemFrame) frame;
+        });
         MundusPlugin.scriptManager.registerConsumer("entity.frame.hide", (sc, in) -> {
             ItemFrame frame = (ItemFrame) in[0].get(sc);
             frame.setVisible(false);
@@ -179,6 +195,11 @@ public class EntityCommands {
         MundusPlugin.scriptManager.registerConsumer("entity.frame.setfixed", (sc, in) -> {
             ItemFrame frame = (ItemFrame) in[0].get(sc);
             frame.setFixed(in[1].getBoolean(sc));
+        });
+        MundusPlugin.scriptManager.registerConsumer("entity.frame.setfacing", (sc, in) -> {
+            ItemFrame frame = (ItemFrame) in[0].get(sc);
+            String s = in[1].getString(sc);
+            frame.setFacingDirection(BlockFace.valueOf(s));
         });
         MundusPlugin.scriptManager.registerConsumer("entity.frame.spawn", (sc, in) -> {
             Location l = ((Location) in[0].get(sc));

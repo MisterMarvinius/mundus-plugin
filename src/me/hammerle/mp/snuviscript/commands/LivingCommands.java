@@ -30,7 +30,7 @@ public class LivingCommands {
 
     @SuppressWarnings("unchecked")
     public static void registerFunctions() {
-        for(Attribute a : Attribute.values()) {
+        for(Attribute a : Registry.ATTRIBUTE) {
             String name = getName(a);
             MundusPlugin.scriptManager.registerConsumer("living.set" + name, (sc, in) -> {
                 LivingEntity liv = (LivingEntity) in[0].get(sc);

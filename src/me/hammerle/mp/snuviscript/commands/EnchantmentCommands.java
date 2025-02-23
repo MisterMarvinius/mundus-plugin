@@ -5,13 +5,16 @@ import java.util.Map;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import me.hammerle.mp.MundusPlugin;
 
 public class EnchantmentCommands {
     @SuppressWarnings("unchecked")
     public static void registerFunctions() {
         MundusPlugin.scriptManager.registerFunction("enchantment.get",
-                (sc, in) -> Enchantment.getByKey(NamespacedKey.fromString(in[0].getString(sc))));
+                (sc, in) -> RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT)
+                        .get(NamespacedKey.fromString(in[0].getString(sc))));
         MundusPlugin.scriptManager.registerFunction("enchantment.getmaxlevel",
                 (sc, in) -> (double) ((Enchantment) in[0].get(sc)).getMaxLevel());
         MundusPlugin.scriptManager.registerConsumer("enchantment.add", (sc, in) -> {

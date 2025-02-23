@@ -1,5 +1,6 @@
 package me.hammerle.mp.snuviscript.commands;
 
+import org.bukkit.Registry;
 import java.util.ArrayList;
 import java.util.List;
 import com.google.common.collect.HashMultimap;
@@ -19,10 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import me.hammerle.mp.CustomItems;
 import me.hammerle.mp.MundusPlugin;
-import me.hammerle.mp.CustomItems.CustomItem;
 import net.kyori.adventure.text.Component;
 
 public class ItemCommands {
@@ -44,20 +42,6 @@ public class ItemCommands {
                 (sc, in) -> ((Material) in[0].get(sc)).isSolid());
         MundusPlugin.scriptManager.registerFunction("material.isblock",
                 (sc, in) -> ((Material) in[0].get(sc)).isBlock());
-
-        MundusPlugin.scriptManager.registerFunction("item.custom.getall",
-                (sc, in) -> CustomItem.values());
-        MundusPlugin.scriptManager.registerFunction("item.custom.get", (sc, in) -> {
-            try {
-                return CustomItem.valueOf(in[0].getString(sc));
-            } catch(IllegalArgumentException ex) {
-                return null;
-            }
-        });
-        MundusPlugin.scriptManager.registerFunction("item.custom.new", (sc, in) -> CustomItems
-                .build((CustomItem) in[0].get(sc), in.length >= 2 ? in[1].getInt(sc) : 1));
-        MundusPlugin.scriptManager.registerFunction("item.getcustom",
-                (sc, in) -> CustomItems.getCustomItem((ItemStack) in[0].get(sc)));
 
         MundusPlugin.scriptManager.registerFunction("item.new",
                 (sc, in) -> new ItemStack((Material) in[0].get(sc),
@@ -112,7 +96,8 @@ public class ItemCommands {
         MundusPlugin.scriptManager.registerConsumer("item.addpotion", (sc, in) -> {
             ItemStack stack = (ItemStack) in[0].get(sc);
             PotionMeta meta = (PotionMeta) stack.getItemMeta();
-            meta.addCustomEffect(new PotionEffect(PotionEffectType.getByName(in[1].getString(sc)),
+            meta.addCustomEffect(new PotionEffect(
+                    Registry.POTION_EFFECT_TYPE.get(NamespacedKey.fromString(in[1].getString(sc))),
                     in[2].getInt(sc), in[3].getInt(sc)), false);
             stack.setItemMeta(meta);
         });
@@ -127,7 +112,7 @@ public class ItemCommands {
         MundusPlugin.scriptManager.registerConsumer("item.addattribute", (sc, in) -> {
             ItemStack stack = (ItemStack) in[0].get(sc);
             stack.editMeta(meta -> {
-                Attribute a = Attribute.valueOf(in[1].getString(sc));
+                Attribute a = Registry.ATTRIBUTE.get(NamespacedKey.fromString(in[1].getString(sc)));
                 double d = in[3].getDouble(sc);
                 Operation o = Operation.valueOf(in[4].getString(sc));
                 EquipmentSlot slot = (EquipmentSlot) in[2].get(sc);

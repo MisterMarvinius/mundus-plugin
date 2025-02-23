@@ -20,13 +20,10 @@ import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.arguments.PotionEffectArgument;
 import dev.jorel.commandapi.arguments.SoundArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
-import net.minecraft.commands.CommandDispatcher;
-import net.minecraft.data.registries.VanillaRegistries;
+
 
 public class CommandCommands {
     public static void registerFunctions() {
-        CommandDispatcher.a(VanillaRegistries.a());
-
         MundusPlugin.scriptManager.registerConsumer("command.add",
                 (sc, in) -> CommandManager.addCustom(in[0].getString(sc)));
         MundusPlugin.scriptManager.registerConsumer("command.remove",

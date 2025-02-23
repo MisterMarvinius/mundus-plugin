@@ -3,7 +3,6 @@ package me.hammerle.mp;
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
-import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.inventory.*;
@@ -256,7 +255,6 @@ public class Events implements Listener {
         }
         PlotEvents.onPlayerInteract(e);
         ScriptEvents.onPlayerInteract(e);
-        CustomItems.onPlayerInteract(e);
         e.setUseItemInHand(Event.Result.ALLOW);
     }
 
@@ -314,7 +312,6 @@ public class Events implements Listener {
         if(CommandTest.noEvents) {
             return;
         }
-        CustomItems.onPrepareItemCraft(e);
         ScriptEvents.onPrepareItemCraft(e);
     }
 
@@ -491,30 +488,6 @@ public class Events implements Listener {
             return;
         }
         PlotEvents.onBlockIgnite(e);
-    }
-
-    @EventHandler
-    public void onPlayerItemDamage(PlayerItemDamageEvent e) {
-        if(CommandTest.noEvents) {
-            return;
-        }
-        CustomItems.onPlayerItemDamage(e);
-    }
-
-    @EventHandler
-    public void onPrepareAnvil(PrepareAnvilEvent e) {
-        if(CommandTest.noEvents) {
-            return;
-        }
-        CustomItems.onPrepareAnvil(e);
-    }
-
-    @EventHandler
-    public void onPrepareItemEnchant(PrepareItemEnchantEvent e) {
-        if(CommandTest.noEvents) {
-            return;
-        }
-        CustomItems.onPrepareItemEnchant(e);
     }
 
     @EventHandler
