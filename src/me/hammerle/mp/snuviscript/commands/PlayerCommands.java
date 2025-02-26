@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.SkullMeta;
+import io.papermc.paper.entity.LookAnchor;
 import me.hammerle.mp.MundusPlugin;
 import net.citizensnpcs.api.CitizensAPI;
 import net.kyori.adventure.text.Component;
@@ -212,6 +213,38 @@ public class PlayerCommands {
             Player p = (Player) in[0].get(sc);
             return p.getRespawnLocation();
         });
+        MundusPlugin.scriptManager.registerFunction("player.getlastdeathlocation", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            return p.getLastDeathLocation();
+        });
+        MundusPlugin.scriptManager.registerFunction("player.isblocking", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            return p.isBlocking();
+        });
+        MundusPlugin.scriptManager.registerFunction("player.getspectatortarget", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            return p.getSpectatorTarget();
+        });
+        MundusPlugin.scriptManager.registerConsumer("player.setspectatortarget", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            Entity e = (Entity) in[1].get(sc);
+            p.setSpectatorTarget(e);
+        });
+        MundusPlugin.scriptManager.registerConsumer("player.setsprinting", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            boolean b = in[1].getBoolean(sc);
+            p.setSprinting(b);
+        });
+        MundusPlugin.scriptManager.registerConsumer("player.setsneaking", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            boolean b = in[1].getBoolean(sc);
+            p.setSneaking(b);
+        });
+        MundusPlugin.scriptManager.registerConsumer("player.showelderguardian", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            boolean b = in[1].getBoolean(sc);
+            p.showElderGuardian(b);
+        });
         MundusPlugin.scriptManager.registerConsumer("player.setspawn", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             Location l = (Location) in[1].get(sc);
@@ -234,6 +267,15 @@ public class PlayerCommands {
                 (sc, in) -> (double) ((Player) in[0].get(sc)).getExp());
         MundusPlugin.scriptManager.registerConsumer("player.setexp",
                 (sc, in) -> ((Player) in[0].get(sc)).setExp(in[1].getFloat(sc)));
+        MundusPlugin.scriptManager.registerConsumer("player.setexpcooldown",
+                (sc, in) -> ((Player) in[0].get(sc)).setExpCooldown(in[1].getInt(sc)));
+        MundusPlugin.scriptManager.registerConsumer("player.sendhurtanimation ",
+                (sc, in) -> ((Player) in[0].get(sc)).sendHurtAnimation(in[1].getInt(sc)));
+        MundusPlugin.scriptManager.registerConsumer("player.lookat", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            Entity e = (Entity) in[1].get(sc);
+            p.lookAt(e, (LookAnchor) in[2].get(sc), (LookAnchor) in[3].get(sc));
+        });
         MundusPlugin.scriptManager.registerFunction("player.gethead", (sc, in) -> {
             ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) skull.getItemMeta();
@@ -249,6 +291,16 @@ public class PlayerCommands {
         MundusPlugin.scriptManager.registerConsumer("player.setdisplayname", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             p.playerListName((Component) in[1].get(sc));
+        });
+        MundusPlugin.scriptManager.registerConsumer("player.sendplayerlistheader", (sc, in) -> {
+            Component text = (Component) in[1].get(sc);
+            CommandUtils.doForGroup(in[0].get(sc), sc,
+                    p -> ((Player) p).sendPlayerListHeader(text));
+        });
+        MundusPlugin.scriptManager.registerConsumer("player.sendplayerlistfooter", (sc, in) -> {
+            Component text = (Component) in[1].get(sc);
+            CommandUtils.doForGroup(in[0].get(sc), sc,
+                    p -> ((Player) p).sendPlayerListFooter(text));
         });
         MundusPlugin.scriptManager.registerConsumer("player.hide", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
@@ -283,6 +335,10 @@ public class PlayerCommands {
             }
             return closest;
         });
+        MundusPlugin.scriptManager.registerFunction("player.getping", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            return p.getPing();
+        });
         MundusPlugin.scriptManager.registerConsumer("player.setflyspeed", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             p.setFlySpeed(in[1].getFloat(sc));
@@ -294,6 +350,10 @@ public class PlayerCommands {
         MundusPlugin.scriptManager.registerFunction("player.issneaking", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             return p.isSneaking();
+        });
+        MundusPlugin.scriptManager.registerFunction("player.issprinting", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            return p.isSprinting();
         });
         MundusPlugin.scriptManager.registerFunction("player.isblocking", (sc, in) -> {
             Player p = (Player) in[0].get(sc);

@@ -13,6 +13,7 @@ import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.WorldLoadEvent;
+import io.papermc.paper.event.block.PlayerShearBlockEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import me.hammerle.mp.plots.PlotEvents;
 import me.hammerle.mp.snuviscript.CommandManager;
@@ -27,10 +28,15 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
+import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
+import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
+import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import com.destroystokyo.paper.event.server.ServerTickEndEvent;
 
 public class Events implements Listener {
@@ -297,6 +303,54 @@ public class Events implements Listener {
             return;
         }
         ScriptEvents.onPlayerFish(e);
+    }
+
+    @EventHandler
+    public void onPlayerShearBlock(PlayerShearBlockEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        ScriptEvents.onPlayerShearBlock(e);
+    }
+
+    @EventHandler
+    public void onBellRing(BellRingEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        ScriptEvents.onBellRing(e);
+    }
+
+    @EventHandler
+    public void onStartSpectating(PlayerStartSpectatingEntityEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        ScriptEvents.onPlayerStartSpectating(e);
+    }
+
+    @EventHandler
+    public void onStopSpectating(PlayerStopSpectatingEntityEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        ScriptEvents.onPlayerStopSpectating(e);
+    }
+
+    @EventHandler
+    public void onPlayerPickupExp(PlayerPickupExperienceEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        ScriptEvents.onPlayerPickupExp(e);
+    }
+
+    @EventHandler
+    public void onPlayerElytraBoost(PlayerElytraBoostEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        ScriptEvents.onPlayerElytraBoost(e);
     }
 
     @EventHandler

@@ -4,10 +4,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
+import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
+import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
+import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -28,6 +33,7 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import io.papermc.paper.event.block.PlayerShearBlockEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import me.hammerle.mp.MundusPlugin;
 import me.hammerle.snuviscript.code.Script;
@@ -422,6 +428,56 @@ public class ScriptEvents {
         }, sc -> {
             setCancelled(e, sc);
             handleVar(sc, "fishing", "experience", v -> e.setExpToDrop(v.getInt(sc)));
+        });
+    }
+
+    public static void onPlayerShearBlock(PlayerShearBlockEvent e) {
+        handleEvent(e, "block_shear", sc -> {
+            setPlayer(sc, e.getPlayer());
+            setBlock(sc, e.getBlock());
+            setHand(sc, e.getHand());
+            sc.setVar("drops", e.getDrops());
+        });
+    }
+
+    public static void onBellRing(BellRingEvent e) {
+        handleEvent(e, "bell_ring", sc -> {
+            setBlock(sc, e.getBlock());
+            setEntity(sc, e.getEntity());
+            sc.setVar("direction", e.getDirection());
+        });
+    }
+
+    public static void onPlayerStartSpectating(PlayerStartSpectatingEntityEvent e) {
+        handleEvent(e, "spectation_start", sc -> {
+            setPlayer(sc, e.getPlayer());
+            setEntity(sc, e.getNewSpectatorTarget());
+        });
+    }
+
+    public static void onPlayerStopSpectating(PlayerStopSpectatingEntityEvent e) {
+        handleEvent(e, "spectation_stop", sc -> {
+            setPlayer(sc, e.getPlayer());
+            setEntity(sc, e.getSpectatorTarget());
+        });
+    }
+
+    public static void onPlayerPickupExp(PlayerPickupExperienceEvent e) {
+        handleEvent(e, "player_pickup_exp", sc -> {
+            setPlayer(sc, e.getPlayer());
+        });
+    }
+
+    public static void onPlayerElytraBoost(PlayerElytraBoostEvent e) {
+        MundusPlugin.scriptManager.callEvent("elytra_boost", sc -> {
+            setPlayer(sc, e.getPlayer());
+            setHand(sc, e.getHand());
+            sc.setVar("firework", e.getFirework());
+            sc.setVar("consume", e.shouldConsume());
+            setCancel(sc, e.isCancelled());
+        }, sc -> {
+            setCancelled(e, sc);
+            handleVar(sc, "elytra_boost", "consume", v -> e.setShouldConsume(v.getBoolean(sc)));
         });
     }
 
