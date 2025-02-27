@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;

@@ -121,6 +121,7 @@ public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
         DataCommands.registerFunctions();
         ReadCommands.registerFunctions();
         TextCommands.registerFunctions();
+        DisplayCommands.registerFunctions();
         BanCommands.registerFunctions();
         ErrorCommands.registerFunctions();
         EnchantmentCommands.registerFunctions();

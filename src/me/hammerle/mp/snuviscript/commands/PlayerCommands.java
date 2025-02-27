@@ -292,12 +292,12 @@ public class PlayerCommands {
             Player p = (Player) in[0].get(sc);
             p.playerListName((Component) in[1].get(sc));
         });
-        MundusPlugin.scriptManager.registerConsumer("player.sendplayerlistheader", (sc, in) -> {
+        MundusPlugin.scriptManager.registerConsumer("player.setplayerlistheader", (sc, in) -> {
             Component text = (Component) in[1].get(sc);
             CommandUtils.doForGroup(in[0].get(sc), sc,
                     p -> ((Player) p).sendPlayerListHeader(text));
         });
-        MundusPlugin.scriptManager.registerConsumer("player.sendplayerlistfooter", (sc, in) -> {
+        MundusPlugin.scriptManager.registerConsumer("player.setplayerlistfooter", (sc, in) -> {
             Component text = (Component) in[1].get(sc);
             CommandUtils.doForGroup(in[0].get(sc), sc,
                     p -> ((Player) p).sendPlayerListFooter(text));
@@ -354,10 +354,6 @@ public class PlayerCommands {
         MundusPlugin.scriptManager.registerFunction("player.issprinting", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             return p.isSprinting();
-        });
-        MundusPlugin.scriptManager.registerFunction("player.isblocking", (sc, in) -> {
-            Player p = (Player) in[0].get(sc);
-            return p.isBlocking();
         });
         MundusPlugin.scriptManager.registerConsumer("player.setslot", (sc, in) -> {
             Player p = (Player) in[0].get(sc);

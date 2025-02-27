@@ -28,7 +28,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
