@@ -3,6 +3,7 @@ package me.hammerle.mp.snuviscript.commands;
 import org.bukkit.Registry;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import com.google.common.collect.HashMultimap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -108,6 +109,12 @@ public class ItemCommands {
         MundusPlugin.scriptManager.registerConsumer("item.removeflag", (sc, in) -> {
             ItemStack stack = (ItemStack) in[0].get(sc);
             stack.removeItemFlags(ItemFlag.valueOf(in[1].getString(sc)));
+        });
+        MundusPlugin.scriptManager.registerFunction("item.getallattributes", (sc, in) -> {
+            return Registry.ATTRIBUTE.stream()
+                    .map(f -> "minecraft:" + f.toString().toLowerCase())
+                    .sorted()
+                    .collect(Collectors.toList());
         });
         MundusPlugin.scriptManager.registerConsumer("item.addattribute", (sc, in) -> {
             ItemStack stack = (ItemStack) in[0].get(sc);
