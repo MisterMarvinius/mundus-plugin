@@ -5,7 +5,11 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.block.Block;
 import org.bukkit.damage.DamageSource;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LeashHitch;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
@@ -139,6 +143,61 @@ public class LivingCommands {
             PotionEffectType effectType = Registry.POTION_EFFECT_TYPE.get(key);
             PotionEffect effect = ((LivingEntity) in[0].get(sc)).getPotionEffect(effectType);
             return (double) (effect == null ? -1 : effect.getAmplifier());
+        });
+        MundusPlugin.scriptManager.registerFunction("living.isgliding", (sc, in) -> {
+            LivingEntity liv = (LivingEntity) in[0].get(sc);
+            return liv.isGliding();
+        });
+        MundusPlugin.scriptManager.registerFunction("living.isswimming", (sc, in) -> {
+            LivingEntity liv = (LivingEntity) in[0].get(sc);
+            return liv.isSwimming();
+        });
+        MundusPlugin.scriptManager.registerFunction("living.isglowing", (sc, in) -> {
+            LivingEntity liv = (LivingEntity) in[0].get(sc);
+            return liv.isGlowing();
+        });
+        MundusPlugin.scriptManager.registerFunction("living.issleeping", (sc, in) -> {
+            LivingEntity liv = (LivingEntity) in[0].get(sc);
+            return liv.isSleeping();
+        });
+        MundusPlugin.scriptManager.registerFunction("living.isleashed", (sc, in) -> {
+            LivingEntity liv = (LivingEntity) in[0].get(sc);
+            return liv.isLeashed();
+        });
+        MundusPlugin.scriptManager.registerFunction("living.getleashholder", (sc, in) -> {
+            LivingEntity liv = (LivingEntity) in[0].get(sc);
+            return liv.getLeashHolder();
+        });
+        MundusPlugin.scriptManager.registerFunction("living.setleashholder", (sc, in) -> {
+            LivingEntity liv = (LivingEntity) in[0].get(sc);
+            Object o = in[1].get(sc);
+
+            if(o instanceof Entity) {
+                return liv.setLeashHolder((Entity) o);
+            } else if(o instanceof Block) {
+                Block block = (Block) o;
+                if(!block.getType().name().endsWith("_FENCE")) {
+                    throw new IllegalArgumentException("Block must be a fence to leash to it.");
+                }
+                Location hitchLocation = block.getLocation().add(0.5, 0.5, 0.5);
+                LeashHitch hitch = (LeashHitch) block.getWorld().spawnEntity(hitchLocation,
+                        EntityType.LEASH_KNOT);
+                return liv.setLeashHolder(hitch);
+            } else {
+                throw new IllegalArgumentException("Second argument must be an Entity or a Block.");
+            }
+        });
+        MundusPlugin.scriptManager.registerConsumer("living.unleash", (sc, in) -> {
+            LivingEntity liv = (LivingEntity) in[0].get(sc);
+            liv.setLeashHolder(null);
+        });
+        MundusPlugin.scriptManager.registerConsumer("living.swingmainhand", (sc, in) -> {
+            LivingEntity liv = (LivingEntity) in[0].get(sc);
+            liv.swingMainHand();
+        });
+        MundusPlugin.scriptManager.registerConsumer("living.swingoffhand", (sc, in) -> {
+            LivingEntity liv = (LivingEntity) in[0].get(sc);
+            liv.swingOffHand();
         });
     }
 }
