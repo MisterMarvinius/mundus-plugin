@@ -3,6 +3,7 @@ package me.hammerle.mp.snuviscript.commands;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Breedable;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -148,6 +149,22 @@ public class EntityCommands {
         MundusPlugin.scriptManager.registerConsumer("entity.setgrowingage", (sc, in) -> {
             ((Ageable) in[0].get(sc)).setAge(in[1].getInt(sc));
         });
+        MundusPlugin.scriptManager.registerConsumer("entity.setagelock", (sc, in) -> {
+            ((Breedable) in[0].get(sc)).setAgeLock(in[1].getBoolean(sc));
+        });
+        MundusPlugin.scriptManager.registerConsumer("entity.setbreed", (sc, in) -> {
+            ((Breedable) in[0].get(sc)).setBreed(in[1].getBoolean(sc));
+        });
+        MundusPlugin.scriptManager.registerFunction("entity.isbreedable",
+                (sc, in) -> ((Breedable) in[0].get(sc)).canBreed());
+        MundusPlugin.scriptManager.registerConsumer("entity.setadult", (sc, in) -> {
+            ((Ageable) in[0].get(sc)).setAdult();
+        });
+        MundusPlugin.scriptManager.registerConsumer("entity.setbaby", (sc, in) -> {
+            ((Ageable) in[0].get(sc)).setBaby();
+        });
+        MundusPlugin.scriptManager.registerFunction("entity.isadult",
+                (sc, in) -> ((Ageable) in[0].get(sc)).isAdult());
         MundusPlugin.scriptManager.registerFunction("entity.gettype",
                 (sc, in) -> ((Entity) in[0].get(sc)).getType().toString().toLowerCase());
         MundusPlugin.scriptManager.registerFunction("sheep.issheared",

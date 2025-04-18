@@ -16,7 +16,7 @@ import me.hammerle.mp.snuviscript.ScriptEvents;
 import net.kyori.adventure.text.Component;
 
 public class PlayerData {
-    private final static String TAG = "kajetansplugin";
+    private final static String TAG = "mundusplugin";
     private final static int MAX_LENGTH = 40;
 
     private Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
@@ -27,7 +27,7 @@ public class PlayerData {
     private boolean iterating = false;
 
     private PlayerData(Player p) {
-        objective = scoreboard.registerNewObjective("kajetansplugin", Criteria.create("DUMMY"),
+        objective = scoreboard.registerNewObjective("mundusplugin", Criteria.create("DUMMY"),
                 Component.text("Default"), RenderType.INTEGER);
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         p.setScoreboard(scoreboard);

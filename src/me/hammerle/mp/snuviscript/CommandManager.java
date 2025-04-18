@@ -15,8 +15,6 @@ import com.mojang.brigadier.tree.CommandNode;
 
 public class CommandManager {
     private final static UUID MARVINIUS = UUID.fromString("e41b5335-3c74-46e9-a6c5-dafc6334a477");
-    private final static UUID KAJETANJOHANNES =
-            UUID.fromString("51e240f9-ab10-4ea6-8a5d-779319f51257");
     private final static UUID SIRTERENCE7 = UUID.fromString("6cc9f8c7-9dfd-44f4-a3f2-af30054411a8");
     private final static HashMap<String, MundusCommand> COMMANDS = new HashMap<>();
     private final static HashSet<String> SNUVI_COMMANDS = new HashSet<>();
@@ -161,8 +159,7 @@ public class CommandManager {
                 p.addAttachment(MundusPlugin.instance, info.getPermission(), false);
             }
         }
-        if(p.getUniqueId().equals(MARVINIUS) || p.getUniqueId().equals(KAJETANJOHANNES)
-                || p.getUniqueId().equals(SIRTERENCE7)) {
+        if(p.getUniqueId().equals(MARVINIUS) || p.getUniqueId().equals(SIRTERENCE7)) {
             PermissionAttachment perm = p.addAttachment(MundusPlugin.instance, "script", true);
             perm.setPermission("script.debug", true);
             perm.setPermission("script.error", true);
