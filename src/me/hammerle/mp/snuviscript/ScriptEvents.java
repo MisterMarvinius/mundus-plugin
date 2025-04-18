@@ -480,6 +480,46 @@ public class ScriptEvents {
         });
     }
 
+    public static void onPlayerLeashEntity(PlayerLeashEntityEvent e) {
+        MundusPlugin.scriptManager.callEvent("player_leash", sc -> {
+            setPlayer(sc, e.getPlayer());
+            setHand(sc, e.getHand());
+            setEntity(sc, e.getEntity());
+            sc.setVar("leashholder", e.getLeashHolder());
+            setCancel(sc, e.isCancelled());
+        }, sc -> {
+            setCancelled(e, sc);
+        });
+    }
+
+    public static void onPlayerUnleashEntity(PlayerUnleashEntityEvent e) {
+        MundusPlugin.scriptManager.callEvent("player_unleash", sc -> {
+            String cause = e.getReason().toString();
+            sc.setVar("cause", cause);
+            setPlayer(sc, e.getPlayer());
+            setHand(sc, e.getHand());
+            setEntity(sc, e.getEntity());
+            sc.setVar("dropleash", e.isDropLeash());
+            setCancel(sc, e.isCancelled());
+        }, sc -> {
+            setCancelled(e, sc);
+            handleVar(sc, "player_unleash", "dropleash", v -> e.setDropLeash(v.getBoolean(sc)));
+        });
+    }
+
+    public static void onEntityUnleash(EntityUnleashEvent e) {
+        MundusPlugin.scriptManager.callEvent("entity_unleash", sc -> {
+            String cause = e.getReason().toString();
+            sc.setVar("cause", cause);
+            setEntity(sc, e.getEntity());
+            sc.setVar("dropleash", e.isDropLeash());
+            setCancel(sc, e.isCancelled());
+        }, sc -> {
+            setCancelled(e, sc);
+            handleVar(sc, "entity_unleash", "dropleash", v -> e.setDropLeash(v.getBoolean(sc)));
+        });
+    }
+
     public static void onCraftItem(CraftItemEvent e) {
         if(!(e.getWhoClicked() instanceof Player)) {
             return;

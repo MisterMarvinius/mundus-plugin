@@ -353,6 +353,30 @@ public class Events implements Listener {
     }
 
     @EventHandler
+    public void onPlayerLeashEntity(PlayerLeashEntityEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        ScriptEvents.onPlayerLeashEntity(e);
+    }
+
+    @EventHandler
+    public void onPlayerUnleashEntity(PlayerUnleashEntityEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        ScriptEvents.onPlayerUnleashEntity(e);
+    }
+
+    @EventHandler
+    public void onEntityUnleash(EntityUnleashEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        ScriptEvents.onEntityUnleash(e);
+    }
+
+    @EventHandler
     public void onCraftItem(CraftItemEvent e) {
         if(CommandTest.noEvents) {
             return;

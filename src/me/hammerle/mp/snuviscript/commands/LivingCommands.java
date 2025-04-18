@@ -190,7 +190,7 @@ public class LivingCommands {
                 if(!block.getType().name().endsWith("_FENCE")) {
                     throw new IllegalArgumentException("Location must be a fence to leash to it.");
                 }
-                Location hitchLocation = loc.add(0.5, 0.5, 0.5);
+                Location hitchLocation = loc.clone().add(0.5, 0.5, 0.5);
                 LeashHitch hitch = (LeashHitch) block.getWorld().spawnEntity(hitchLocation,
                         EntityType.LEASH_KNOT);
                 return liv.setLeashHolder(hitch);
