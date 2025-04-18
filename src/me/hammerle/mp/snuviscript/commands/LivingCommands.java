@@ -6,6 +6,7 @@ import org.bukkit.Registry;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.entity.CraftLeash;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -165,8 +166,17 @@ public class LivingCommands {
             return liv.isLeashed();
         });
         MundusPlugin.scriptManager.registerFunction("living.getleashholder", (sc, in) -> {
-            LivingEntity liv = (LivingEntity) in[0].get(sc);
-            return liv.getLeashHolder();
+            try {
+                LivingEntity liv = (LivingEntity) in[0].get(sc);
+                Entity e = liv.getLeashHolder();
+                if(liv instanceof CraftLeash) {
+                    return liv.getLocation();
+                } else {
+                    return e;
+                }
+            } catch(Exception e) {
+                return null;
+            }
         });
         MundusPlugin.scriptManager.registerFunction("living.setleashholder", (sc, in) -> {
             LivingEntity liv = (LivingEntity) in[0].get(sc);
@@ -174,17 +184,19 @@ public class LivingCommands {
 
             if(o instanceof Entity) {
                 return liv.setLeashHolder((Entity) o);
-            } else if(o instanceof Block) {
-                Block block = (Block) o;
+            } else if(o instanceof Location) {
+                Location loc = (Location) o;
+                Block block = loc.getBlock();
                 if(!block.getType().name().endsWith("_FENCE")) {
-                    throw new IllegalArgumentException("Block must be a fence to leash to it.");
+                    throw new IllegalArgumentException("Location must be a fence to leash to it.");
                 }
-                Location hitchLocation = block.getLocation().add(0.5, 0.5, 0.5);
+                Location hitchLocation = loc.add(0.5, 0.5, 0.5);
                 LeashHitch hitch = (LeashHitch) block.getWorld().spawnEntity(hitchLocation,
                         EntityType.LEASH_KNOT);
                 return liv.setLeashHolder(hitch);
             } else {
-                throw new IllegalArgumentException("Second argument must be an Entity or a Block.");
+                throw new IllegalArgumentException(
+                        "Second argument must be an Entity or a Location.");
             }
         });
         MundusPlugin.scriptManager.registerConsumer("living.unleash", (sc, in) -> {
