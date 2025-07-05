@@ -85,7 +85,7 @@ public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
     }
 
     public static Script startScript(String name, String... names) {
-        Arrays.setAll(names, i -> "scripts/" + names[i] + ".txt");
+        Arrays.setAll(names, i -> "scripts/" + names[i] + ".snuvi");
         return scriptManager.startScript(sc -> MoveEvents.remove(sc),
                 name == null ? names[0] : name, names);
     }
