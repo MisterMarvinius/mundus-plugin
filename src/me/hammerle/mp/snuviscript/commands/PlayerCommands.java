@@ -15,6 +15,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.SkullMeta;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import io.papermc.paper.entity.LookAnchor;
 import me.hammerle.mp.MundusPlugin;
 import net.citizensnpcs.api.CitizensAPI;
@@ -362,6 +364,14 @@ public class PlayerCommands {
         MundusPlugin.scriptManager.registerConsumer("player.resetsleep", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             p.setStatistic(org.bukkit.Statistic.TIME_SINCE_REST, 0);
+        });
+        MundusPlugin.scriptManager.registerConsumer("player.connect", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            String targetServer = in[1].getString(sc);
+            ByteArrayDataOutput out = ByteStreams.newDataOutput();
+            out.writeUTF("Connect");
+            out.writeUTF(targetServer);
+            p.sendPluginMessage(MundusPlugin.instance, "BungeeCord", out.toByteArray());
         });
     }
 }

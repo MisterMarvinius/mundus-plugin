@@ -163,6 +163,7 @@ public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
         scheduleTask(() -> WorldPlotMap.read());
 
         getServer().getPluginManager().registerEvents(new Events(), instance);
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
         registerFunctions();
         scheduleTask(() -> startScript(null, "startscript"));
