@@ -2,6 +2,7 @@ package me.hammerle.mp.snuviscript;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
@@ -12,6 +13,7 @@ import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
 import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
+import com.destroystokyo.paper.profile.PlayerProfile;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -32,7 +34,10 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import io.papermc.paper.connection.PlayerConnection;
+import io.papermc.paper.connection.PlayerLoginConnection;
 import io.papermc.paper.event.block.PlayerShearBlockEvent;
+import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import me.hammerle.mp.MundusPlugin;
 import me.hammerle.snuviscript.code.Script;
@@ -350,11 +355,20 @@ public class ScriptEvents {
         });
     }
 
-    public static void onPlayerLogin(PlayerLoginEvent e) {
-        String result = e.getResult().toString();
+    public static void onPlayerConnectionValidateLoginEvent(PlayerConnectionValidateLoginEvent e) {
+        PlayerConnection conn = e.getConnection();
+        PlayerProfile profile = null;
+        if(conn instanceof PlayerLoginConnection login) {
+            profile = login.getAuthenticatedProfile();
+        }
+        if(profile == null) {
+            return;
+        }
+        UUID uuid = profile != null ? profile.getId() : null;
+
         handleEvent("player_login", (sc) -> {
-            setPlayer(sc, e.getPlayer());
-            sc.setVar("result", result);
+            sc.setVar("uuid", uuid);
+            sc.setVar("result", e.isAllowed());
         });
     }
 

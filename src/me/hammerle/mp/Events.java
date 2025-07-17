@@ -14,6 +14,7 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import io.papermc.paper.event.block.PlayerShearBlockEvent;
+import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import me.hammerle.mp.plots.PlotEvents;
 import me.hammerle.mp.snuviscript.CommandManager;
@@ -65,13 +66,11 @@ public class Events implements Listener {
     }
 
     @EventHandler
-    public void onPlayerLogin(PlayerLoginEvent e) {
+    public void onPlayerConnectionValidateLoginEvent(PlayerConnectionValidateLoginEvent e) {
         if(CommandTest.noEvents) {
             return;
         }
-        Player p = e.getPlayer();
-        CommandManager.clearPermissions(p);
-        ScriptEvents.onPlayerLogin(e);
+        ScriptEvents.onPlayerConnectionValidateLoginEvent(e);
     }
 
     @EventHandler
@@ -80,6 +79,7 @@ public class Events implements Listener {
             return;
         }
         Player p = e.getPlayer();
+        CommandManager.clearPermissions(p);
         PlayerData.get(p).login(p);
         PlayerCommands.join(p);
         ScriptEvents.onPlayerJoin(e);

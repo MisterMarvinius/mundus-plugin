@@ -5,7 +5,9 @@ import java.net.InetAddress;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import com.destroystokyo.paper.profile.PlayerProfile;
 import io.papermc.paper.ban.BanListType;
 import net.kyori.adventure.text.Component;
 
@@ -23,8 +25,11 @@ public class BanCommands {
                 GregorianCalendar calender = (GregorianCalendar) in[3].get(sc);
                 d = new Date(calender.getTimeInMillis());
             }
-            Bukkit.getBanList(BanListType.PROFILE).addBan(Bukkit.createProfile(name), reason, d,
-                    banner);
+            OfflinePlayer offline = Bukkit.getOfflinePlayer(name);
+            PlayerProfile profile = Bukkit.createProfile(offline.getUniqueId(), name);
+
+            Bukkit.getBanList(BanListType.PROFILE)
+                    .addBan(profile, reason, d, banner);
         });
         MundusPlugin.scriptManager.registerConsumer("ban.addip", (sc, in) -> {
             String ip = in[0].getString(sc);
