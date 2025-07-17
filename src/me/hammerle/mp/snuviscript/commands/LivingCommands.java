@@ -19,7 +19,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import me.hammerle.mp.MundusPlugin;
-import me.hammerle.mp.NMS;
 import me.hammerle.snuviscript.exceptions.StackTrace;
 
 public class LivingCommands {
@@ -101,7 +100,7 @@ public class LivingCommands {
             StackTrace trace = sc.getStackTrace();
             MundusPlugin.scheduleTask(() -> {
                 try {
-                    NMS.map(liv).heal(heal, EntityRegainHealthEvent.RegainReason.CUSTOM);
+                    liv.heal(heal, EntityRegainHealthEvent.RegainReason.CUSTOM);
                 } catch(Exception ex) {
                     sc.getScriptManager().getLogger().print(null, ex, "living.heal", sc.getName(),
                             sc, trace);
