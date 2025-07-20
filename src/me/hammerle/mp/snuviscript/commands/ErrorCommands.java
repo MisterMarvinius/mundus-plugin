@@ -34,5 +34,8 @@ public class ErrorCommands {
         MundusPlugin.scriptManager.registerConsumer("debug.setconsoleprint", (sc, in) -> {
             MundusPlugin.logger.setConsoleDebugLogging(in[0].getBoolean(sc));
         });
+        MundusPlugin.scriptManager.registerConsumer("debug.setdevprint", (sc, in) -> {
+            MundusPlugin.logger.setDevDebugLogging(in[0].getBoolean(sc));
+        });
     }
 }

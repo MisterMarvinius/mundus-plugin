@@ -9,6 +9,7 @@ import me.hammerle.snuviscript.exceptions.StackTrace;
 public class SnuviLogger implements ISnuviLogger {
     private boolean printErrorToConsole = true;
     private boolean printDebugToConsole = true;
+    private boolean printDebugToDev = false;
 
     public static class Message {
         public final String message;
@@ -31,6 +32,10 @@ public class SnuviLogger implements ISnuviLogger {
         printDebugToConsole = b;
     }
 
+    public void setDevDebugLogging(boolean b) {
+        printDebugToDev = b;
+    }
+
     public RingArray<Message> getDebugHistory() {
         return debugHistory;
     }
@@ -41,7 +46,7 @@ public class SnuviLogger implements ISnuviLogger {
 
     private void sendToPlayers(String msg, String perm) {
         Bukkit.getOnlinePlayers().forEach(p -> {
-            if(p.hasPermission(perm)) {
+            if (p.hasPermission(perm)) {
                 p.sendMessage(msg);
             }
         });
@@ -54,41 +59,43 @@ public class SnuviLogger implements ISnuviLogger {
         sb.append("[§cLogger§r] ");
 
         String color;
-        if(ex == null) {
+        if (ex == null) {
             color = "§e";
             sb.append(color).append(message).append("§r");
         } else {
             color = "§c";
             sb.append(color).append(ex.getClass().getSimpleName()).append("§r: '").append(color)
                     .append(ex.getMessage());
-            if(message != null && !message.isEmpty()) {
+            if (message != null && !message.isEmpty()) {
                 sb.append(" - ").append(message);
             }
             sb.append("§r'");
         }
-        if(scriptname != null && !scriptname.isEmpty()) {
+        if (scriptname != null && !scriptname.isEmpty()) {
             sb.append(" in script '").append(color).append(scriptname).append("§r'");
         }
-        if(sc != null) {
+        if (sc != null) {
             sb.append(" id '").append(color).append(sc.getId()).append("§r'");
         }
-        if(function != null && !function.isEmpty()) {
+        if (function != null && !function.isEmpty()) {
             sb.append(" in function '").append(color).append(function).append("§r'");
         }
-        if(lines != null) {
+        if (lines != null) {
             sb.append(" in line '").append(color).append(lines).append("§r'");
         }
 
         String msg = sb.toString();
-        if(ex == null) {
+        if (ex == null) {
             debugHistory.add(new Message(msg));
-            if(printDebugToConsole) {
+            if (printDebugToConsole) {
                 MundusPlugin.log(msg);
             }
-            sendToPlayers(msg, "script.debug");
+            if (printDebugToDev) {
+                sendToPlayers(msg, "script.debug");
+            }
         } else {
             errorHistory.add(new Message(msg));
-            if(printErrorToConsole) {
+            if (printErrorToConsole) {
                 MundusPlugin.log(msg);
             }
             sendToPlayers(msg, "script.error");

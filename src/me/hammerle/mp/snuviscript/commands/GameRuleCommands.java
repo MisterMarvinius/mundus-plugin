@@ -7,6 +7,16 @@ import me.hammerle.mp.MundusPlugin;
 public class GameRuleCommands {
     @SuppressWarnings("unchecked")
     public static void registerFunctions() {
+        MundusPlugin.scriptManager.registerFunction("gamerule.getall",
+                (sc, in) -> GameRule.values());
+        MundusPlugin.scriptManager.registerFunction("gamerule.isbool", (sc, in) -> {
+            GameRule<?> rule = (GameRule<?>) in[0].get(sc);
+            return rule.getType().equals(Boolean.class);
+        });
+        MundusPlugin.scriptManager.registerFunction("gamerule.getname", (sc, in) -> {
+            GameRule<?> rule = (GameRule<?>) in[0].get(sc);
+            return rule.getName();
+        });
         MundusPlugin.scriptManager.registerFunction("gamerule.getkey", (sc, in) -> {
             return GameRule.getByName(in[0].getString(sc));
         });

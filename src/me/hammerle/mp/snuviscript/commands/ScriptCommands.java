@@ -17,19 +17,26 @@ public class ScriptCommands {
                         ScriptCommands::nothing);
             }
         });
+        MundusPlugin.scriptManager.registerFunction("script.startlocal", (sc, in) -> {
+            String[] names = new String[in.length];
+            for(int i = 0; i < in.length; i++) {
+                names[i] = in[i].getString(sc);
+            }
+            return MundusPlugin.startLocalScript(null, names);
+        });
         MundusPlugin.scriptManager.registerFunction("script.start", (sc, in) -> {
             String[] names = new String[in.length];
             for(int i = 0; i < in.length; i++) {
                 names[i] = in[i].getString(sc);
             }
-            return MundusPlugin.startScript(null, names);
+            return MundusPlugin.startGlobalScript(null, names);
         });
         MundusPlugin.scriptManager.registerFunction("script.startnamed", (sc, in) -> {
             String[] names = new String[in.length - 1];
             for(int i = 0; i < names.length; i++) {
                 names[i] = in[i + 1].getString(sc);
             }
-            return MundusPlugin.startScript(in[0].getString(sc), names);
+            return MundusPlugin.startGlobalScript(in[0].getString(sc), names);
         });
     }
 }

@@ -84,8 +84,16 @@ public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
         }
     }
 
-    public static Script startScript(String name, String... names) {
-        Arrays.setAll(names, i -> "scripts/" + names[i] + ".snuvi");
+    public static Script startLocalScript(String name, String... names) {
+        return startScript("scripts/", name, names);
+    }
+
+    public static Script startGlobalScript(String name, String... names) {
+        return startScript("../scripts/", name, names);
+    }
+
+    public static Script startScript(String path, String name, String... names) {
+        Arrays.setAll(names, i -> path + names[i] + ".snuvi");
         return scriptManager.startScript(sc -> MoveEvents.remove(sc),
                 name == null ? names[0] : name, names);
     }
@@ -166,7 +174,7 @@ public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
         registerFunctions();
-        scheduleTask(() -> startScript(null, "startscript"));
+        scheduleTask(() -> startLocalScript(null, "startscript"));
         startVotifier(conf.getString(null, "pkey", ""));
 
         if(isAliveThread == null) {
@@ -196,7 +204,7 @@ public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
     public void onDisable() {
         warn("DISABLE");
         enabled = false;
-        startScript("endscript");
+        startLocalScript("endscript");
         for(BukkitTask task : Bukkit.getScheduler().getPendingTasks()) {
             if(task instanceof Runnable) {
                 ((Runnable) task).run();

@@ -37,7 +37,7 @@ public class CommandScript extends MundusCommand {
             case "start": {
                 if(args.length >= 2) {
                     String[] pars = Arrays.copyOfRange(args, 1, args.length);
-                    MundusPlugin.startScript(null, pars);
+                    MundusPlugin.startGlobalScript(null, pars);
                     return;
                 }
                 break;
