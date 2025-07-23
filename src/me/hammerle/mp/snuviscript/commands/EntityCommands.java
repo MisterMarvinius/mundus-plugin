@@ -173,7 +173,7 @@ public class EntityCommands {
                 (sc, in) -> ((Sheep) in[0].get(sc)).getColor().toString());
         MundusPlugin.scriptManager.registerConsumer("creeper.explode",
                 (sc, in) -> ((Creeper) in[0].get(sc)).ignite());
-        MundusPlugin.scriptManager.registerFunction("rabbit.spawnkillerbunnyw", (sc, in) -> {
+        MundusPlugin.scriptManager.registerFunction("rabbit.spawnkillerbunny", (sc, in) -> {
             Location l = ((Location) in[0].get(sc));
             Rabbit r = (Rabbit) l.getWorld().spawnEntity(l, EntityType.RABBIT);
             r.setRabbitType(Type.THE_KILLER_BUNNY);

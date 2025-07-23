@@ -26,8 +26,12 @@ public class ReadCommands {
             if(s.contains("minecraft:air")) {
                 return new ItemStack(Material.AIR);
             }
-            ReadWriteNBT nbt = NBT.parseNBT(s);
-            return NBT.itemStackFromNBT(nbt);
+            try {
+                ReadWriteNBT nbt = NBT.parseNBT(s);
+                return NBT.itemStackFromNBT(nbt);
+            } catch(Exception ex) {
+                return null;
+            }
         });
         MundusPlugin.scriptManager.registerFunction("read.uuid", (sc, in) -> {
             String s = in[0].getString(sc);
