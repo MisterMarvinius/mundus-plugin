@@ -186,6 +186,22 @@ public class Events implements Listener {
     }
 
     @EventHandler
+    public void onFurnaceExtractEvent(FurnaceExtractEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        ScriptEvents.onFurnaceExtractEvent(e);
+    }
+
+    @EventHandler
+    public void onBlockCookEvent(BlockCookEvent e) {
+        if(CommandTest.noEvents) {
+            return;
+        }
+        ScriptEvents.onBlockCookEvent(e);
+    }
+
+    @EventHandler
     public void onBlockDropItemEvent(BlockDropItemEvent e) {
         if(CommandTest.noEvents) {
             return;

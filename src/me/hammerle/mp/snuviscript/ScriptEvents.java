@@ -310,6 +310,27 @@ public class ScriptEvents {
         });
     }
 
+    public static void onFurnaceExtractEvent(FurnaceExtractEvent e) {
+        final Block b = e.getBlock();
+        handleEvent("furnace_extract", sc -> {
+            setPlayer(sc, e.getPlayer());
+            sc.setVar("item_amount", e.getItemAmount());
+            sc.setVar("material", e.getItemType());
+            sc.setVar("experience", (double) e.getExpToDrop());
+            handleVar(sc, "furnace_extract", "experience", v -> e.setExpToDrop(v.getInt(sc)));
+            setBlock(sc, b);
+        });
+    }
+
+    public static void onBlockCookEvent(BlockCookEvent e) {
+        final Block b = e.getBlock();
+        handleEvent(e, "block_cook", sc -> {
+            sc.setVar("source_item", e.getSource());
+            sc.setVar("result_item", e.getResult());
+            setBlock(sc, b);
+        });
+    }
+
     public static void onBlockDropItemEvent(BlockDropItemEvent e) {
         final Block b = e.getBlockState().getBlock();
         handleEvent(e, "block_drop", sc -> {
