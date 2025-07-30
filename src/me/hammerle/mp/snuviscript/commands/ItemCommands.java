@@ -43,6 +43,8 @@ public class ItemCommands {
                 (sc, in) -> ((Material) in[0].get(sc)).isSolid());
         MundusPlugin.scriptManager.registerFunction("material.isblock",
                 (sc, in) -> ((Material) in[0].get(sc)).isBlock());
+        MundusPlugin.scriptManager.registerFunction("material.isedible",
+                (sc, in) -> ((Material) in[0].get(sc)).isEdible());
 
         MundusPlugin.scriptManager.registerFunction("item.new",
                 (sc, in) -> new ItemStack((Material) in[0].get(sc),
