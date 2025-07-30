@@ -9,8 +9,10 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.TextDisplay.TextAlignment;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Transformation;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -80,13 +82,30 @@ public class DisplayCommands {
             Material m = (Material) in[1].get(sc);
             b.setBlock(m.createBlockData());
         });
+
+
+        MundusPlugin.scriptManager.registerFunction("display.spawnitem", (sc, in) -> {
+            Location l = (Location) in[0].get(sc);
+            ItemStack stack = (ItemStack) in[1].get(sc);
+            World w = l.getWorld();
+            ItemDisplay d = w.spawn(l, ItemDisplay.class, entity -> {
+                entity.setItemStack(stack);
+            });
+            return d;
+        });
+        MundusPlugin.scriptManager.registerConsumer("display.setitem", (sc, in) -> {
+            ItemDisplay d = (ItemDisplay) in[0].get(sc);
+            ItemStack stack = (ItemStack) in[1].get(sc);
+            d.setItemStack(stack);
+        });
+
         MundusPlugin.scriptManager.registerConsumer("display.transform", (sc, in) -> {
-            BlockDisplay b = (BlockDisplay) in[0].get(sc);
+            Display d = (Display) in[0].get(sc);
             Vector3f translation = (Vector3f) in[1].get(sc);
             Quaternionf leftRotation = (Quaternionf) in[2].get(sc);
             Vector3f scale = (Vector3f) in[3].get(sc);
             Quaternionf rightRotation = (Quaternionf) in[4].get(sc);
-            b.setTransformation(new Transformation(
+            d.setTransformation(new Transformation(
                     translation,
                     leftRotation,
                     scale,
@@ -98,6 +117,5 @@ public class DisplayCommands {
         MundusPlugin.scriptManager.registerFunction("rotation.new",
                 (sc, in) -> new Quaternionf(in[0].getFloat(sc), in[1].getFloat(sc),
                         in[2].getFloat(sc), in[3].getFloat(sc)));
-
     }
 }
