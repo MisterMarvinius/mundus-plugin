@@ -10,6 +10,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.WorldBorder;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -293,6 +294,28 @@ public class PlayerCommands {
         MundusPlugin.scriptManager.registerConsumer("player.setdisplayname", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             p.playerListName((Component) in[1].get(sc));
+        });
+        MundusPlugin.scriptManager.registerConsumer("player.setworldborder", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            Location l = (Location) in[1].get(sc);
+            WorldBorder border = p.getWorld().getWorldBorder();
+            border.setCenter(l);
+            border.setSize(in[2].getInt(sc));
+            p.setWorldBorder(border);
+        });
+        MundusPlugin.scriptManager.registerConsumer("player.resetworldborder", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            p.setWorldBorder(null);
+        });
+        MundusPlugin.scriptManager.registerConsumer("player.listtabplayer", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            Player other_p = (Player) in[1].get(sc);
+            p.listPlayer(other_p);
+        });
+        MundusPlugin.scriptManager.registerConsumer("player.unlisttabplayer", (sc, in) -> {
+            Player p = (Player) in[0].get(sc);
+            Player other_p = (Player) in[1].get(sc);
+            p.unlistPlayer(other_p);
         });
         MundusPlugin.scriptManager.registerConsumer("player.setplayerlistheader", (sc, in) -> {
             Component text = (Component) in[1].get(sc);

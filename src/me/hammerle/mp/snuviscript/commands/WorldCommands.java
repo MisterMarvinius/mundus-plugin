@@ -6,6 +6,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.WorldCreator;
 import me.hammerle.mp.MundusPlugin;
 import me.hammerle.mp.plots.WorldPlotMap;
@@ -60,6 +61,13 @@ public class WorldCommands {
             World w = Bukkit.createWorld(WorldCreator.name(in[0].getString(sc)));
             WorldPlotMap.read(w.getName());
             return w;
+        });
+        MundusPlugin.scriptManager.registerConsumer("world.setborder", (sc, in) -> {
+            World w = (World) in[0].get(sc);
+            Location l = (Location) in[1].get(sc);
+            WorldBorder border = w.getWorldBorder();
+            border.setCenter(l);
+            border.setSize(in[2].getInt(sc));
         });
         MundusPlugin.scriptManager.registerFunction("world.unload",
                 (sc, in) -> Bukkit.unloadWorld((World) in[0].get(sc), true));
