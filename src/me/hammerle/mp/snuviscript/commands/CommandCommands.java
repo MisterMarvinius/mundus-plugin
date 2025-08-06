@@ -7,6 +7,7 @@ import dev.jorel.commandapi.CommandAPIBukkit;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
+import dev.jorel.commandapi.arguments.BlockStateArgument;
 import dev.jorel.commandapi.arguments.BooleanArgument;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.EnchantmentArgument;
@@ -127,6 +128,9 @@ public class CommandCommands {
             switch(type) {
                 case "Item":
                     arg = new ItemStackArgument(name);
+                    break;
+                case "Block":
+                    arg = new BlockStateArgument(name);
                     break;
                 case "Player":
                     arg = new PlayerArgument(name);
