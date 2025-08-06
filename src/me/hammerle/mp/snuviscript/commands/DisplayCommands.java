@@ -58,11 +58,11 @@ public class DisplayCommands {
             TextDisplay d = (TextDisplay) in[0].get(sc);
             d.setSeeThrough(in[1].getBoolean(sc));
         });
-        MundusPlugin.scriptManager.registerConsumer("display.seethrough", (sc, in) -> {
+        MundusPlugin.scriptManager.registerConsumer("display.shadowed", (sc, in) -> {
             TextDisplay d = (TextDisplay) in[0].get(sc);
             d.setShadowed(in[1].getBoolean(sc));
         });
-        MundusPlugin.scriptManager.registerConsumer("display.textopacity", (sc, in) -> {
+        MundusPlugin.scriptManager.registerConsumer("display.opacity", (sc, in) -> {
             TextDisplay d = (TextDisplay) in[0].get(sc);
             d.setTextOpacity((byte) in[1].getInt(sc));
         });
