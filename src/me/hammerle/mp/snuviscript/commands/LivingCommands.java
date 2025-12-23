@@ -6,7 +6,7 @@ import org.bukkit.Registry;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.entity.CraftLeash;
+import org.bukkit.entity.LeashHitch;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -167,12 +167,13 @@ public class LivingCommands {
         MundusPlugin.scriptManager.registerFunction("living.getleashholder", (sc, in) -> {
             try {
                 LivingEntity liv = (LivingEntity) in[0].get(sc);
-                Entity e = liv.getLeashHolder();
-                if(liv instanceof CraftLeash) {
-                    return liv.getLocation();
-                } else {
-                    return e;
+                Entity holder = liv.getLeashHolder();
+                if (holder == null) return null;
+                // If it's leashed to a fence knot, return the location
+                if (holder instanceof LeashHitch) {
+                    return holder.getLocation();
                 }
+                return holder;
             } catch(Exception e) {
                 return null;
             }

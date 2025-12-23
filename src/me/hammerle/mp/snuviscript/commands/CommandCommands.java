@@ -17,7 +17,7 @@ import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.ItemStackArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.ParticleArgument;
-import dev.jorel.commandapi.arguments.PlayerArgument;
+import dev.jorel.commandapi.arguments.EntitySelectorArgument;
 import dev.jorel.commandapi.arguments.PotionEffectArgument;
 import dev.jorel.commandapi.arguments.SoundArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
@@ -133,7 +133,7 @@ public class CommandCommands {
                     arg = new BlockStateArgument(name);
                     break;
                 case "Player":
-                    arg = new PlayerArgument(name);
+                    arg = new EntitySelectorArgument.OnePlayer(name);
                     break;
                 case "Enchantment":
                     arg = new EnchantmentArgument(name);
