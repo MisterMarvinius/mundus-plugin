@@ -4,4 +4,4 @@ version: "1.0.6"
 api-version: "1.21.10"
 author: AUTHOR
 description: DESCRIPTION
-depend: [CommandAPI]
+depend: [CommandAPI, Citizens]
