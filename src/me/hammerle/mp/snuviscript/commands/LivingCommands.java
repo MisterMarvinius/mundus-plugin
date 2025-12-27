@@ -34,33 +34,39 @@ public class LivingCommands {
 
     @SuppressWarnings("unchecked")
     public static void registerFunctions() {
-        for(Attribute a : Registry.ATTRIBUTE) {
-            String name = getName(a);
-            MundusPlugin.scriptManager.registerConsumer("living.set" + name, (sc, in) -> {
+        for (Attribute a : Registry.ATTRIBUTE) {
+            NamespacedKey key = a.getKey();                 // e.g. minecraft:max_health
+            String path = key.getKey();                     // e.g. max_health
+            String name = path.toLowerCase().replace("_", "");  // maxhealth
+
+            String setCmd = "living.set" + name;
+            String getCmd = "living.get" + name;
+            String resetCmd = "living.reset" + name;
+
+            MundusPlugin.log("[ScriptCmd] " + a.getKey() + " -> " + setCmd + ", " + getCmd + ", " + resetCmd);
+
+            MundusPlugin.scriptManager.registerConsumer(setCmd, (sc, in) -> {
                 LivingEntity liv = (LivingEntity) in[0].get(sc);
                 AttributeInstance instance = liv.getAttribute(a);
-                if(instance == null) {
-                    return;
-                }
+                if (instance == null) return;
                 instance.setBaseValue(in[1].getDouble(sc));
             });
-            MundusPlugin.scriptManager.registerFunction("living.get" + name, (sc, in) -> {
+
+            MundusPlugin.scriptManager.registerFunction(getCmd, (sc, in) -> {
                 LivingEntity liv = (LivingEntity) in[0].get(sc);
                 AttributeInstance instance = liv.getAttribute(a);
-                if(instance == null) {
-                    return 0.0;
-                }
+                if (instance == null) return 0.0;
                 return instance.getBaseValue();
             });
-            MundusPlugin.scriptManager.registerConsumer("living.reset" + name, (sc, in) -> {
+
+            MundusPlugin.scriptManager.registerConsumer(resetCmd, (sc, in) -> {
                 LivingEntity liv = (LivingEntity) in[0].get(sc);
                 AttributeInstance instance = liv.getAttribute(a);
-                if(instance == null) {
-                    return;
-                }
+                if (instance == null) return;
                 instance.setBaseValue(instance.getDefaultValue());
             });
         }
+
         MundusPlugin.scriptManager.registerConsumer("living.setai", (sc, in) -> {
             LivingEntity ent = (LivingEntity) in[0].get(sc);
             ent.setAI(in[1].getBoolean(sc));
