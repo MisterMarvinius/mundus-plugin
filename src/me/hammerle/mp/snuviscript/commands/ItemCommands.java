@@ -114,7 +114,13 @@ public class ItemCommands {
         });
         MundusPlugin.scriptManager.registerFunction("item.getallattributes", (sc, in) -> {
             return Registry.ATTRIBUTE.stream()
-                    .map(f -> "minecraft:" + f.toString().toLowerCase())
+                    .map(attribute -> {
+                        NamespacedKey key = Registry.ATTRIBUTE.getKey(attribute);
+                        if(key != null) {
+                            return key.toString();
+                        }
+                        return "minecraft:" + attribute.toString().toLowerCase();
+                    })
                     .sorted()
                     .collect(Collectors.toList());
         });
