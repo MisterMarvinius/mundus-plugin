@@ -23,7 +23,7 @@ public class LuckPermsCommands {
         if(group != null) {
             return group;
         }
-        return luckPerms.getGroupManager().loadGroup(groupName).join();
+        return luckPerms.getGroupManager().loadGroup(groupName).join().orElse(null);
     }
 
     private static User loadUser(Object player) {
