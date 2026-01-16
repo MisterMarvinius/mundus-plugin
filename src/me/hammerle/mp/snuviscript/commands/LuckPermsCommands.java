@@ -11,6 +11,8 @@ import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.Node;
 import net.luckperms.api.node.types.InheritanceNode;
 import net.luckperms.api.node.types.PermissionNode;
+import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permissible;
 
 public class LuckPermsCommands {
     private static LuckPerms getLuckPerms() {
@@ -148,11 +150,26 @@ public class LuckPermsCommands {
                             .map(node -> ((PermissionNode) node).getPermission())
                             .collect(Collectors.toCollection(ArrayList::new));
                 });
-        MundusPlugin.scriptManager.registerFunction("luckperms.playerhaspermission",
-                (sc, in) -> {
-                    User user = loadUser(in[0].get(sc));
-                    return user.getCachedData().getPermissionData()
-                            .checkPermission(in[1].getString(sc)).asBoolean();
-                });
+        MundusPlugin.scriptManager.registerFunction("perm.has", (sc, in) -> {
+            LuckPerms lp = getLuckPerms();
+            if (lp == null) return false;
+
+            String permission = in[0].getString(sc);
+            Object subj = in[1].get(sc);
+
+            if (subj instanceof Player) {
+                Player player = (Player) subj;
+                User user = lp.getPlayerAdapter(Player.class).getUser(player);
+                return user.getCachedData().getPermissionData()
+                        .checkPermission(permission).asBoolean();
+            }
+
+            if (subj instanceof Permissible) {
+                Permissible permissible = (Permissible) subj;
+                return permissible.hasPermission(permission);
+            }
+
+            return false;
+        });
     }
 }

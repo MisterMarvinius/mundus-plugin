@@ -31,7 +31,7 @@ public class PermissionCommands {
             Player p = (Player) in[0].get(sc);
             p.recalculatePermissions();
         });
-        MundusPlugin.scriptManager.registerFunction("perm.has",
-                (sc, in) -> ((Permissible) in[1].get(sc)).hasPermission(in[0].getString(sc)));
+        //MundusPlugin.scriptManager.registerFunction("perm.has",
+        //        (sc, in) -> ((Permissible) in[1].get(sc)).hasPermission(in[0].getString(sc)));
     }
 }
