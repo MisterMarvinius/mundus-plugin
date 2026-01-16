@@ -8,11 +8,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import me.hammerle.mp.LuckPermsBridge;
 import me.hammerle.mp.MundusPlugin;
 import com.mojang.brigadier.tree.CommandNode;
-import net.luckperms.api.LuckPerms;
-import net.luckperms.api.model.user.User;
-import net.luckperms.api.node.types.PermissionNode;
 
 public class CommandManager {
     private final static UUID MARVINIUS = UUID.fromString("e41b5335-3c74-46e9-a6c5-dafc6334a477");
@@ -150,17 +148,14 @@ public class CommandManager {
     }
 
     public static void clearPermissions(Player p) {
-        LuckPerms luckPerms = MundusPlugin.getLuckPerms();
-        if(luckPerms == null) {
+        if(!LuckPermsBridge.clearTransientPermissions(p)) {
             p.recalculatePermissions();
             return;
         }
-        User user = luckPerms.getPlayerAdapter(Player.class).getUser(p);
-        user.transientData().clear();
         if(p.getUniqueId().equals(MARVINIUS) || p.getUniqueId().equals(SIRTERENCE7)) {
-            user.transientData().add(PermissionNode.builder("script").value(true).build());
-            user.transientData().add(PermissionNode.builder("script.debug").value(true).build());
-            user.transientData().add(PermissionNode.builder("script.error").value(true).build());
+            LuckPermsBridge.addTransientPermission(p, "script", true);
+            LuckPermsBridge.addTransientPermission(p, "script.debug", true);
+            LuckPermsBridge.addTransientPermission(p, "script.error", true);
         }
         p.recalculatePermissions();
     }

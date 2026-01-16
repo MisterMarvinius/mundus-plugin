@@ -24,10 +24,8 @@ import me.hammerle.snuviscript.config.SnuviConfig;
 import me.hammerle.snuviscript.code.ISnuviScheduler;
 import me.hammerle.snuviscript.code.ScriptManager;
 import me.hammerle.snuviscript.code.Script;
-import net.luckperms.api.LuckPerms;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.plugin.RegisteredServiceProvider;
 
 public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
     private static PrivateKey privateKey = null;
@@ -142,16 +140,6 @@ public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
 
     public static PermissionAttachment addPermissions(Permissible p) {
         return p.addAttachment(instance);
-    }
-
-    public static LuckPerms getLuckPerms() {
-        RegisteredServiceProvider<LuckPerms> provider =
-                Bukkit.getServicesManager().getRegistration(LuckPerms.class);
-        if(provider == null) {
-            warn("LuckPerms not found. Permission scripts will be ignored.");
-            return null;
-        }
-        return provider.getProvider();
     }
 
     @Override
