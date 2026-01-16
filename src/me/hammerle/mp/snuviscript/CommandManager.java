@@ -8,10 +8,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.permissions.PermissionAttachmentInfo;
 import me.hammerle.mp.MundusPlugin;
 import com.mojang.brigadier.tree.CommandNode;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.model.user.User;
+import net.luckperms.api.node.types.PermissionNode;
 
 public class CommandManager {
     private final static UUID MARVINIUS = UUID.fromString("e41b5335-3c74-46e9-a6c5-dafc6334a477");
@@ -149,20 +150,17 @@ public class CommandManager {
     }
 
     public static void clearPermissions(Player p) {
-        for(PermissionAttachmentInfo info : p.getEffectivePermissions()) {
-            if(info.getAttachment() != null) {
-                info.getAttachment().remove();
-            }
+        LuckPerms luckPerms = MundusPlugin.getLuckPerms();
+        if(luckPerms == null) {
+            p.recalculatePermissions();
+            return;
         }
-        for(PermissionAttachmentInfo info : p.getEffectivePermissions()) {
-            if(info.getAttachment() == null) {
-                p.addAttachment(MundusPlugin.instance, info.getPermission(), false);
-            }
-        }
+        User user = luckPerms.getPlayerAdapter(Player.class).getUser(p);
+        user.transientData().clear();
         if(p.getUniqueId().equals(MARVINIUS) || p.getUniqueId().equals(SIRTERENCE7)) {
-            PermissionAttachment perm = p.addAttachment(MundusPlugin.instance, "script", true);
-            perm.setPermission("script.debug", true);
-            perm.setPermission("script.error", true);
+            user.transientData().add(PermissionNode.builder("script").value(true).build());
+            user.transientData().add(PermissionNode.builder("script.debug").value(true).build());
+            user.transientData().add(PermissionNode.builder("script.error").value(true).build());
         }
         p.recalculatePermissions();
     }

@@ -3,9 +3,10 @@ package me.hammerle.mp.snuviscript.commands;
 import org.bukkit.entity.Player;
 import me.hammerle.mp.MundusPlugin;
 import me.hammerle.mp.snuviscript.CommandManager;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.model.user.User;
+import net.luckperms.api.node.types.PermissionNode;
 import org.bukkit.permissions.Permissible;
-import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.permissions.PermissionAttachmentInfo;
 
 public class PermissionCommands {
     public static void registerFunctions() {
@@ -14,18 +15,27 @@ public class PermissionCommands {
         });
         MundusPlugin.scriptManager.registerConsumer("perm.add", (sc, in) -> {
             Player p = (Player) in[1].get(sc);
-            for(PermissionAttachmentInfo info : p.getEffectivePermissions()) {
-                PermissionAttachment perm = info.getAttachment();
-                if(perm != null && perm.getPlugin() == MundusPlugin.instance) {
-                    perm.setPermission(in[0].getString(sc), true);
-                    return;
-                }
+            LuckPerms luckPerms = MundusPlugin.getLuckPerms();
+            if(luckPerms == null) {
+                return;
             }
-            p.addAttachment(MundusPlugin.instance, in[0].getString(sc), true);
+            User user = luckPerms.getPlayerAdapter(Player.class).getUser(p);
+            String permission = in[0].getString(sc);
+            user.transientData().remove(PermissionNode.builder(permission).value(false).build());
+            user.transientData().add(PermissionNode.builder(permission).value(true).build());
+            p.recalculatePermissions();
         });
         MundusPlugin.scriptManager.registerConsumer("perm.remove", (sc, in) -> {
             Player p = (Player) in[1].get(sc);
-            p.addAttachment(MundusPlugin.instance, in[0].getString(sc), false);
+            LuckPerms luckPerms = MundusPlugin.getLuckPerms();
+            if(luckPerms == null) {
+                return;
+            }
+            User user = luckPerms.getPlayerAdapter(Player.class).getUser(p);
+            String permission = in[0].getString(sc);
+            user.transientData().remove(PermissionNode.builder(permission).value(true).build());
+            user.transientData().add(PermissionNode.builder(permission).value(false).build());
+            p.recalculatePermissions();
         });
         MundusPlugin.scriptManager.registerConsumer("perm.update", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
