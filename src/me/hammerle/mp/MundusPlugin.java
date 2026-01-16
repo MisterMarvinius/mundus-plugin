@@ -136,6 +136,7 @@ public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
         ItemEntityCommands.registerFunctions();
         BossBarCommands.registerFunctions();
         Commands.registerFunctions();
+        LuckPermsCommands.registerFunctions();
     }
 
     public static PermissionAttachment addPermissions(Permissible p) {
