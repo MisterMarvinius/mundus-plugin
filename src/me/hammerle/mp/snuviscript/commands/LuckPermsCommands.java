@@ -32,23 +32,23 @@ public class LuckPermsCommands {
     }
 
     public static void registerFunctions() {
-        MundusPlugin.scriptManager.registerConsumer("luckPerms.createGroup", (sc, in) -> {
+        MundusPlugin.scriptManager.registerConsumer("luckperms.creategroup", (sc, in) -> {
             getLuckPerms().getGroupManager().createAndLoadGroup(in[0].getString(sc)).join();
         });
-        MundusPlugin.scriptManager.registerConsumer("luckPerms.deleteGroup", (sc, in) -> {
+        MundusPlugin.scriptManager.registerConsumer("luckperms.deletegroup", (sc, in) -> {
             Group group = loadGroup(in[0].getString(sc));
             if(group == null) {
                 return;
             }
             getLuckPerms().getGroupManager().deleteGroup(group).join();
         });
-        MundusPlugin.scriptManager.registerConsumer("luckPerms.deleteAllGroups", (sc, in) -> {
+        MundusPlugin.scriptManager.registerConsumer("luckperms.deleteallgroups", (sc, in) -> {
             LuckPerms luckPerms = getLuckPerms();
             for(Group group : new ArrayList<>(luckPerms.getGroupManager().getLoadedGroups())) {
                 luckPerms.getGroupManager().deleteGroup(group).join();
             }
         });
-        MundusPlugin.scriptManager.registerConsumer("luckPerms.addPermissionToGroup",
+        MundusPlugin.scriptManager.registerConsumer("luckperms.addpermissiontogroup",
                 (sc, in) -> {
                     Group group = loadGroup(in[0].getString(sc));
                     if(group == null) {
@@ -57,7 +57,7 @@ public class LuckPermsCommands {
                     group.data().add(PermissionNode.builder(in[1].getString(sc)).value(true).build());
                     getLuckPerms().getGroupManager().saveGroup(group);
                 });
-        MundusPlugin.scriptManager.registerConsumer("luckPerms.removePermissionFromGroup",
+        MundusPlugin.scriptManager.registerConsumer("luckperms.removepermissionfromgroup",
                 (sc, in) -> {
                     Group group = loadGroup(in[0].getString(sc));
                     if(group == null) {
@@ -66,7 +66,7 @@ public class LuckPermsCommands {
                     group.data().remove(PermissionNode.builder(in[1].getString(sc)).value(true).build());
                     getLuckPerms().getGroupManager().saveGroup(group);
                 });
-        MundusPlugin.scriptManager.registerConsumer("luckPerms.clearGroupPermissions",
+        MundusPlugin.scriptManager.registerConsumer("luckperms.cleargrouppermissions",
                 (sc, in) -> {
                     Group group = loadGroup(in[0].getString(sc));
                     if(group == null) {
@@ -79,18 +79,18 @@ public class LuckPermsCommands {
                     }
                     getLuckPerms().getGroupManager().saveGroup(group);
                 });
-        MundusPlugin.scriptManager.registerConsumer("luckPerms.addPlayerToGroup", (sc, in) -> {
+        MundusPlugin.scriptManager.registerConsumer("luckperms.addplayertogroup", (sc, in) -> {
             User user = loadUser(in[0].get(sc));
             user.data().add(InheritanceNode.builder(in[1].getString(sc)).build());
             getLuckPerms().getUserManager().saveUser(user);
         });
-        MundusPlugin.scriptManager.registerConsumer("luckPerms.removePlayerFromGroup",
+        MundusPlugin.scriptManager.registerConsumer("luckperms.removeplayerfromgroup",
                 (sc, in) -> {
                     User user = loadUser(in[0].get(sc));
                     user.data().remove(InheritanceNode.builder(in[1].getString(sc)).build());
                     getLuckPerms().getUserManager().saveUser(user);
                 });
-        MundusPlugin.scriptManager.registerConsumer("luckPerms.clearPlayerGroups", (sc, in) -> {
+        MundusPlugin.scriptManager.registerConsumer("luckperms.clearplayergroups", (sc, in) -> {
             User user = loadUser(in[0].get(sc));
             for(Node node : new ArrayList<>(user.getNodes())) {
                 if(node instanceof InheritanceNode) {
@@ -99,14 +99,14 @@ public class LuckPermsCommands {
             }
             getLuckPerms().getUserManager().saveUser(user);
         });
-        MundusPlugin.scriptManager.registerFunction("luckPerms.groupExists",
+        MundusPlugin.scriptManager.registerFunction("luckperms.groupexists",
                 (sc, in) -> loadGroup(in[0].getString(sc)) != null);
-        MundusPlugin.scriptManager.registerFunction("luckPerms.getGroups", (sc, in) -> {
+        MundusPlugin.scriptManager.registerFunction("luckperms.getGroups", (sc, in) -> {
             LuckPerms luckPerms = getLuckPerms();
             return luckPerms.getGroupManager().getLoadedGroups().stream().map(Group::getName)
                     .collect(Collectors.toCollection(ArrayList::new));
         });
-        MundusPlugin.scriptManager.registerFunction("luckPerms.getGroupPermissions",
+        MundusPlugin.scriptManager.registerFunction("luckperms.getgrouppermissions",
                 (sc, in) -> {
                     Group group = loadGroup(in[0].getString(sc));
                     if(group == null) {
@@ -116,7 +116,7 @@ public class LuckPermsCommands {
                             .map(node -> ((PermissionNode) node).getPermission())
                             .collect(Collectors.toCollection(ArrayList::new));
                 });
-        MundusPlugin.scriptManager.registerFunction("luckPerms.groupHasPermission",
+        MundusPlugin.scriptManager.registerFunction("luckperms.grouphaspermission",
                 (sc, in) -> {
                     Group group = loadGroup(in[0].getString(sc));
                     if(group == null) {
@@ -128,27 +128,27 @@ public class LuckPermsCommands {
                             .anyMatch(node -> node.getPermission().equals(permission)
                                     && node.getValue());
                 });
-        MundusPlugin.scriptManager.registerFunction("luckPerms.getPlayerGroups", (sc, in) -> {
+        MundusPlugin.scriptManager.registerFunction("luckperms.getplayergroups", (sc, in) -> {
             User user = loadUser(in[0].get(sc));
             return user.getNodes().stream().filter(node -> node instanceof InheritanceNode)
                     .map(node -> ((InheritanceNode) node).getGroupName())
                     .collect(Collectors.toCollection(ArrayList::new));
         });
-        MundusPlugin.scriptManager.registerFunction("luckPerms.isPlayerInGroup", (sc, in) -> {
+        MundusPlugin.scriptManager.registerFunction("luckperms.isplayeringroup", (sc, in) -> {
             User user = loadUser(in[0].get(sc));
             String group = in[1].getString(sc);
             return user.getNodes().stream().filter(node -> node instanceof InheritanceNode)
                     .map(node -> (InheritanceNode) node)
                     .anyMatch(node -> node.getGroupName().equalsIgnoreCase(group));
         });
-        MundusPlugin.scriptManager.registerFunction("luckPerms.getPlayerPermissions",
+        MundusPlugin.scriptManager.registerFunction("luckperms.getplayerpermissions",
                 (sc, in) -> {
                     User user = loadUser(in[0].get(sc));
                     return user.getNodes().stream().filter(node -> node instanceof PermissionNode)
                             .map(node -> ((PermissionNode) node).getPermission())
                             .collect(Collectors.toCollection(ArrayList::new));
                 });
-        MundusPlugin.scriptManager.registerFunction("luckPerms.playerHasPermission",
+        MundusPlugin.scriptManager.registerFunction("luckperms.playerhaspermission",
                 (sc, in) -> {
                     User user = loadUser(in[0].get(sc));
                     return user.getCachedData().getPermissionData()
