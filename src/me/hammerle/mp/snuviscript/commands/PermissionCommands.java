@@ -2,8 +2,10 @@ package me.hammerle.mp.snuviscript.commands;
 
 import org.bukkit.entity.Player;
 import me.hammerle.mp.MundusPlugin;
-import me.hammerle.mp.LuckPermsBridge;
 import me.hammerle.mp.snuviscript.CommandManager;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.model.user.User;
+import net.luckperms.api.node.types.PermissionNode;
 import org.bukkit.permissions.Permissible;
 
 public class PermissionCommands {
@@ -13,16 +15,26 @@ public class PermissionCommands {
         });
         MundusPlugin.scriptManager.registerConsumer("perm.add", (sc, in) -> {
             Player p = (Player) in[1].get(sc);
+            LuckPerms luckPerms = MundusPlugin.getLuckPerms();
+            if(luckPerms == null) {
+                return;
+            }
+            User user = luckPerms.getPlayerAdapter(Player.class).getUser(p);
             String permission = in[0].getString(sc);
-            LuckPermsBridge.removeTransientPermission(p, permission, false);
-            LuckPermsBridge.addTransientPermission(p, permission, true);
+            user.transientData().remove(PermissionNode.builder(permission).value(false).build());
+            user.transientData().add(PermissionNode.builder(permission).value(true).build());
             p.recalculatePermissions();
         });
         MundusPlugin.scriptManager.registerConsumer("perm.remove", (sc, in) -> {
             Player p = (Player) in[1].get(sc);
+            LuckPerms luckPerms = MundusPlugin.getLuckPerms();
+            if(luckPerms == null) {
+                return;
+            }
+            User user = luckPerms.getPlayerAdapter(Player.class).getUser(p);
             String permission = in[0].getString(sc);
-            LuckPermsBridge.removeTransientPermission(p, permission, true);
-            LuckPermsBridge.addTransientPermission(p, permission, false);
+            user.transientData().remove(PermissionNode.builder(permission).value(true).build());
+            user.transientData().add(PermissionNode.builder(permission).value(false).build());
             p.recalculatePermissions();
         });
         MundusPlugin.scriptManager.registerConsumer("perm.update", (sc, in) -> {
