@@ -60,6 +60,10 @@ public class WorldGuardCommands {
         MundusPlugin.scriptManager.registerFunction("plot.getflags", (sc, in) -> {
             return (double) getFlags((ProtectedRegion) in[0].get(sc));
         });
+        MundusPlugin.scriptManager.registerConsumer("plot.setflagsmask", (sc, in) -> {
+            ProtectedRegion r = (ProtectedRegion) in[0].get(sc);
+            r.setFlag(flagsFlag, in[1].getInt(sc));
+        });
         MundusPlugin.scriptManager.registerConsumer("plot.addowner", (sc, in) -> {
             ProtectedRegion r = (ProtectedRegion) in[0].get(sc);
             UUID u = CommandUtils.getUUID(in[1].get(sc));
