@@ -79,7 +79,7 @@ public class DialogCommands {
                 method.invoke(player, dialog);
                 return true;
             } catch(Exception ex) {
-                return false;
+                continue;
             }
         }
         return false;
@@ -114,13 +114,20 @@ public class DialogCommands {
     }
 
     private static Class<?> dialogClassForPlayer(Player player) {
+        Class<?> fallback = null;
         for(Method method : player.getClass().getMethods()) {
             if(!method.getName().equals("showDialog") || method.getParameterCount() != 1) {
                 continue;
             }
-            return method.getParameterTypes()[0];
+            Class<?> param = method.getParameterTypes()[0];
+            if(fallback == null) {
+                fallback = param;
+            }
+            if(isDialogClass(param)) {
+                return param;
+            }
         }
-        return null;
+        return fallback;
     }
 
     private static Class<?> classForPackage(String[] names, String prefix) {
@@ -152,6 +159,19 @@ public class DialogCommands {
         return null;
     }
 
+    private static boolean isDialogClass(Class<?> type) {
+        if(type == null) {
+            return false;
+        }
+        String name = type.getName();
+        for(String dialogName : DIALOG_CLASSES) {
+            if(dialogName.equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static Object buildAction(String actionType, String actionValue, Class<?> actionClass) {
         if(actionClass == null) {
             return null;
@@ -180,10 +200,16 @@ public class DialogCommands {
             return null;
         }
         Object action = buildAction(spec.actionType, spec.actionValue, actionClass);
-        Object button = invokeStatic(buttonClass, "of", Component.class, spec.label);
-        if(button == null && action != null) {
-            button = invokeStatic(buttonClass, "of", Component.class, action.getClass(),
-                    spec.label, action);
+        Object button = null;
+        if(action != null) {
+            button = invokeStaticAssignable(buttonClass, "of", new Object[] {spec.label, action});
+            if(button == null) {
+                button = invokeStaticAssignable(buttonClass, "create",
+                        new Object[] {spec.label, action});
+            }
+        }
+        if(button == null) {
+            button = invokeStatic(buttonClass, "of", Component.class, spec.label);
         }
         if(button == null) {
             button = invokeStatic(buttonClass, "create", Component.class, spec.label);
@@ -280,6 +306,34 @@ public class DialogCommands {
         } catch(Exception ex) {
             return null;
         }
+    }
+
+    private static Object invokeStaticAssignable(Class<?> type, String name, Object[] args) {
+        if(type == null) {
+            return null;
+        }
+        for(Method method : type.getMethods()) {
+            if(!method.getName().equals(name) || method.getParameterCount() != args.length) {
+                continue;
+            }
+            Class<?>[] params = method.getParameterTypes();
+            boolean matches = true;
+            for(int i = 0; i < params.length; i++) {
+                if(args[i] == null || !params[i].isInstance(args[i])) {
+                    matches = false;
+                    break;
+                }
+            }
+            if(!matches) {
+                continue;
+            }
+            try {
+                return method.invoke(null, args);
+            } catch(Exception ex) {
+                return null;
+            }
+        }
+        return null;
     }
 
     private static boolean invoke(Object target, String name, Class<?> param, Object arg) {
