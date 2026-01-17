@@ -81,7 +81,7 @@ public class WorldGuardCommands {
             ((ProtectedRegion) in[0].get(sc)).getMembers().clear();
         });
         MundusPlugin.scriptManager.registerFunction("plot.getowners", (sc, in) -> {
-            return ((ProtectedRegion) in[0].get(sc)).getOwners().getUniqueIds();
+            return new ArrayList<>(((ProtectedRegion) in[0].get(sc)).getOwners().getUniqueIds());
         });
         MundusPlugin.scriptManager.registerFunction("plot.add", (sc, in) -> {
             Location l1 = (Location) in[0].get(sc);
