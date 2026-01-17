@@ -29,14 +29,14 @@ public class PlotEvents {
 
     public static void onBlockPlace(BlockPlaceEvent e) {
         Player p = e.getPlayer();
-        if(!canBypass(p) && !WorldPlotMap.canPlaceBlock(e.getBlockPlaced().getLocation(), p)) {
+        if(!canBypass(p) && !PlotProtection.canPlaceBlock(e.getBlockPlaced().getLocation(), p)) {
             e.setCancelled(true);
         }
     }
 
     public static void onBlockBreak(BlockBreakEvent e) {
         Player p = e.getPlayer();
-        if(!canBypass(p) && !WorldPlotMap.canBreakBlock(e.getBlock().getLocation(), p)) {
+        if(!canBypass(p) && !PlotProtection.canBreakBlock(e.getBlock().getLocation(), p)) {
             e.setCancelled(true);
         }
     }
@@ -45,7 +45,7 @@ public class PlotEvents {
         Iterator<Block> iter = e.blockList().iterator();
         while(iter.hasNext()) {
             Block b = iter.next();
-            if(WorldPlotMap.hasPlotAt(b.getLocation())) {
+            if(PlotProtection.hasPlotAt(b.getLocation())) {
                 iter.remove();
             }
         }
@@ -55,7 +55,7 @@ public class PlotEvents {
         Iterator<Block> iter = e.blockList().iterator();
         while(iter.hasNext()) {
             Block b = iter.next();
-            if(WorldPlotMap.hasPlotAt(b.getLocation())) {
+            if(PlotProtection.hasPlotAt(b.getLocation())) {
                 iter.remove();
             }
         }
@@ -64,7 +64,7 @@ public class PlotEvents {
     public static void onPlayerBucket(PlayerBucketEvent e) {
         Block b = e.getBlockClicked();
         if(!canBypass(e.getPlayer())
-                && !WorldPlotMap.canUseBucket(b.getLocation(), e.getPlayer())) {
+                && !PlotProtection.canUseBucket(b.getLocation(), e.getPlayer())) {
             e.setCancelled(true);
         }
     }
@@ -82,12 +82,12 @@ public class PlotEvents {
         } else if(direct instanceof Player) {
             p = (Player) direct;
         } else {
-            if(WorldPlotMap.hasPlotAt(e.getEntity().getLocation())) {
+            if(PlotProtection.hasPlotAt(e.getEntity().getLocation())) {
                 e.setCancelled(true);
             }
             return;
         }
-        if(!canBypass(p) && !WorldPlotMap.canHitAmbientEntity(e.getEntity().getLocation(), p)) {
+        if(!canBypass(p) && !PlotProtection.canHitAmbientEntity(e.getEntity().getLocation(), p)) {
             e.setCancelled(true);
         }
     }
@@ -103,12 +103,12 @@ public class PlotEvents {
         } else if(direct instanceof Player) {
             p = (Player) direct;
         } else {
-            if(WorldPlotMap.hasPlotAt(e.getEntity().getLocation())) {
+            if(PlotProtection.hasPlotAt(e.getEntity().getLocation())) {
                 e.setCancelled(true);
             }
             return;
         }
-        if(!canBypass(p) && !WorldPlotMap.canHitAmbientEntity(e.getEntity().getLocation(), p)) {
+        if(!canBypass(p) && !PlotProtection.canHitAmbientEntity(e.getEntity().getLocation(), p)) {
             e.setCancelled(true);
         }
     }
@@ -118,7 +118,7 @@ public class PlotEvents {
             case COMMAND:
             case CUSTOM:
             case TRIDENT:
-                if(WorldPlotMap.hasPlotAt(e.getLightning().getLocation())) {
+                if(PlotProtection.hasPlotAt(e.getLightning().getLocation())) {
                     e.setCancelled(true);
                 }
                 break;
@@ -142,7 +142,7 @@ public class PlotEvents {
             }
         }
         Player p = e.getPlayer();
-        if(!canBypass(p) && !WorldPlotMap.canInteractWithBlock(b.getLocation(), p)) {
+        if(!canBypass(p) && !PlotProtection.canInteractWithBlock(b.getLocation(), p)) {
             e.setCancelled(true);
         }
     }
@@ -150,7 +150,7 @@ public class PlotEvents {
     public static void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
         Player p = e.getPlayer();
         if(!canBypass(p)
-                && !WorldPlotMap.canInteractWithEntity(e.getRightClicked().getLocation(), p)) {
+                && !PlotProtection.canInteractWithEntity(e.getRightClicked().getLocation(), p)) {
             e.setCancelled(true);
         }
     }
@@ -158,7 +158,7 @@ public class PlotEvents {
     public static void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent e) {
         Player p = e.getPlayer();
         if(!canBypass(p)
-                && !WorldPlotMap.canInteractWithEntity(e.getRightClicked().getLocation(), p)) {
+                && !PlotProtection.canInteractWithEntity(e.getRightClicked().getLocation(), p)) {
             e.setCancelled(true);
         }
     }
@@ -167,7 +167,7 @@ public class PlotEvents {
         if(e.getEntity() instanceof Player) {
             return;
         }
-        if(WorldPlotMap.hasPlotAt(e.getEntity().getLocation())) {
+        if(PlotProtection.hasPlotAt(e.getEntity().getLocation())) {
             e.setCancelled(true);
         }
     }
@@ -189,7 +189,7 @@ public class PlotEvents {
         } else {
             return;
         }
-        if(!canBypass(p) && !WorldPlotMap.canInteractWithBlock(e.getBlock().getLocation(), p)) {
+        if(!canBypass(p) && !PlotProtection.canInteractWithBlock(e.getBlock().getLocation(), p)) {
             e.setCancelled(true);
         }
     }
@@ -197,7 +197,7 @@ public class PlotEvents {
     public static void onPlayerTakeLecternBook(PlayerTakeLecternBookEvent e) {
         Player p = e.getPlayer();
         if(!canBypass(p)
-                && !WorldPlotMap.canInteractWithBlock(e.getLectern().getLocation(), p)) {
+                && !PlotProtection.canInteractWithBlock(e.getLectern().getLocation(), p)) {
             e.setCancelled(true);
         }
     }
