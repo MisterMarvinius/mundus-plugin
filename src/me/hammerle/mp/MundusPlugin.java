@@ -118,6 +118,7 @@ public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
         CitizenCommands.registerFunctions();
         DatabaseCommands.registerFunctions();
         PlotCommands.registerFunctions();
+        WorldGuardCommands.registerFunctions();
         ScriptCommands.registerFunctions();
         ScoreboardCommands.registerFunctions();
         ParticleCommands.registerFunctions();
@@ -134,6 +135,11 @@ public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
         BossBarCommands.registerFunctions();
         Commands.registerFunctions();
         LuckPermsCommands.registerFunctions();
+    }
+
+    @Override
+    public void onLoad() {
+        WorldGuardCommands.registerFlagsOnLoad();
     }
 
     @Override
