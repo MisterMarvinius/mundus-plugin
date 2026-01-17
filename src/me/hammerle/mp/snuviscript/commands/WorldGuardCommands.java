@@ -34,6 +34,10 @@ public class WorldGuardCommands {
     private static IntegerFlag idFlag;
     private static StringFlag nameFlag;
 
+    public static void registerFlagsOnLoad() {
+        registerFlags();
+    }
+
     public static void registerFunctions() {
         registerFlags();
         MundusPlugin.scriptManager.registerFunction("plot.get", (sc, in) -> {

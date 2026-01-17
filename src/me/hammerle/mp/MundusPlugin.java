@@ -138,6 +138,11 @@ public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
     }
 
     @Override
+    public void onLoad() {
+        WorldGuardCommands.registerFlagsOnLoad();
+    }
+
+    @Override
     public void onEnable() {
         enabled = true;
         log("§40.0.1");
