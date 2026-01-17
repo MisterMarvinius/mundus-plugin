@@ -53,9 +53,7 @@ public class DialogCommands {
         }
         if(dialog instanceof DialogSpec) {
             DialogSpec spec = (DialogSpec) dialog;
-            Class<?> dialogClass = dialogClassForPlayer(player);
-            Object built = spec.buildDialog(dialogClass);
-            if(built != null && tryShow(player, built)) {
+            if(tryShowSpec(player, spec)) {
                 return;
             }
             sendFallback(player, spec);
@@ -83,6 +81,31 @@ public class DialogCommands {
             }
         }
         return false;
+    }
+
+    private static boolean tryShowSpec(Player player, DialogSpec spec) {
+        Class<?> dialogClass = dialogClassForPlayer(player);
+        if(tryShowBuilt(player, spec, dialogClass)) {
+            return true;
+        }
+        for(String name : DIALOG_CLASSES) {
+            try {
+                Class<?> fallback = Class.forName(name);
+                if(tryShowBuilt(player, spec, fallback)) {
+                    return true;
+                }
+            } catch(ClassNotFoundException ex) {
+            }
+        }
+        return false;
+    }
+
+    private static boolean tryShowBuilt(Player player, DialogSpec spec, Class<?> dialogClass) {
+        if(dialogClass == null) {
+            return false;
+        }
+        Object built = spec.buildDialog(dialogClass);
+        return built != null && tryShow(player, built);
     }
 
     private static void sendFallback(Player player, DialogSpec spec) {
@@ -204,8 +227,16 @@ public class DialogCommands {
         if(action != null) {
             button = invokeStaticAssignable(buttonClass, "of", new Object[] {spec.label, action});
             if(button == null) {
+                button = invokeStaticAssignable(buttonClass, "of",
+                        new Object[] {action, spec.label});
+            }
+            if(button == null) {
                 button = invokeStaticAssignable(buttonClass, "create",
                         new Object[] {spec.label, action});
+            }
+            if(button == null) {
+                button = invokeStaticAssignable(buttonClass, "create",
+                        new Object[] {action, spec.label});
             }
         }
         if(button == null) {
@@ -240,7 +271,18 @@ public class DialogCommands {
         String prefix = dialogPackagePrefix(dialogClass);
         Class<?> buttonClass = classForPackage(BUTTON_CLASSES, prefix);
         Class<?> actionClass = classForPackage(ACTION_CLASSES, prefix);
-        Object builder = invokeStatic(dialogClass, "builder", Component.class, spec.title);
+        List<Object> builtButtons = new ArrayList<>();
+        for(ButtonSpec button : spec.buttons) {
+            Object builtButton = buildButton(button, buttonClass, actionClass);
+            if(builtButton != null) {
+                builtButtons.add(builtButton);
+            }
+        }
+        Object builder = invokeStaticAssignable(dialogClass, "builder",
+                new Object[] {spec.title, spec.body});
+        if(builder == null) {
+            builder = invokeStatic(dialogClass, "builder", Component.class, spec.title);
+        }
         if(builder == null) {
             builder = invokeStatic(dialogClass, "builder");
         }
@@ -249,11 +291,7 @@ public class DialogCommands {
             if(!invoke(builder, "body", Component.class, spec.body)) {
                 invoke(builder, "content", Component.class, spec.body);
             }
-            for(ButtonSpec button : spec.buttons) {
-                Object builtButton = buildButton(button, buttonClass, actionClass);
-                if(builtButton == null) {
-                    continue;
-                }
+            for(Object builtButton : builtButtons) {
                 if(!invoke(builder, "button", builtButton.getClass(), builtButton)) {
                     invoke(builder, "addButton", builtButton.getClass(), builtButton);
                 }
@@ -264,8 +302,25 @@ public class DialogCommands {
             }
             return invoke(builder, "create");
         }
-        Object dialog = invokeStatic(dialogClass, "create", Component.class, Component.class,
-                spec.title, spec.body);
+        Object dialog = invokeStaticAssignable(dialogClass, "create",
+                new Object[] {spec.title, spec.body, builtButtons});
+        if(dialog == null && !builtButtons.isEmpty()) {
+            dialog = invokeStaticAssignable(dialogClass, "create",
+                    varargs(spec.title, spec.body, builtButtons));
+        }
+        if(dialog == null) {
+            dialog = invokeStatic(dialogClass, "create", Component.class, Component.class,
+                    spec.title, spec.body);
+        }
+        if(dialog != null) {
+            return dialog;
+        }
+        dialog = invokeStaticAssignable(dialogClass, "of",
+                new Object[] {spec.title, spec.body, builtButtons});
+        if(dialog == null && !builtButtons.isEmpty()) {
+            dialog = invokeStaticAssignable(dialogClass, "of",
+                    varargs(spec.title, spec.body, builtButtons));
+        }
         if(dialog != null) {
             return dialog;
         }
@@ -313,13 +368,34 @@ public class DialogCommands {
             return null;
         }
         for(Method method : type.getMethods()) {
-            if(!method.getName().equals(name) || method.getParameterCount() != args.length) {
+            if(!method.getName().equals(name)) {
                 continue;
             }
             Class<?>[] params = method.getParameterTypes();
+            if(method.isVarArgs()) {
+                int fixedCount = params.length - 1;
+                if(args.length < fixedCount) {
+                    continue;
+                }
+                if(!areAssignable(args, params, fixedCount)) {
+                    continue;
+                }
+                Object[] varargs = buildVarArgs(args, params, fixedCount);
+                if(varargs == null) {
+                    continue;
+                }
+                try {
+                    return method.invoke(null, varargs);
+                } catch(Exception ex) {
+                    return null;
+                }
+            }
+            if(params.length != args.length) {
+                continue;
+            }
             boolean matches = true;
             for(int i = 0; i < params.length; i++) {
-                if(args[i] == null || !params[i].isInstance(args[i])) {
+                if(!isAssignable(params[i], args[i])) {
                     matches = false;
                     break;
                 }
@@ -334,6 +410,55 @@ public class DialogCommands {
             }
         }
         return null;
+    }
+
+    private static boolean areAssignable(Object[] args, Class<?>[] params, int fixedCount) {
+        for(int i = 0; i < fixedCount; i++) {
+            if(!isAssignable(params[i], args[i])) {
+                return false;
+            }
+        }
+        Class<?> varargType = params[fixedCount].getComponentType();
+        for(int i = fixedCount; i < args.length; i++) {
+            if(!isAssignable(varargType, args[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static Object[] buildVarArgs(Object[] args, Class<?>[] params, int fixedCount) {
+        Class<?> varargType = params[fixedCount].getComponentType();
+        Object array = java.lang.reflect.Array.newInstance(varargType, args.length - fixedCount);
+        for(int i = fixedCount; i < args.length; i++) {
+            if(!isAssignable(varargType, args[i])) {
+                return null;
+            }
+            java.lang.reflect.Array.set(array, i - fixedCount, args[i]);
+        }
+        Object[] invocation = new Object[params.length];
+        for(int i = 0; i < fixedCount; i++) {
+            invocation[i] = args[i];
+        }
+        invocation[fixedCount] = array;
+        return invocation;
+    }
+
+    private static boolean isAssignable(Class<?> param, Object arg) {
+        if(arg == null) {
+            return !param.isPrimitive();
+        }
+        return param.isInstance(arg);
+    }
+
+    private static Object[] varargs(Object first, Object second, List<Object> rest) {
+        Object[] args = new Object[2 + rest.size()];
+        args[0] = first;
+        args[1] = second;
+        for(int i = 0; i < rest.size(); i++) {
+            args[i + 2] = rest.get(i);
+        }
+        return args;
     }
 
     private static boolean invoke(Object target, String name, Class<?> param, Object arg) {
