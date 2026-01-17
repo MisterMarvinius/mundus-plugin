@@ -279,7 +279,15 @@ public class DialogCommands {
             }
         }
         Object builder = invokeStaticAssignable(dialogClass, "builder",
-                new Object[] {spec.title, spec.body});
+                new Object[] {spec.title, spec.body, builtButtons});
+        if(builder == null && !builtButtons.isEmpty()) {
+            builder = invokeStaticAssignable(dialogClass, "builder",
+                    varargs(spec.title, spec.body, builtButtons));
+        }
+        if(builder == null) {
+            builder = invokeStaticAssignable(dialogClass, "builder",
+                    new Object[] {spec.title, spec.body});
+        }
         if(builder == null) {
             builder = invokeStatic(dialogClass, "builder", Component.class, spec.title);
         }
@@ -291,11 +299,7 @@ public class DialogCommands {
             if(!invoke(builder, "body", Component.class, spec.body)) {
                 invoke(builder, "content", Component.class, spec.body);
             }
-            for(Object builtButton : builtButtons) {
-                if(!invoke(builder, "button", builtButton.getClass(), builtButton)) {
-                    invoke(builder, "addButton", builtButton.getClass(), builtButton);
-                }
-            }
+            applyButtons(builder, builtButtons);
             Object built = invoke(builder, "build");
             if(built != null) {
                 return built;
@@ -326,6 +330,29 @@ public class DialogCommands {
         }
         return invokeStatic(dialogClass, "of", Component.class, Component.class, spec.title,
                 spec.body);
+    }
+
+    private static void applyButtons(Object builder, List<Object> buttons) {
+        if(builder == null || buttons.isEmpty()) {
+            return;
+        }
+        if(invoke(builder, "buttons", List.class, buttons)) {
+            return;
+        }
+        if(invoke(builder, "setButtons", List.class, buttons)) {
+            return;
+        }
+        if(invokeAssignable(builder, "buttons", varargs(buttons))) {
+            return;
+        }
+        if(invokeAssignable(builder, "setButtons", varargs(buttons))) {
+            return;
+        }
+        for(Object builtButton : buttons) {
+            if(!invoke(builder, "button", builtButton.getClass(), builtButton)) {
+                invoke(builder, "addButton", builtButton.getClass(), builtButton);
+            }
+        }
     }
 
     private static Object invokeStatic(Class<?> type, String name, Class<?> param,
@@ -412,6 +439,58 @@ public class DialogCommands {
         return null;
     }
 
+    private static boolean invokeAssignable(Object target, String name, Object[] args) {
+        if(target == null) {
+            return false;
+        }
+        for(Method method : target.getClass().getMethods()) {
+            if(!method.getName().equals(name)) {
+                continue;
+            }
+            if(invokeAssignableWithMethod(target, method, args)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean invokeAssignableWithMethod(Object target, Method method, Object[] args) {
+        Class<?>[] params = method.getParameterTypes();
+        if(method.isVarArgs()) {
+            int fixedCount = params.length - 1;
+            if(args.length < fixedCount) {
+                return false;
+            }
+            if(!areAssignable(args, params, fixedCount)) {
+                return false;
+            }
+            Object[] varargs = buildVarArgs(args, params, fixedCount);
+            if(varargs == null) {
+                return false;
+            }
+            try {
+                method.invoke(target, varargs);
+                return true;
+            } catch(Exception ex) {
+                return false;
+            }
+        }
+        if(params.length != args.length) {
+            return false;
+        }
+        for(int i = 0; i < params.length; i++) {
+            if(!isAssignable(params[i], args[i])) {
+                return false;
+            }
+        }
+        try {
+            method.invoke(target, args);
+            return true;
+        } catch(Exception ex) {
+            return false;
+        }
+    }
+
     private static boolean areAssignable(Object[] args, Class<?>[] params, int fixedCount) {
         for(int i = 0; i < fixedCount; i++) {
             if(!isAssignable(params[i], args[i])) {
@@ -457,6 +536,14 @@ public class DialogCommands {
         args[1] = second;
         for(int i = 0; i < rest.size(); i++) {
             args[i + 2] = rest.get(i);
+        }
+        return args;
+    }
+
+    private static Object[] varargs(List<Object> rest) {
+        Object[] args = new Object[rest.size()];
+        for(int i = 0; i < rest.size(); i++) {
+            args[i] = rest.get(i);
         }
         return args;
     }
