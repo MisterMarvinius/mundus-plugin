@@ -1,6 +1,5 @@
 package me.hammerle.mp.plots;
 
-import java.util.Collection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -51,7 +50,8 @@ public final class PlotProtection {
     }
 
     private static ApplicableRegionSet getRegions(Location l) {
-        RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
+        RegionQuery query =
+                WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
         return query.getApplicableRegions(BukkitAdapter.adapt(l));
     }
 
@@ -61,7 +61,8 @@ public final class PlotProtection {
         }
         WorldGuardPlugin plugin =
                 (WorldGuardPlugin) Bukkit.getPluginManager().getPlugin("WorldGuard");
-        RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
+        RegionQuery query =
+                WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
         return query.testBuild(BukkitAdapter.adapt(l), plugin.wrapPlayer(p));
     }
 }
