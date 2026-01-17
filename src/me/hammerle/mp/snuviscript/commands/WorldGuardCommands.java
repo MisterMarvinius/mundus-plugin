@@ -60,6 +60,22 @@ public class WorldGuardCommands {
         MundusPlugin.scriptManager.registerFunction("plot.getflags", (sc, in) -> {
             return (double) getFlags((ProtectedRegion) in[0].get(sc));
         });
+        MundusPlugin.scriptManager.registerConsumer("plot.addowner", (sc, in) -> {
+            ProtectedRegion r = (ProtectedRegion) in[0].get(sc);
+            UUID u = CommandUtils.getUUID(in[1].get(sc));
+            r.getOwners().addPlayer(u);
+        });
+        MundusPlugin.scriptManager.registerConsumer("plot.addmember", (sc, in) -> {
+            ProtectedRegion r = (ProtectedRegion) in[0].get(sc);
+            UUID u = CommandUtils.getUUID(in[1].get(sc));
+            r.getMembers().addPlayer(u);
+        });
+        MundusPlugin.scriptManager.registerConsumer("plot.clearowners", (sc, in) -> {
+            ((ProtectedRegion) in[0].get(sc)).getOwners().clear();
+        });
+        MundusPlugin.scriptManager.registerConsumer("plot.clearmembers", (sc, in) -> {
+            ((ProtectedRegion) in[0].get(sc)).getMembers().clear();
+        });
         MundusPlugin.scriptManager.registerFunction("plot.getowners", (sc, in) -> {
             return ((ProtectedRegion) in[0].get(sc)).getOwners().getUniqueIds();
         });
@@ -341,6 +357,7 @@ public class WorldGuardCommands {
     private static void saveBlocks(World w) {}
 
     private static RegionManager getRegionManager(World w) {
-        return WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(w));
+        return WorldGuard.getInstance().getPlatform().getRegionContainer()
+                .get(BukkitAdapter.adapt(w));
     }
 }
