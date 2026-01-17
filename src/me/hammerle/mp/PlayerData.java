@@ -1,11 +1,11 @@
 package me.hammerle.mp;
 
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -16,8 +16,8 @@ import me.hammerle.mp.snuviscript.ScriptEvents;
 import net.kyori.adventure.text.Component;
 
 public class PlayerData {
-    private final static String TAG = "mundusplugin";
     private final static int MAX_LENGTH = 40;
+    private static final Map<UUID, PlayerData> PLAYER_DATA = new ConcurrentHashMap<>();
 
     private Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
     private Objective objective;
@@ -135,12 +135,6 @@ public class PlayerData {
     }
 
     public static PlayerData get(Player p) {
-        List<MetadataValue> list = p.getMetadata(TAG);
-        if(list == null || list.isEmpty()) {
-            PlayerData data = new PlayerData(p);
-            p.setMetadata(TAG, new FixedMetadataValue(MundusPlugin.instance, data));
-            return data;
-        }
-        return (PlayerData) list.get(0).value();
+        return PLAYER_DATA.computeIfAbsent(p.getUniqueId(), id -> new PlayerData(p));
     }
 }
