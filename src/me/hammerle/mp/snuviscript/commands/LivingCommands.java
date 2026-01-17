@@ -10,7 +10,6 @@ import org.bukkit.entity.LeashHitch;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LeashHitch;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
@@ -22,47 +21,41 @@ import me.hammerle.mp.MundusPlugin;
 import me.hammerle.snuviscript.exceptions.StackTrace;
 
 public class LivingCommands {
-    private static String getName(Attribute a) {
-        String name = a.toString();
-        name = name.toLowerCase();
-        name = name.replace("_", "");
-        if(name.startsWith("generic")) {
-            return name.substring(7);
-        }
-        return name;
-    }
-
     @SuppressWarnings("unchecked")
     public static void registerFunctions() {
-        for (Attribute a : Registry.ATTRIBUTE) {
-            NamespacedKey key = a.getKey();                 // e.g. minecraft:max_health
-            String path = key.getKey();                     // e.g. max_health
-            String name = path.toLowerCase().replace("_", "");  // maxhealth
+        for(Attribute a : Registry.ATTRIBUTE) {
+            NamespacedKey key = a.getKey(); // e.g. minecraft:max_health
+            String path = key.getKey(); // e.g. max_health
+            String name = path.toLowerCase().replace("_", ""); // maxhealth
 
             String setCmd = "living.set" + name;
             String getCmd = "living.get" + name;
             String resetCmd = "living.reset" + name;
 
-            MundusPlugin.log("[ScriptCmd] " + a.getKey() + " -> " + setCmd + ", " + getCmd + ", " + resetCmd);
+            MundusPlugin.log("[ScriptCmd] " + a.getKey() + " -> " + setCmd + ", " + getCmd + ", "
+                    + resetCmd);
 
             MundusPlugin.scriptManager.registerConsumer(setCmd, (sc, in) -> {
                 LivingEntity liv = (LivingEntity) in[0].get(sc);
                 AttributeInstance instance = liv.getAttribute(a);
-                if (instance == null) return;
+                if(instance == null)
+                    return;
                 instance.setBaseValue(in[1].getDouble(sc));
             });
 
             MundusPlugin.scriptManager.registerFunction(getCmd, (sc, in) -> {
                 LivingEntity liv = (LivingEntity) in[0].get(sc);
                 AttributeInstance instance = liv.getAttribute(a);
-                if (instance == null) return 0.0;
+                if(instance == null)
+                    return 0.0;
                 return instance.getBaseValue();
             });
 
             MundusPlugin.scriptManager.registerConsumer(resetCmd, (sc, in) -> {
                 LivingEntity liv = (LivingEntity) in[0].get(sc);
                 AttributeInstance instance = liv.getAttribute(a);
-                if (instance == null) return;
+                if(instance == null)
+                    return;
                 instance.setBaseValue(instance.getDefaultValue());
             });
         }
@@ -174,9 +167,10 @@ public class LivingCommands {
             try {
                 LivingEntity liv = (LivingEntity) in[0].get(sc);
                 Entity holder = liv.getLeashHolder();
-                if (holder == null) return null;
+                if(holder == null)
+                    return null;
                 // If it's leashed to a fence knot, return the location
-                if (holder instanceof LeashHitch) {
+                if(holder instanceof LeashHitch) {
                     return holder.getLocation();
                 }
                 return holder;

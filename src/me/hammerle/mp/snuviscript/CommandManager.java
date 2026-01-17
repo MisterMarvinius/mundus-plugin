@@ -3,12 +3,10 @@ package me.hammerle.mp.snuviscript;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import me.hammerle.mp.MundusPlugin;
 import com.mojang.brigadier.tree.CommandNode;
 
 public class CommandManager {
