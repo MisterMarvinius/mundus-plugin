@@ -56,6 +56,8 @@ public class LocationCommands {
                 (sc, in) -> (double) ((Location) in[0].get(sc)).getPitch());
         MundusPlugin.scriptManager.registerFunction("loc.getworld",
                 (sc, in) -> ((Location) in[0].get(sc)).getWorld());
+        MundusPlugin.scriptManager.registerFunction("loc.ischunkloaded",
+                (sc, in) -> ((Location) in[0].get(sc)).isChunkLoaded());
         MundusPlugin.scriptManager.registerFunction("loc.distance",
                 (sc, in) -> ((Location) in[0].get(sc)).distance((Location) in[1].get(sc)));
         MundusPlugin.scriptManager.registerFunction("loc.mod",
