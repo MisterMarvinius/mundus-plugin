@@ -136,6 +136,9 @@ public class EntityCommands {
             Object o = in[0].get(sc);
             if(o instanceof Location) {
                 Location l = (Location) o;
+                if(!l.isChunkLoaded()) {
+                    l.getChunk().load();
+                }
                 return l.getWorld().getNearbyEntitiesByType(Entity.class, l, in[1].getDouble(sc));
             }
             Entity ent = (Entity) o;
