@@ -79,7 +79,6 @@ public class Events implements Listener {
             return;
         }
         Player p = e.getPlayer();
-        CommandManager.clearPermissions(p);
         PlayerData.get(p).login(p);
         PlayerCommands.join(p);
         ScriptEvents.onPlayerJoin(e);

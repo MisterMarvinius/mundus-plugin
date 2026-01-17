@@ -24,8 +24,6 @@ import me.hammerle.snuviscript.config.SnuviConfig;
 import me.hammerle.snuviscript.code.ISnuviScheduler;
 import me.hammerle.snuviscript.code.ScriptManager;
 import me.hammerle.snuviscript.code.Script;
-import org.bukkit.permissions.Permissible;
-import org.bukkit.permissions.PermissionAttachment;
 
 public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
     private static PrivateKey privateKey = null;
@@ -104,7 +102,6 @@ public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
 
     private static void registerFunctions() {
         CommandCommands.registerFunctions();
-        PermissionCommands.registerFunctions();
         TableCommands.registerFunctions();
         TitleCommands.registerFunctions();
         PlayerCommands.registerFunctions();
@@ -137,10 +134,6 @@ public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
         BossBarCommands.registerFunctions();
         Commands.registerFunctions();
         LuckPermsCommands.registerFunctions();
-    }
-
-    public static PermissionAttachment addPermissions(Permissible p) {
-        return p.addAttachment(instance);
     }
 
     @Override
