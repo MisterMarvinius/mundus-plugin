@@ -92,17 +92,17 @@ public class WorldGuardCommands {
                         in[2].getInt(sc), in[3].getInt(sc), in[4].getInt(sc), in[5].getInt(sc),
                         in[6].getInt(sc)));
         MundusPlugin.scriptManager.registerFunction("plot.getminx",
-                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMinimumPoint().getBlockX());
+                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMinimumPoint().x());
         MundusPlugin.scriptManager.registerFunction("plot.getminy",
-                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMinimumPoint().getBlockY());
+                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMinimumPoint().y());
         MundusPlugin.scriptManager.registerFunction("plot.getminz",
-                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMinimumPoint().getBlockZ());
+                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMinimumPoint().z());
         MundusPlugin.scriptManager.registerFunction("plot.getmaxx",
-                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMaximumPoint().getBlockX());
+                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMaximumPoint().x());
         MundusPlugin.scriptManager.registerFunction("plot.getmaxy",
-                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMaximumPoint().getBlockY());
+                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMaximumPoint().y());
         MundusPlugin.scriptManager.registerFunction("plot.getmaxz",
-                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMaximumPoint().getBlockZ());
+                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMaximumPoint().z());
         MundusPlugin.scriptManager.registerConsumer("plot.addblock", (sc, in) -> {
             addInteractBlock((Location) in[0].get(sc));
         });
@@ -282,9 +282,9 @@ public class WorldGuardCommands {
         for(ProtectedRegion region : manager.getRegions().values()) {
             BlockVector3 rMin = region.getMinimumPoint();
             BlockVector3 rMax = region.getMaximumPoint();
-            boolean intersects = rMin.getBlockX() <= normMaxX && rMax.getBlockX() >= normMinX
-                    && rMin.getBlockY() <= normMaxY && rMax.getBlockY() >= normMinY
-                    && rMin.getBlockZ() <= normMaxZ && rMax.getBlockZ() >= normMinZ;
+            boolean intersects = rMin.x() <= normMaxX && rMax.x() >= normMinX
+                    && rMin.y() <= normMaxY && rMax.y() >= normMinY
+                    && rMin.z() <= normMaxZ && rMax.z() >= normMinZ;
             if(intersects) {
                 list.add(region);
             }
