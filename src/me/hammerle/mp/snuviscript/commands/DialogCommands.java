@@ -53,7 +53,8 @@ public class DialogCommands {
         }
         if(dialog instanceof DialogSpec) {
             DialogSpec spec = (DialogSpec) dialog;
-            Object built = spec.buildDialog();
+            Class<?> dialogClass = dialogClassForPlayer(player);
+            Object built = spec.buildDialog(dialogClass);
             if(built != null && tryShow(player, built)) {
                 return;
             }
@@ -112,8 +113,46 @@ public class DialogCommands {
         return null;
     }
 
-    private static Object buildAction(String actionType, String actionValue) {
-        Class<?> actionClass = firstClass(ACTION_CLASSES);
+    private static Class<?> dialogClassForPlayer(Player player) {
+        for(Method method : player.getClass().getMethods()) {
+            if(!method.getName().equals("showDialog") || method.getParameterCount() != 1) {
+                continue;
+            }
+            return method.getParameterTypes()[0];
+        }
+        return null;
+    }
+
+    private static Class<?> classForPackage(String[] names, String prefix) {
+        if(prefix != null) {
+            for(String name : names) {
+                if(!name.startsWith(prefix)) {
+                    continue;
+                }
+                try {
+                    return Class.forName(name);
+                } catch(ClassNotFoundException ex) {
+                }
+            }
+        }
+        return firstClass(names);
+    }
+
+    private static String dialogPackagePrefix(Class<?> dialogClass) {
+        if(dialogClass == null) {
+            return null;
+        }
+        String name = dialogClass.getName();
+        if(name.startsWith("io.papermc.paper.dialog.")) {
+            return "io.papermc.paper.dialog.";
+        }
+        if(name.startsWith("net.kyori.adventure.dialog.")) {
+            return "net.kyori.adventure.dialog.";
+        }
+        return null;
+    }
+
+    private static Object buildAction(String actionType, String actionValue, Class<?> actionClass) {
         if(actionClass == null) {
             return null;
         }
@@ -136,12 +175,11 @@ public class DialogCommands {
         return null;
     }
 
-    private static Object buildButton(ButtonSpec spec) {
-        Class<?> buttonClass = firstClass(BUTTON_CLASSES);
+    private static Object buildButton(ButtonSpec spec, Class<?> buttonClass, Class<?> actionClass) {
         if(buttonClass == null) {
             return null;
         }
-        Object action = buildAction(spec.actionType, spec.actionValue);
+        Object action = buildAction(spec.actionType, spec.actionValue, actionClass);
         Object button = invokeStatic(buttonClass, "of", Component.class, spec.label);
         if(button == null && action != null) {
             button = invokeStatic(buttonClass, "of", Component.class, action.getClass(),
@@ -166,11 +204,16 @@ public class DialogCommands {
         return button;
     }
 
-    private static Object buildDialog(DialogSpec spec) {
-        Class<?> dialogClass = firstClass(DIALOG_CLASSES);
+    private static Object buildDialog(DialogSpec spec, Class<?> dialogClass) {
+        if(dialogClass == null) {
+            dialogClass = firstClass(DIALOG_CLASSES);
+        }
         if(dialogClass == null) {
             return null;
         }
+        String prefix = dialogPackagePrefix(dialogClass);
+        Class<?> buttonClass = classForPackage(BUTTON_CLASSES, prefix);
+        Class<?> actionClass = classForPackage(ACTION_CLASSES, prefix);
         Object builder = invokeStatic(dialogClass, "builder", Component.class, spec.title);
         if(builder == null) {
             builder = invokeStatic(dialogClass, "builder");
@@ -181,7 +224,7 @@ public class DialogCommands {
                 invoke(builder, "content", Component.class, spec.body);
             }
             for(ButtonSpec button : spec.buttons) {
-                Object builtButton = buildButton(button);
+                Object builtButton = buildButton(button, buttonClass, actionClass);
                 if(builtButton == null) {
                     continue;
                 }
@@ -302,7 +345,11 @@ public class DialogCommands {
         }
 
         Object buildDialog() {
-            return DialogCommands.buildDialog(this);
+            return DialogCommands.buildDialog(this, null);
+        }
+
+        Object buildDialog(Class<?> dialogClass) {
+            return DialogCommands.buildDialog(this, dialogClass);
         }
     }
 
