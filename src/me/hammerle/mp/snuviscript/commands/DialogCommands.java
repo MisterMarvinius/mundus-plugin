@@ -135,7 +135,7 @@ public class DialogCommands {
         if(value != null && !value.isBlank()) {
             try {
                 return Key.key(value);
-            } catch(IllegalArgumentException ex) {
+            } catch(RuntimeException ex) {
                 // fall through to generated key
             }
         }
