@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import me.hammerle.mp.MundusPlugin;
 import net.kyori.adventure.text.Component;
 
@@ -102,7 +103,7 @@ public class SkillsCommands {
             String key = in[0].getString(sc);
             Object nameValue = in.length > 1 ? in[1].get(sc) : key;
             String displayName = nameValue instanceof Component
-                    ? ((Component) nameValue).toString()
+                    ? componentToString((Component) nameValue)
                     : Objects.toString(nameValue, key);
             Component displayComponent = nameValue instanceof Component
                     ? (Component) nameValue
@@ -247,6 +248,11 @@ public class SkillsCommands {
                 Object api = invokeStatic(apiClass, "get", "getInstance", "getApi", "getAPI");
                 if(api != null) {
                     return api;
+                }
+                RegisteredServiceProvider<?> provider =
+                        Bukkit.getServicesManager().getRegistration(apiClass);
+                if(provider != null && provider.getProvider() != null) {
+                    return provider.getProvider();
                 }
             } catch(ClassNotFoundException ex) {
                 // ignore
@@ -545,5 +551,22 @@ public class SkillsCommands {
             return 0d;
         }
         return Double.parseDouble(value.toString());
+    }
+
+    private static String componentToString(Component component) {
+        try {
+            Class<?> serializerClass = Class.forName(
+                    "net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer");
+            Method plainTextMethod = serializerClass.getMethod("plainText");
+            Object serializer = plainTextMethod.invoke(null);
+            Method serializeMethod = serializerClass.getMethod("serialize", Component.class);
+            Object result = serializeMethod.invoke(serializer, component);
+            if(result != null) {
+                return result.toString();
+            }
+        } catch(Exception ex) {
+            // ignore and fallback
+        }
+        return component.toString();
     }
 }
