@@ -2,10 +2,8 @@ package me.hammerle.mp.snuviscript.commands;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import org.bukkit.entity.Player;
 import io.papermc.paper.dialog.Dialog;
-import io.papermc.paper.dialog.DialogResponseView;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
