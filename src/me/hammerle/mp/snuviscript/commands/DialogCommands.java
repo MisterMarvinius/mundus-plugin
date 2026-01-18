@@ -92,8 +92,14 @@ public class DialogCommands {
     }
 
     private static DialogAction createAction(String type, String value) {
-        // commandTemplate executes a command with variables
+        // commandTemplate executes a command with variables, plain command executes directly
         if("command".equalsIgnoreCase(type) || "run".equalsIgnoreCase(type)) {
+            if(value != null && value.contains("${")) {
+                return DialogAction.commandTemplate(value);
+            }
+            return DialogAction.command(value);
+        }
+        if("commandTemplate".equalsIgnoreCase(type) || "template".equalsIgnoreCase(type)) {
             return DialogAction.commandTemplate(value);
         }
         // customClick will later be captured with PlayerCustomClickEvent
