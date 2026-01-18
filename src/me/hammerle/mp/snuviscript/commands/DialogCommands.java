@@ -12,6 +12,7 @@ import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.key.Key;
 import me.hammerle.mp.MundusPlugin;
 
 public class DialogCommands {
@@ -99,7 +100,7 @@ public class DialogCommands {
         }
         // customClick will later be captured with PlayerCustomClickEvent
         if("custom".equalsIgnoreCase(type)) {
-            return DialogAction.customClick(value, null);
+            return DialogAction.customClick(Key.key(value), null);
         }
         // staticAction allows basic built-in click behavior
         return DialogAction.staticAction(null);
