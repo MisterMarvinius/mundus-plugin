@@ -2,16 +2,15 @@ package me.hammerle.mp.snuviscript.commands;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import org.bukkit.entity.Player;
 import io.papermc.paper.dialog.Dialog;
-import io.papermc.paper.dialog.DialogResponseView;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.key.Key;
 import me.hammerle.mp.MundusPlugin;
 
 public class DialogCommands {
@@ -80,13 +79,15 @@ public class DialogCommands {
         }
 
         Dialog build() {
-            return Dialog.create(builder -> builder
-                    .empty()
-                    .base(DialogBase.builder(title)
-                            .body(List.of(DialogBody.plainMessage(body)))
-                            .build())
-            //.type(DialogType.multiAction(buttons))
-            );
+            return Dialog.create(builder -> {
+                var dialogBuilder = builder.empty()
+                        .base(DialogBase.builder(title)
+                                .body(List.of(DialogBody.plainMessage(body)))
+                                .build());
+                if(!buttons.isEmpty()) {
+                    dialogBuilder.type(DialogType.multiAction(List.copyOf(buttons)).build());
+                }
+            });
         }
     }
 
@@ -96,9 +97,9 @@ public class DialogCommands {
             return DialogAction.commandTemplate(value);
         }
         // customClick will later be captured with PlayerCustomClickEvent
-        //if("custom".equalsIgnoreCase(type)) {
-        //    return DialogAction.customClick(value, null);
-        //}
+        if("custom".equalsIgnoreCase(type)) {
+            return DialogAction.customClick(Key.key(value), null);
+        }
         // staticAction allows basic built-in click behavior
         return DialogAction.staticAction(null);
     }
