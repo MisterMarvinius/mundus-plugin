@@ -16,7 +16,7 @@ import java.util.jar.JarFile;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import net.kyori.adventure.text.Component;
@@ -111,13 +111,19 @@ public class DialogCommands {
             return;
         }
         listenerRegistered = true;
-        Bukkit.getPluginManager().registerEvents(new DialogCommandListener(),
-                MundusPlugin.instance);
+        Class<? extends Event> customEventClass = UniDialogBridge.getCustomClickEventClass();
+        if(customEventClass == null) {
+            MundusPlugin.instance.getLogger()
+                    .warning("UniDialog custom click event not available; dialogs won't dispatch commands.");
+            return;
+        }
+        DialogCommandListener listener = new DialogCommandListener();
+        Bukkit.getPluginManager().registerEvent(customEventClass, listener, EventPriority.NORMAL,
+                (ignored, event) -> listener.handleCustomClick(event), MundusPlugin.instance);
     }
 
     private static class DialogCommandListener implements Listener {
-        @EventHandler
-        public void onCustomClick(Event event) {
+        public void handleCustomClick(Event event) {
             if(!UniDialogBridge.isCustomClickEvent(event)) {
                 return;
             }
@@ -181,6 +187,13 @@ public class DialogCommands {
                 return null;
             }
             return REFLECTION.resolvePlayer(event);
+        }
+
+        static Class<? extends Event> getCustomClickEventClass() {
+            if(REFLECTION == null) {
+                return null;
+            }
+            return REFLECTION.getCustomClickEventClass();
         }
     }
 
@@ -300,6 +313,13 @@ public class DialogCommands {
                 return null;
             }
             return null;
+        }
+
+        Class<? extends Event> getCustomClickEventClass() {
+            if(customClickEventClass == null) {
+                return null;
+            }
+            return customClickEventClass.asSubclass(Event.class);
         }
 
         private Object buildDialog(DialogBuilderSpec spec) {
