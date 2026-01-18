@@ -2,6 +2,7 @@ package me.hammerle.mp.snuviscript.commands;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,6 +18,7 @@ import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.key.Key;
 import me.hammerle.mp.MundusPlugin;
 
@@ -103,32 +105,44 @@ public class DialogCommands {
     }
 
     private static DialogAction createAction(String type, String value) {
-        // commandTemplate executes a command with variables, plain command executes directly
-        if("command".equalsIgnoreCase(type) || "run".equalsIgnoreCase(type)) {
-            return createCommandAction(value);
+        if(value == null)
+            value = "";
+
+        switch(type.toLowerCase(Locale.ROOT)) {
+            case "command":
+            case "run":
+                return DialogAction.staticAction(ClickEvent.runCommand(normalizeCommand(value)));
+
+            case "suggest":
+            case "suggestcommand":
+                return DialogAction
+                        .staticAction(ClickEvent.suggestCommand(normalizeCommand(value)));
+
+            case "url":
+            case "openurl":
+                return DialogAction.staticAction(ClickEvent.openUrl(value));
+
+            case "copy":
+            case "copytext":
+                return DialogAction.staticAction(ClickEvent.copyToClipboard(value));
+
+            case "commandtemplate":
+            case "template":
+                // NOTE: Paper uses $(var) syntax, not ${var}
+                return DialogAction.commandTemplate(value);
+
+            case "custom":
+                return DialogAction.customClick(createCustomKey(value), null);
+
+            default:
+                // If you want "No action", don't add an action at all, or use a custom click you ignore.
+                return DialogAction.customClick(createCustomKey("noop"), null);
         }
-        if("commandTemplate".equalsIgnoreCase(type) || "template".equalsIgnoreCase(type)) {
-            return DialogAction.commandTemplate(value);
-        }
-        // customClick will later be captured with PlayerCustomClickEvent
-        if("custom".equalsIgnoreCase(type)) {
-            return DialogAction.customClick(createCustomKey(value), null);
-        }
-        // staticAction allows basic built-in click behavior
-        return DialogAction.staticAction(null);
     }
 
-    private static DialogAction createCommandAction(String value) {
-        if(value != null && value.contains("${")) {
-            return DialogAction.commandTemplate(value);
-        }
-        DialogAction directAction = tryCreateDirectCommandAction(value);
-        if(directAction != null) {
-            return directAction;
-        }
-        Key key = Key.key("mundus", "command/" + UUID.randomUUID());
-        COMMAND_ACTIONS.put(key, value);
-        return DialogAction.customClick(key, null);
+    private static String normalizeCommand(String cmd) {
+        cmd = cmd.trim();
+        return cmd.startsWith("/") ? cmd : "/" + cmd;
     }
 
     private static Key createCustomKey(String value) {
@@ -144,37 +158,19 @@ public class DialogCommands {
         return key;
     }
 
-    private static DialogAction tryCreateDirectCommandAction(String value) {
-        if(value == null || value.isBlank()) {
-            return null;
-        }
-        String[] candidates = {"command", "runCommand", "executeCommand"};
-        for(String name : candidates) {
-            try {
-                var method = DialogAction.class.getMethod(name, String.class);
-                return (DialogAction) method.invoke(null, value);
-            } catch(ReflectiveOperationException ex) {
-                // continue to next candidate
-            }
-        }
-        return null;
-    }
-
     private static void registerListener() {
         if(listenerRegistered) {
             return;
         }
         listenerRegistered = true;
-        Bukkit.getPluginManager().registerEvents(new DialogCommandListener(), MundusPlugin.instance);
+        Bukkit.getPluginManager().registerEvents(new DialogCommandListener(),
+                MundusPlugin.instance);
     }
 
     private static class DialogCommandListener implements Listener {
         @EventHandler
         public void onCustomClick(PlayerCustomClickEvent event) {
-            Key key = resolveKey(event);
-            if(key == null) {
-                return;
-            }
+            Key key = event.getIdentifier();
             String command = COMMAND_ACTIONS.get(key);
             if(command == null || command.isBlank()) {
                 return;
@@ -187,18 +183,6 @@ public class DialogCommands {
                 command = command.substring(1);
             }
             player.performCommand(command);
-        }
-
-        private Key resolveKey(PlayerCustomClickEvent event) {
-            try {
-                return (Key) event.getClass().getMethod("key").invoke(event);
-            } catch(ReflectiveOperationException ex) {
-                try {
-                    return (Key) event.getClass().getMethod("getKey").invoke(event);
-                } catch(ReflectiveOperationException ex2) {
-                    return null;
-                }
-            }
         }
 
         private Player resolvePlayer(PlayerCustomClickEvent event) {
