@@ -10,10 +10,12 @@ import java.util.Objects;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import me.hammerle.mp.MundusPlugin;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 
 public class SkillsCommands {
@@ -110,8 +112,10 @@ public class SkillsCommands {
                     : Component.text(displayName);
             String iconName = in.length > 2 ? in[2].getString(sc) : null;
             List<String> description = in.length > 3 ? toStringList(in[3].get(sc)) : null;
+            List<Component> descriptionComponents = toComponentList(description);
             Integer maxLevel = in.length > 4 ? in[4].getInt(sc) : null;
-            registerCustomSkill(key, displayName, displayComponent, iconName, description, maxLevel);
+            registerCustomSkill(key, displayName, displayComponent, iconName, description,
+                    descriptionComponents, maxLevel);
         });
         MundusPlugin.scriptManager.registerFunction("skills.exists", (sc, in) -> {
             return resolveSkill(getApi(), in[0].getString(sc)) != null;
@@ -270,12 +274,13 @@ public class SkillsCommands {
     }
 
     private static void registerCustomSkill(String key, String displayName, Component displayComponent,
-            String iconName, List<String> description, Integer maxLevel) {
+            String iconName, List<String> description, List<Component> descriptionComponents,
+            Integer maxLevel) {
         Object api = getApi();
         Object registry = resolveRegistry(api);
         Object icon = iconName != null ? Material.matchMaterial(iconName) : null;
         Object skill = createCustomSkill(key, displayName, displayComponent, icon, description,
-                maxLevel);
+                descriptionComponents, maxLevel);
         if(skill != null && invokeFirstMatching(registry, REGISTER_METHOD_NAMES, skill) != null) {
             return;
         }
@@ -290,9 +295,17 @@ public class SkillsCommands {
             candidates.add(new Object[] {key, displayName, description});
             candidates.add(new Object[] {key, displayComponent, description});
         }
+        if(descriptionComponents != null) {
+            candidates.add(new Object[] {key, displayName, descriptionComponents});
+            candidates.add(new Object[] {key, displayComponent, descriptionComponents});
+        }
         if(icon != null && description != null) {
             candidates.add(new Object[] {key, displayName, icon, description});
             candidates.add(new Object[] {key, displayComponent, icon, description});
+        }
+        if(icon != null && descriptionComponents != null) {
+            candidates.add(new Object[] {key, displayName, icon, descriptionComponents});
+            candidates.add(new Object[] {key, displayComponent, icon, descriptionComponents});
         }
         if(maxLevel != null) {
             candidates.add(new Object[] {key, displayName, maxLevel});
@@ -304,6 +317,12 @@ public class SkillsCommands {
             if(icon != null && description != null) {
                 candidates.add(new Object[] {key, displayName, icon, description, maxLevel});
                 candidates.add(new Object[] {key, displayComponent, icon, description, maxLevel});
+            }
+            if(icon != null && descriptionComponents != null) {
+                candidates.add(
+                        new Object[] {key, displayName, icon, descriptionComponents, maxLevel});
+                candidates.add(
+                        new Object[] {key, displayComponent, icon, descriptionComponents, maxLevel});
             }
         }
         for(Object[] args : candidates) {
@@ -320,21 +339,31 @@ public class SkillsCommands {
     }
 
     private static Object createCustomSkill(String key, String displayName, Component displayComponent,
-            Object icon, List<String> description, Integer maxLevel) {
+            Object icon, List<String> description, List<Component> descriptionComponents,
+            Integer maxLevel) {
         Class<?> customSkillClass = loadClass(CUSTOM_SKILL_CLASS_NAMES);
         if(customSkillClass == null) {
             return null;
         }
         for(Constructor<?> ctor : customSkillClass.getConstructors()) {
-            Object[] args = buildArgsForConstructor(ctor.getParameterTypes(), key, displayName,
+            Object[] stringArgs = buildArgsForConstructor(ctor.getParameterTypes(), key, displayName,
                     displayComponent, icon, description, maxLevel);
-            if(args == null) {
-                continue;
+            if(stringArgs != null) {
+                try {
+                    return ctor.newInstance(stringArgs);
+                } catch(Exception ex) {
+                    // ignore and try next
+                }
             }
-            try {
-                return ctor.newInstance(args);
-            } catch(Exception ex) {
-                // ignore and try next
+            Object[] componentArgs =
+                    buildArgsForConstructor(ctor.getParameterTypes(), key, displayName,
+                            displayComponent, icon, descriptionComponents, maxLevel);
+            if(componentArgs != null) {
+                try {
+                    return ctor.newInstance(componentArgs);
+                } catch(Exception ex) {
+                    // ignore and try next
+                }
             }
         }
         return null;
@@ -459,6 +488,12 @@ public class SkillsCommands {
         if(type == String.class) {
             return value.toString();
         }
+        if(type == NamespacedKey.class && value instanceof String) {
+            return toNamespacedKey((String) value);
+        }
+        if(type == Key.class && value instanceof String) {
+            return toAdventureKey((String) value);
+        }
         if(type == Component.class && value instanceof String) {
             return Component.text((String) value);
         }
@@ -472,7 +507,7 @@ public class SkillsCommands {
     }
 
     private static Object[] buildArgsForConstructor(Class<?>[] parameterTypes, String key,
-            String displayName, Component displayComponent, Object icon, List<String> description,
+            String displayName, Component displayComponent, Object icon, List<?> description,
             Integer maxLevel) {
         Object[] args = new Object[parameterTypes.length];
         int stringCount = 0;
@@ -482,6 +517,10 @@ public class SkillsCommands {
             if(param == String.class) {
                 value = stringCount == 0 ? key : displayName;
                 stringCount++;
+            } else if(param == NamespacedKey.class) {
+                value = toNamespacedKey(key);
+            } else if(param == Key.class) {
+                value = toAdventureKey(key);
             } else if(param == Component.class) {
                 value = displayComponent;
             } else if(param.isInstance(icon)) {
@@ -546,6 +585,17 @@ public class SkillsCommands {
         return new ArrayList<>(List.of(Objects.toString(value)));
     }
 
+    private static List<Component> toComponentList(List<String> values) {
+        if(values == null) {
+            return null;
+        }
+        List<Component> components = new ArrayList<>();
+        for(String value : values) {
+            components.add(Component.text(value));
+        }
+        return components;
+    }
+
     private static double toDouble(Object value) {
         if(value instanceof Number) {
             return ((Number) value).doubleValue();
@@ -571,5 +621,33 @@ public class SkillsCommands {
             // ignore and fallback
         }
         return component.toString();
+    }
+
+    private static NamespacedKey toNamespacedKey(String value) {
+        if(value == null) {
+            return null;
+        }
+        NamespacedKey key = NamespacedKey.fromString(value);
+        if(key != null) {
+            return key;
+        }
+        if(MundusPlugin.instance != null) {
+            return new NamespacedKey(MundusPlugin.instance, value.toLowerCase());
+        }
+        return NamespacedKey.fromString("mundus:" + value.toLowerCase());
+    }
+
+    private static Key toAdventureKey(String value) {
+        if(value == null) {
+            return null;
+        }
+        try {
+            return Key.key(value);
+        } catch(IllegalArgumentException ex) {
+            String namespace = MundusPlugin.instance != null
+                    ? MundusPlugin.instance.getName().toLowerCase()
+                    : "mundus";
+            return Key.key(namespace, value.toLowerCase());
+        }
     }
 }
