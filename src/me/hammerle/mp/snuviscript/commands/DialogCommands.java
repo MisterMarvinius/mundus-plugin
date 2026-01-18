@@ -2,6 +2,7 @@ package me.hammerle.mp.snuviscript.commands;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -110,9 +111,24 @@ public class DialogCommands {
         if("commandTemplate".equalsIgnoreCase(type) || "template".equalsIgnoreCase(type)) {
             return DialogAction.commandTemplate(value);
         }
-        // customClick will later be captured with PlayerCustomClickEvent
         if("custom".equalsIgnoreCase(type)) {
+            DialogAction action = tryCreatePrefixedAction(value);
+            if(action != null) {
+                return action;
+            }
             return DialogAction.customClick(createCustomKey(value), null);
+        }
+        if("suggest".equalsIgnoreCase(type) || "suggestCommand".equalsIgnoreCase(type)) {
+            DialogAction action = tryCreateSuggestAction(value);
+            return action != null ? action : DialogAction.staticAction(null);
+        }
+        if("url".equalsIgnoreCase(type) || "openUrl".equalsIgnoreCase(type)) {
+            DialogAction action = tryCreateOpenUrlAction(value);
+            return action != null ? action : DialogAction.staticAction(null);
+        }
+        if("copy".equalsIgnoreCase(type) || "copyText".equalsIgnoreCase(type)) {
+            DialogAction action = tryCreateCopyAction(value);
+            return action != null ? action : DialogAction.staticAction(null);
         }
         // staticAction allows basic built-in click behavior
         return DialogAction.staticAction(null);
@@ -150,6 +166,61 @@ public class DialogCommands {
         }
         String[] candidates = {"command", "runCommand", "executeCommand"};
         for(String name : candidates) {
+            try {
+                var method = DialogAction.class.getMethod(name, String.class);
+                return (DialogAction) method.invoke(null, value);
+            } catch(ReflectiveOperationException ex) {
+                // continue to next candidate
+            }
+        }
+        return null;
+    }
+
+    private static DialogAction tryCreatePrefixedAction(String value) {
+        if(value == null || value.isBlank()) {
+            return null;
+        }
+        int separator = value.indexOf(':');
+        if(separator <= 0) {
+            return null;
+        }
+        String prefix = value.substring(0, separator).trim().toLowerCase(Locale.ROOT);
+        String payload = value.substring(separator + 1);
+        if(payload.isBlank()) {
+            return null;
+        }
+        switch(prefix) {
+            case "suggest":
+                return tryCreateSuggestAction(payload);
+            case "url":
+                return tryCreateOpenUrlAction(payload);
+            case "copy":
+                return tryCreateCopyAction(payload);
+            case "command":
+            case "run":
+                return createCommandAction(payload);
+            default:
+                return null;
+        }
+    }
+
+    private static DialogAction tryCreateSuggestAction(String value) {
+        return tryCreateStringAction(value, "suggestCommand", "suggest");
+    }
+
+    private static DialogAction tryCreateOpenUrlAction(String value) {
+        return tryCreateStringAction(value, "openUrl", "openURL", "openUri", "openURI");
+    }
+
+    private static DialogAction tryCreateCopyAction(String value) {
+        return tryCreateStringAction(value, "copyToClipboard", "copy");
+    }
+
+    private static DialogAction tryCreateStringAction(String value, String... methodNames) {
+        if(value == null || value.isBlank()) {
+            return null;
+        }
+        for(String name : methodNames) {
             try {
                 var method = DialogAction.class.getMethod(name, String.class);
                 return (DialogAction) method.invoke(null, value);
