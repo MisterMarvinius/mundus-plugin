@@ -284,45 +284,61 @@ public class SkillsCommands {
         if(skill != null && invokeFirstMatching(registry, REGISTER_METHOD_NAMES, skill) != null) {
             return;
         }
+        List<Object> keyCandidates = new ArrayList<>();
+        keyCandidates.add(key);
+        NamespacedKey namespacedKey = toNamespacedKey(key);
+        if(namespacedKey != null) {
+            keyCandidates.add(namespacedKey);
+        }
+        Key adventureKey = toAdventureKey(key);
+        if(adventureKey != null) {
+            keyCandidates.add(adventureKey);
+        }
         List<Object[]> candidates = new ArrayList<>();
-        candidates.add(new Object[] {key, displayName});
-        candidates.add(new Object[] {key, displayComponent});
-        if(icon != null) {
-            candidates.add(new Object[] {key, displayName, icon});
-            candidates.add(new Object[] {key, displayComponent, icon});
-        }
-        if(description != null) {
-            candidates.add(new Object[] {key, displayName, description});
-            candidates.add(new Object[] {key, displayComponent, description});
-        }
-        if(descriptionComponents != null) {
-            candidates.add(new Object[] {key, displayName, descriptionComponents});
-            candidates.add(new Object[] {key, displayComponent, descriptionComponents});
-        }
-        if(icon != null && description != null) {
-            candidates.add(new Object[] {key, displayName, icon, description});
-            candidates.add(new Object[] {key, displayComponent, icon, description});
-        }
-        if(icon != null && descriptionComponents != null) {
-            candidates.add(new Object[] {key, displayName, icon, descriptionComponents});
-            candidates.add(new Object[] {key, displayComponent, icon, descriptionComponents});
-        }
-        if(maxLevel != null) {
-            candidates.add(new Object[] {key, displayName, maxLevel});
-            candidates.add(new Object[] {key, displayComponent, maxLevel});
+        for(Object keyCandidate : keyCandidates) {
+            candidates.add(new Object[] {keyCandidate, displayName});
+            candidates.add(new Object[] {keyCandidate, displayComponent});
             if(icon != null) {
-                candidates.add(new Object[] {key, displayName, icon, maxLevel});
-                candidates.add(new Object[] {key, displayComponent, icon, maxLevel});
+                candidates.add(new Object[] {keyCandidate, displayName, icon});
+                candidates.add(new Object[] {keyCandidate, displayComponent, icon});
+            }
+            if(description != null) {
+                candidates.add(new Object[] {keyCandidate, displayName, description});
+                candidates.add(new Object[] {keyCandidate, displayComponent, description});
+            }
+            if(descriptionComponents != null) {
+                candidates.add(new Object[] {keyCandidate, displayName, descriptionComponents});
+                candidates.add(new Object[] {keyCandidate, displayComponent, descriptionComponents});
             }
             if(icon != null && description != null) {
-                candidates.add(new Object[] {key, displayName, icon, description, maxLevel});
-                candidates.add(new Object[] {key, displayComponent, icon, description, maxLevel});
+                candidates.add(new Object[] {keyCandidate, displayName, icon, description});
+                candidates.add(new Object[] {keyCandidate, displayComponent, icon, description});
             }
             if(icon != null && descriptionComponents != null) {
                 candidates.add(
-                        new Object[] {key, displayName, icon, descriptionComponents, maxLevel});
+                        new Object[] {keyCandidate, displayName, icon, descriptionComponents});
                 candidates.add(
-                        new Object[] {key, displayComponent, icon, descriptionComponents, maxLevel});
+                        new Object[] {keyCandidate, displayComponent, icon, descriptionComponents});
+            }
+            if(maxLevel != null) {
+                candidates.add(new Object[] {keyCandidate, displayName, maxLevel});
+                candidates.add(new Object[] {keyCandidate, displayComponent, maxLevel});
+                if(icon != null) {
+                    candidates.add(new Object[] {keyCandidate, displayName, icon, maxLevel});
+                    candidates.add(new Object[] {keyCandidate, displayComponent, icon, maxLevel});
+                }
+                if(icon != null && description != null) {
+                    candidates.add(new Object[] {keyCandidate, displayName, icon, description,
+                            maxLevel});
+                    candidates.add(new Object[] {keyCandidate, displayComponent, icon, description,
+                            maxLevel});
+                }
+                if(icon != null && descriptionComponents != null) {
+                    candidates.add(new Object[] {keyCandidate, displayName, icon,
+                            descriptionComponents, maxLevel});
+                    candidates.add(new Object[] {keyCandidate, displayComponent, icon,
+                            descriptionComponents, maxLevel});
+                }
             }
         }
         for(Object[] args : candidates) {
