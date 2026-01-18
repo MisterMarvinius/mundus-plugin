@@ -6,6 +6,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.net.URI;
+import java.net.URL;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -135,15 +137,19 @@ public class DialogCommands {
     }
 
     private static DialogAction createCommandAction(String value) {
-        if(value != null && value.contains("${")) {
+        String commandValue = value;
+        if(commandValue != null && commandValue.startsWith("/")) {
+            commandValue = commandValue.substring(1);
+        }
+        if(commandValue != null && commandValue.contains("${")) {
             return DialogAction.commandTemplate(value);
         }
-        DialogAction directAction = tryCreateDirectCommandAction(value);
+        DialogAction directAction = tryCreateDirectCommandAction(commandValue);
         if(directAction != null) {
             return directAction;
         }
         Key key = Key.key("mundus", "command/" + UUID.randomUUID());
-        COMMAND_ACTIONS.put(key, value);
+        COMMAND_ACTIONS.put(key, commandValue);
         return DialogAction.customClick(key, null);
     }
 
@@ -205,28 +211,76 @@ public class DialogCommands {
     }
 
     private static DialogAction tryCreateSuggestAction(String value) {
-        return tryCreateStringAction(value, "suggestCommand", "suggest");
+        return tryCreateAction(value, "suggestCommand", "suggest");
     }
 
     private static DialogAction tryCreateOpenUrlAction(String value) {
-        return tryCreateStringAction(value, "openUrl", "openURL", "openUri", "openURI");
+        return tryCreateAction(value, "openUrl", "openURL", "openUri", "openURI");
     }
 
     private static DialogAction tryCreateCopyAction(String value) {
-        return tryCreateStringAction(value, "copyToClipboard", "copy");
+        return tryCreateAction(value, "copyToClipboard", "copy");
     }
 
-    private static DialogAction tryCreateStringAction(String value, String... methodNames) {
+    private static DialogAction tryCreateAction(String value, String... methodNames) {
         if(value == null || value.isBlank()) {
             return null;
         }
         for(String name : methodNames) {
+            DialogAction action = tryInvokeDialogAction(name, value);
+            if(action != null) {
+                return action;
+            }
+        }
+        return null;
+    }
+
+    private static DialogAction tryInvokeDialogAction(String name, String value) {
+        var methods = DialogAction.class.getMethods();
+        for(var method : methods) {
+            if(!method.getName().equals(name) || method.getParameterCount() != 1) {
+                continue;
+            }
+            Object argument = coerceActionArgument(method.getParameterTypes()[0], value);
+            if(argument == null) {
+                continue;
+            }
             try {
-                var method = DialogAction.class.getMethod(name, String.class);
-                return (DialogAction) method.invoke(null, value);
+                return (DialogAction) method.invoke(null, argument);
             } catch(ReflectiveOperationException ex) {
                 // continue to next candidate
             }
+        }
+        return null;
+    }
+
+    private static Object coerceActionArgument(Class<?> target, String value) {
+        if(String.class.equals(target)) {
+            return value;
+        }
+        if(URI.class.equals(target)) {
+            try {
+                return URI.create(value);
+            } catch(IllegalArgumentException ex) {
+                return null;
+            }
+        }
+        if(URL.class.equals(target)) {
+            try {
+                return new URL(value);
+            } catch(Exception ex) {
+                return null;
+            }
+        }
+        if(Key.class.equals(target)) {
+            try {
+                return Key.key(value);
+            } catch(RuntimeException ex) {
+                return null;
+            }
+        }
+        if(Component.class.equals(target)) {
+            return Component.text(value);
         }
         return null;
     }
