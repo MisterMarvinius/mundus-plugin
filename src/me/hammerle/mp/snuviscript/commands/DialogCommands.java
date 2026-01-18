@@ -22,6 +22,7 @@ import me.hammerle.mp.MundusPlugin;
 
 public class DialogCommands {
     private static final Map<Key, String> COMMAND_ACTIONS = new ConcurrentHashMap<>();
+    private static final Map<Key, String> CUSTOM_ACTIONS = new ConcurrentHashMap<>();
     private static boolean listenerRegistered = false;
 
     public static void registerFunctions() {
@@ -111,7 +112,7 @@ public class DialogCommands {
         }
         // customClick will later be captured with PlayerCustomClickEvent
         if("custom".equalsIgnoreCase(type)) {
-            return DialogAction.customClick(Key.key(value), null);
+            return DialogAction.customClick(createCustomKey(value), null);
         }
         // staticAction allows basic built-in click behavior
         return DialogAction.staticAction(null);
@@ -128,6 +129,19 @@ public class DialogCommands {
         Key key = Key.key("mundus", "command/" + UUID.randomUUID());
         COMMAND_ACTIONS.put(key, value);
         return DialogAction.customClick(key, null);
+    }
+
+    private static Key createCustomKey(String value) {
+        if(value != null && !value.isBlank()) {
+            try {
+                return Key.key(value);
+            } catch(IllegalArgumentException ex) {
+                // fall through to generated key
+            }
+        }
+        Key key = Key.key("mundus", "custom/" + UUID.randomUUID());
+        CUSTOM_ACTIONS.put(key, value);
+        return key;
     }
 
     private static DialogAction tryCreateDirectCommandAction(String value) {
