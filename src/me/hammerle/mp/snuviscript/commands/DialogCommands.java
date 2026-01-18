@@ -20,6 +20,7 @@ import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.key.Key;
 import me.hammerle.mp.MundusPlugin;
 
@@ -106,43 +107,50 @@ public class DialogCommands {
     }
 
     private static DialogAction createAction(String type, String value) {
-        // commandTemplate executes a command with variables, plain command executes directly
-        if("command".equalsIgnoreCase(type) || "run".equalsIgnoreCase(type)) {
-            return createCommandAction(value);
+        if(value == null)
+            value = "";
+
+        switch(type.toLowerCase(Locale.ROOT)) {
+            case "command":
+            case "run":
+                return DialogAction.staticAction(ClickEvent.runCommand(normalizeCommand(value)));
+
+            case "suggest":
+            case "suggestcommand":
+                return DialogAction
+                        .staticAction(ClickEvent.suggestCommand(normalizeCommand(value)));
+
+            case "url":
+            case "openurl":
+                return DialogAction.staticAction(ClickEvent.openUrl(value));
+
+            case "copy":
+            case "copytext":
+                return DialogAction.staticAction(ClickEvent.copyToClipboard(value));
+
+            case "commandtemplate":
+            case "template":
+                // NOTE: Paper uses $(var) syntax, not ${var}
+                return DialogAction.commandTemplate(value);
+
+            case "custom":
+                return DialogAction.customClick(createCustomKey(value), null);
+
+            default:
+                // If you want "No action", don't add an action at all, or use a custom click you ignore.
+                return DialogAction.customClick(createCustomKey("noop"), null);
         }
-        if("commandTemplate".equalsIgnoreCase(type) || "template".equalsIgnoreCase(type)) {
-            return DialogAction.commandTemplate(value);
-        }
-        if("custom".equalsIgnoreCase(type)) {
-            DialogAction action = tryCreatePrefixedAction(value);
-            if(action != null) {
-                return action;
-            }
-            return DialogAction.customClick(createCustomKey(value), null);
-        }
-        if("suggest".equalsIgnoreCase(type) || "suggestCommand".equalsIgnoreCase(type)) {
-            DialogAction action = tryCreateSuggestAction(value);
-            return action != null ? action : DialogAction.staticAction(null);
-        }
-        if("url".equalsIgnoreCase(type) || "openUrl".equalsIgnoreCase(type)) {
-            DialogAction action = tryCreateOpenUrlAction(value);
-            return action != null ? action : DialogAction.staticAction(null);
-        }
-        if("copy".equalsIgnoreCase(type) || "copyText".equalsIgnoreCase(type)) {
-            DialogAction action = tryCreateCopyAction(value);
-            return action != null ? action : DialogAction.staticAction(null);
-        }
-        // staticAction allows basic built-in click behavior
-        return DialogAction.staticAction(null);
+    }
+
+    private static String normalizeCommand(String cmd) {
+        cmd = cmd.trim();
+        return cmd.startsWith("/") ? cmd : "/" + cmd;
     }
 
     private static DialogAction createCommandAction(String value) {
         String commandValue = value;
         if(commandValue != null && commandValue.startsWith("/")) {
             commandValue = commandValue.substring(1);
-        }
-        if(commandValue != null && commandValue.contains("${")) {
-            return DialogAction.commandTemplate(value);
         }
         DialogAction directAction = tryCreateDirectCommandAction(commandValue);
         if(directAction != null) {
@@ -290,16 +298,14 @@ public class DialogCommands {
             return;
         }
         listenerRegistered = true;
-        Bukkit.getPluginManager().registerEvents(new DialogCommandListener(), MundusPlugin.instance);
+        Bukkit.getPluginManager().registerEvents(new DialogCommandListener(),
+                MundusPlugin.instance);
     }
 
     private static class DialogCommandListener implements Listener {
         @EventHandler
         public void onCustomClick(PlayerCustomClickEvent event) {
-            Key key = resolveKey(event);
-            if(key == null) {
-                return;
-            }
+            Key key = event.getIdentifier();
             String command = COMMAND_ACTIONS.get(key);
             if(command == null || command.isBlank()) {
                 return;
