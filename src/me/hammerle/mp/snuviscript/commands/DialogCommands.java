@@ -2,8 +2,15 @@ package me.hammerle.mp.snuviscript.commands;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import io.papermc.paper.dialog.Dialog;
+import io.papermc.paper.event.player.PlayerCustomClickEvent;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
@@ -14,8 +21,12 @@ import net.kyori.adventure.key.Key;
 import me.hammerle.mp.MundusPlugin;
 
 public class DialogCommands {
+    private static final Map<Key, String> COMMAND_ACTIONS = new ConcurrentHashMap<>();
+    private static final Map<Key, String> CUSTOM_ACTIONS = new ConcurrentHashMap<>();
+    private static boolean listenerRegistered = false;
 
     public static void registerFunctions() {
+        registerListener();
         MundusPlugin.scriptManager.registerFunction("dialog.new",
                 (sc, in) -> new DialogBuilderSpec((Component) in[0].get(sc),
                         (Component) in[1].get(sc)));
@@ -92,15 +103,114 @@ public class DialogCommands {
     }
 
     private static DialogAction createAction(String type, String value) {
-        // commandTemplate executes a command with variables
+        // commandTemplate executes a command with variables, plain command executes directly
         if("command".equalsIgnoreCase(type) || "run".equalsIgnoreCase(type)) {
+            return createCommandAction(value);
+        }
+        if("commandTemplate".equalsIgnoreCase(type) || "template".equalsIgnoreCase(type)) {
             return DialogAction.commandTemplate(value);
         }
         // customClick will later be captured with PlayerCustomClickEvent
         if("custom".equalsIgnoreCase(type)) {
-            return DialogAction.customClick(Key.key(value), null);
+            return DialogAction.customClick(createCustomKey(value), null);
         }
         // staticAction allows basic built-in click behavior
         return DialogAction.staticAction(null);
+    }
+
+    private static DialogAction createCommandAction(String value) {
+        if(value != null && value.contains("${")) {
+            return DialogAction.commandTemplate(value);
+        }
+        DialogAction directAction = tryCreateDirectCommandAction(value);
+        if(directAction != null) {
+            return directAction;
+        }
+        Key key = Key.key("mundus", "command/" + UUID.randomUUID());
+        COMMAND_ACTIONS.put(key, value);
+        return DialogAction.customClick(key, null);
+    }
+
+    private static Key createCustomKey(String value) {
+        if(value != null && !value.isBlank()) {
+            try {
+                return Key.key(value);
+            } catch(RuntimeException ex) {
+                // fall through to generated key
+            }
+        }
+        Key key = Key.key("mundus", "custom/" + UUID.randomUUID());
+        CUSTOM_ACTIONS.put(key, value);
+        return key;
+    }
+
+    private static DialogAction tryCreateDirectCommandAction(String value) {
+        if(value == null || value.isBlank()) {
+            return null;
+        }
+        String[] candidates = {"command", "runCommand", "executeCommand"};
+        for(String name : candidates) {
+            try {
+                var method = DialogAction.class.getMethod(name, String.class);
+                return (DialogAction) method.invoke(null, value);
+            } catch(ReflectiveOperationException ex) {
+                // continue to next candidate
+            }
+        }
+        return null;
+    }
+
+    private static void registerListener() {
+        if(listenerRegistered) {
+            return;
+        }
+        listenerRegistered = true;
+        Bukkit.getPluginManager().registerEvents(new DialogCommandListener(), MundusPlugin.instance);
+    }
+
+    private static class DialogCommandListener implements Listener {
+        @EventHandler
+        public void onCustomClick(PlayerCustomClickEvent event) {
+            Key key = resolveKey(event);
+            if(key == null) {
+                return;
+            }
+            String command = COMMAND_ACTIONS.get(key);
+            if(command == null || command.isBlank()) {
+                return;
+            }
+            Player player = resolvePlayer(event);
+            if(player == null) {
+                return;
+            }
+            if(command.startsWith("/")) {
+                command = command.substring(1);
+            }
+            player.performCommand(command);
+        }
+
+        private Key resolveKey(PlayerCustomClickEvent event) {
+            try {
+                return (Key) event.getClass().getMethod("key").invoke(event);
+            } catch(ReflectiveOperationException ex) {
+                try {
+                    return (Key) event.getClass().getMethod("getKey").invoke(event);
+                } catch(ReflectiveOperationException ex2) {
+                    return null;
+                }
+            }
+        }
+
+        private Player resolvePlayer(PlayerCustomClickEvent event) {
+            try {
+                return (Player) event.getClass().getMethod("player").invoke(event);
+            } catch(ReflectiveOperationException ex) {
+                try {
+                    return (Player) event.getClass().getMethod("getPlayer").invoke(event);
+                } catch(ReflectiveOperationException ex2) {
+                    return null;
+                }
+            }
+        }
     }
 }
