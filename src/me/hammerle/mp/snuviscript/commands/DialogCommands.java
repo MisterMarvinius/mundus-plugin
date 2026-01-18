@@ -82,13 +82,14 @@ public class DialogCommands {
 
         Dialog build() {
             return Dialog.create(builder -> {
-                builder.empty()
+                var dialogBuilder = builder.empty()
                         .base(DialogBase.builder(title)
                                 .body(List.of(DialogBody.plainMessage(body)))
                                 .build());
                 if(!buttons.isEmpty()) {
-                    builder.type(DialogType.multiAction(List.copyOf(buttons)));
+                    dialogBuilder.type(DialogType.multiAction(List.copyOf(buttons)));
                 }
+                dialogBuilder.build();
             });
         }
     }
