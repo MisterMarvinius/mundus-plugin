@@ -87,9 +87,8 @@ public class DialogCommands {
                                 .body(List.of(DialogBody.plainMessage(body)))
                                 .build());
                 if(!buttons.isEmpty()) {
-                    dialogBuilder.type(DialogType.multiAction(List.copyOf(buttons)));
+                    dialogBuilder.type(DialogType.multiAction(List.copyOf(buttons)).build());
                 }
-                dialogBuilder.build();
             });
         }
     }
