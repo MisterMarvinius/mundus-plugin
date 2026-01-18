@@ -80,13 +80,15 @@ public class DialogCommands {
         }
 
         Dialog build() {
-            return Dialog.create(builder -> builder
-                    .empty()
-                    .base(DialogBase.builder(title)
-                            .body(List.of(DialogBody.plainMessage(body)))
-                            .build())
-            //.type(DialogType.multiAction(buttons))
-            );
+            return Dialog.create(builder -> {
+                builder.empty()
+                        .base(DialogBase.builder(title)
+                                .body(List.of(DialogBody.plainMessage(body)))
+                                .build());
+                if(!buttons.isEmpty()) {
+                    builder.type(DialogType.multiAction(List.copyOf(buttons)));
+                }
+            });
         }
     }
 
@@ -96,9 +98,9 @@ public class DialogCommands {
             return DialogAction.commandTemplate(value);
         }
         // customClick will later be captured with PlayerCustomClickEvent
-        //if("custom".equalsIgnoreCase(type)) {
-        //    return DialogAction.customClick(value, null);
-        //}
+        if("custom".equalsIgnoreCase(type)) {
+            return DialogAction.customClick(value, null);
+        }
         // staticAction allows basic built-in click behavior
         return DialogAction.staticAction(null);
     }
