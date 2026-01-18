@@ -372,10 +372,13 @@ public class SkillsCommands {
             return userSkill;
         }
         Class<?> skillClass = loadClass(SKILL_CLASS_NAMES);
-        if(skillClass != null) {
-            for(Object constant : skillClass.getEnumConstants()) {
-                if(constant != null && constant.toString().equalsIgnoreCase(skillName)) {
-                    return constant;
+        if(skillClass != null && skillClass.isEnum()) {
+            Object[] constants = skillClass.getEnumConstants();
+            if(constants != null) {
+                for(Object constant : constants) {
+                    if(constant != null && constant.toString().equalsIgnoreCase(skillName)) {
+                        return constant;
+                    }
                 }
             }
         }
