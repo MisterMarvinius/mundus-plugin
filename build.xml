@@ -5,7 +5,12 @@
 
     <target name="compile">
         <mkdir dir="build/classes"/>
-        <javac debug="true" includeantruntime="false" srcdir="src" destdir="build/classes" encoding="utf-8">
+        <javac debug="true"
+               includeantruntime="false"
+               srcdir="src"
+               destdir="build/classes"
+               encoding="utf-8"
+               release="21">
             <classpath>
                 <fileset dir="lib" includes="*.jar"/>
             </classpath>
@@ -13,12 +18,14 @@
     </target>
 
     <target name="jar" depends="compile">
-    <javac includeantruntime="false" srcdir="src" destdir="build/classes"/>
-    <jar destfile="build/MundusPlugin.jar" basedir="build/classes">
-        <fileset file="src/resources/plugin.yml"/>
-        <!-- Merge the contents of SnuviScriptRecoded.jar into your plugin jar -->
-        <zipgroupfileset dir="lib" includes="SnuviScriptRecoded.jar"/>
-    </jar>
-</target>
-
+        <javac includeantruntime="false"
+               srcdir="src"
+               destdir="build/classes"
+               release="21"/>
+        <jar destfile="build/MundusPlugin.jar" basedir="build/classes">
+            <fileset file="src/resources/plugin.yml"/>
+            <!-- Merge the contents of SnuviScriptRecoded.jar into your plugin jar -->
+            <zipgroupfileset dir="lib" includes="SnuviScriptRecoded.jar"/>
+        </jar>
+    </target>
 </project>
