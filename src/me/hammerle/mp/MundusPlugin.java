@@ -20,6 +20,7 @@ import me.hammerle.mp.snuviscript.CommandTest;
 import me.hammerle.mp.snuviscript.CommandManager;
 import me.hammerle.mp.snuviscript.MoveEvents;
 import me.hammerle.mp.snuviscript.ScriptEvents;
+import me.hammerle.mp.snuviscript.ScriptTypeRegistration;
 import me.hammerle.snuviscript.config.SnuviConfig;
 import me.hammerle.snuviscript.code.ISnuviScheduler;
 import me.hammerle.snuviscript.code.ScriptManager;
@@ -159,6 +160,7 @@ public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
         }
 
         scriptManager = new ScriptManager(logger, this);
+        ScriptTypeRegistration.registerMinecraftTypes();
 
         CommandManager.add(new CommandScript());
         CommandManager.add(new CommandTest());
