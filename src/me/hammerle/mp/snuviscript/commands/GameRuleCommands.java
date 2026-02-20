@@ -8,18 +8,18 @@ public class GameRuleCommands {
     @SuppressWarnings("unchecked")
     public static void registerFunctions() {
         MundusPlugin.scriptManager.registerFunction("gamerule.getall",
-                (sc, in) -> GameRule.values());
+                (sc, in) -> GameRule.values(), "object");
         MundusPlugin.scriptManager.registerFunction("gamerule.isbool", (sc, in) -> {
             GameRule<?> rule = (GameRule<?>) in[0].get(sc);
             return rule.getType().equals(Boolean.class);
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("gamerule.getname", (sc, in) -> {
             GameRule<?> rule = (GameRule<?>) in[0].get(sc);
             return rule.getName();
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("gamerule.getkey", (sc, in) -> {
             return GameRule.getByName(in[0].getString(sc));
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("gamerule.getvalue", (sc, in) -> {
             World w = (World) in[0].get(sc);
             GameRule<?> rule = (GameRule<?>) in[1].get(sc);
@@ -28,7 +28,7 @@ public class GameRuleCommands {
                 return ((Number) o).doubleValue();
             }
             return o;
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("gamerule.setbool", (sc, in) -> {
             World w = (World) in[0].get(sc);
             GameRule<Boolean> rule = (GameRule<Boolean>) in[1].get(sc);

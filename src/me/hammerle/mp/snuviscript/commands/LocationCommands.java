@@ -15,19 +15,19 @@ public class LocationCommands {
             }
             return new Location((World) in[0].get(sc), in[1].getDouble(sc), in[2].getDouble(sc),
                     in[3].getDouble(sc), 0, 0);
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("loc.getx",
-                (sc, in) -> ((Location) in[0].get(sc)).getX());
+                (sc, in) -> ((Location) in[0].get(sc)).getX(), "object");
         MundusPlugin.scriptManager.registerFunction("loc.gety",
-                (sc, in) -> ((Location) in[0].get(sc)).getY());
+                (sc, in) -> ((Location) in[0].get(sc)).getY(), "object");
         MundusPlugin.scriptManager.registerFunction("loc.getz",
-                (sc, in) -> ((Location) in[0].get(sc)).getZ());
+                (sc, in) -> ((Location) in[0].get(sc)).getZ(), "object");
         MundusPlugin.scriptManager.registerFunction("loc.getblockx",
-                (sc, in) -> (double) ((Location) in[0].get(sc)).getBlockX());
+                (sc, in) -> (double) ((Location) in[0].get(sc)).getBlockX(), "object");
         MundusPlugin.scriptManager.registerFunction("loc.getblocky",
-                (sc, in) -> (double) ((Location) in[0].get(sc)).getBlockY());
+                (sc, in) -> (double) ((Location) in[0].get(sc)).getBlockY(), "object");
         MundusPlugin.scriptManager.registerFunction("loc.getblockz",
-                (sc, in) -> (double) ((Location) in[0].get(sc)).getBlockZ());
+                (sc, in) -> (double) ((Location) in[0].get(sc)).getBlockZ(), "object");
         MundusPlugin.scriptManager.registerConsumer("loc.set",
                 (sc, in) -> ((Location) in[0].get(sc)).set(in[1].getDouble(sc), in[2].getDouble(sc),
                         in[3].getDouble(sc)));
@@ -49,18 +49,18 @@ public class LocationCommands {
         MundusPlugin.scriptManager.registerConsumer("loc.setyaw",
                 (sc, in) -> ((Location) in[0].get(sc)).setYaw(in[1].getFloat(sc)));
         MundusPlugin.scriptManager.registerFunction("loc.getyaw",
-                (sc, in) -> (double) ((Location) in[0].get(sc)).getYaw());
+                (sc, in) -> (double) ((Location) in[0].get(sc)).getYaw(), "object");
         MundusPlugin.scriptManager.registerConsumer("loc.setpitch",
                 (sc, in) -> ((Location) in[0].get(sc)).setPitch(in[1].getFloat(sc)));
         MundusPlugin.scriptManager.registerFunction("loc.getpitch",
-                (sc, in) -> (double) ((Location) in[0].get(sc)).getPitch());
+                (sc, in) -> (double) ((Location) in[0].get(sc)).getPitch(), "object");
         MundusPlugin.scriptManager.registerFunction("loc.getworld",
-                (sc, in) -> ((Location) in[0].get(sc)).getWorld());
+                (sc, in) -> ((Location) in[0].get(sc)).getWorld(), "object");
         MundusPlugin.scriptManager.registerFunction("loc.distance",
-                (sc, in) -> ((Location) in[0].get(sc)).distance((Location) in[1].get(sc)));
+                (sc, in) -> ((Location) in[0].get(sc)).distance((Location) in[1].get(sc)), "object");
         MundusPlugin.scriptManager.registerFunction("loc.mod",
                 (sc, in) -> ((Location) in[0].get(sc)).clone().add(in[1].getDouble(sc),
-                        in[2].getDouble(sc), in[3].getDouble(sc)));
+                        in[2].getDouble(sc), in[3].getDouble(sc)), "object");
         MundusPlugin.scriptManager.registerFunction("loc.isbetween", (sc, in) -> {
             Location l1 = (Location) in[0].get(sc);
             Location l2 = (Location) in[1].get(sc);
@@ -71,7 +71,7 @@ public class LocationCommands {
                     && l1.getY() <= Math.max(l2.getY(), l3.getY())
                     && l1.getZ() >= Math.min(l2.getZ(), l3.getZ())
                     && l1.getZ() <= Math.max(l2.getZ(), l3.getZ());
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("loc.sort", (sc, in) -> {
             Location l1 = (Location) in[0].get(sc);
             Location l2 = (Location) in[1].get(sc);
@@ -101,7 +101,7 @@ public class LocationCommands {
             }
             return new LocationIterator((World) in[0].get(sc), in[1].getInt(sc), in[2].getInt(sc),
                     in[3].getInt(sc), in[4].getInt(sc), in[5].getInt(sc), in[6].getInt(sc));
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("loc.explode", (sc, in) -> {
             Location l = (Location) in[0].get(sc);
             Entity ent = (Entity) in[1].get(sc);

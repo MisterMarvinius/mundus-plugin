@@ -16,11 +16,11 @@ public class SoundCommands {
                     .map(f -> "minecraft:" + f.toString().toLowerCase())
                     .sorted()
                     .collect(Collectors.toList());
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("sound.get",
-                (sc, in) -> Registry.SOUNDS.get(NamespacedKey.fromString(in[0].getString(sc))));
+                (sc, in) -> Registry.SOUNDS.get(NamespacedKey.fromString(in[0].getString(sc))), "object");
         MundusPlugin.scriptManager.registerFunction("sound.getcategory",
-                (sc, in) -> SoundCategory.valueOf(in[0].getString(sc)));
+                (sc, in) -> SoundCategory.valueOf(in[0].getString(sc)), "object");
         MundusPlugin.scriptManager.registerConsumer("sound.spawn", (sc, in) -> {
             Location l = (Location) in[0].get(sc);
             float volume = in.length >= 4 ? in[3].getFloat(sc) : 1.0f;

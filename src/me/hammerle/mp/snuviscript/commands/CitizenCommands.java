@@ -18,7 +18,7 @@ public class CitizenCommands {
                     CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, in[1].getString(sc));
             npc.spawn(l);
             return npc;
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("citizen.despawn", (sc, in) -> {
             NPC npc = (NPC) in[0].get(sc);
             npc.despawn();
@@ -39,7 +39,7 @@ public class CitizenCommands {
         MundusPlugin.scriptManager.registerFunction("citizen.getname", (sc, in) -> {
             NPC npc = (NPC) in[0].get(sc);
             return npc.getName();
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("citizen.shownameplate", (sc, in) -> {
             NPC npc = (NPC) in[0].get(sc);
             npc.data().set(NPC.Metadata.NAMEPLATE_VISIBLE, in[1].getBoolean(sc));
