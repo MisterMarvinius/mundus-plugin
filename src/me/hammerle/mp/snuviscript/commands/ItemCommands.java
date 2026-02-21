@@ -28,43 +28,43 @@ public class ItemCommands {
     @SuppressWarnings("unchecked")
     public static void registerFunctions() {
         MundusPlugin.scriptManager.registerFunction("material.get",
-                (sc, in) -> Material.matchMaterial(in[0].getString(sc)));
+                (sc, in) -> Material.matchMaterial(in[0].getString(sc)), "material");
         MundusPlugin.scriptManager.registerFunction("material.getall",
-                (sc, in) -> Material.values());
+                (sc, in) -> Material.values(), "array");
         MundusPlugin.scriptManager.registerConsumer("material.setcooldown", (sc, in) -> {
             Player p = (Player) in[1].get(sc);
             p.setCooldown((Material) in[0].get(sc), in[2].getInt(sc));
         });
         MundusPlugin.scriptManager.registerFunction("material.getslot",
-                (sc, in) -> ((Material) in[0].get(sc)).getEquipmentSlot());
+                (sc, in) -> ((Material) in[0].get(sc)).getEquipmentSlot(), "object");
         MundusPlugin.scriptManager.registerFunction("material.isitem",
-                (sc, in) -> ((Material) in[0].get(sc)).isItem());
+                (sc, in) -> ((Material) in[0].get(sc)).isItem(), "boolean");
         MundusPlugin.scriptManager.registerFunction("material.issolid",
-                (sc, in) -> ((Material) in[0].get(sc)).isSolid());
+                (sc, in) -> ((Material) in[0].get(sc)).isSolid(), "boolean");
         MundusPlugin.scriptManager.registerFunction("material.isblock",
-                (sc, in) -> ((Material) in[0].get(sc)).isBlock());
+                (sc, in) -> ((Material) in[0].get(sc)).isBlock(), "boolean");
         MundusPlugin.scriptManager.registerFunction("material.isedible",
-                (sc, in) -> ((Material) in[0].get(sc)).isEdible());
+                (sc, in) -> ((Material) in[0].get(sc)).isEdible(), "boolean");
 
         MundusPlugin.scriptManager.registerFunction("item.new",
                 (sc, in) -> new ItemStack((Material) in[0].get(sc),
-                        in.length >= 2 ? in[1].getInt(sc) : 1));
+                        in.length >= 2 ? in[1].getInt(sc) : 1), "itemstack");
         MundusPlugin.scriptManager.registerFunction("item.drop", (sc, in) -> {
             Location l = (Location) in[1].get(sc);
             return l.getWorld().dropItem(l, (ItemStack) in[0].get(sc));
-        });
+        }, "entity");
         MundusPlugin.scriptManager.registerFunction("item.gettag",
                 (sc, in) -> Bukkit.getTag(Tag.REGISTRY_ITEMS,
-                        NamespacedKey.fromString(in[0].getString(sc)), Material.class));
+                        NamespacedKey.fromString(in[0].getString(sc)), Material.class), "object");
         MundusPlugin.scriptManager.registerFunction("item.hastag",
                 (sc, in) -> ((Tag<Material>) in[1].get(sc))
-                        .isTagged(((ItemStack) in[0].get(sc)).getType()));
+                        .isTagged(((ItemStack) in[0].get(sc)).getType()), "boolean");
         MundusPlugin.scriptManager.registerFunction("item.gettype",
-                (sc, in) -> ((ItemStack) in[0].get(sc)).getType());
+                (sc, in) -> ((ItemStack) in[0].get(sc)).getType(), "material");
         MundusPlugin.scriptManager.registerFunction("item.getmaxamount",
-                (sc, in) -> (double) ((ItemStack) in[0].get(sc)).getMaxStackSize());
+                (sc, in) -> (double) ((ItemStack) in[0].get(sc)).getMaxStackSize(), "number");
         MundusPlugin.scriptManager.registerFunction("item.getamount",
-                (sc, in) -> (double) ((ItemStack) in[0].get(sc)).getAmount());
+                (sc, in) -> (double) ((ItemStack) in[0].get(sc)).getAmount(), "number");
         MundusPlugin.scriptManager.registerConsumer("item.setamount",
                 (sc, in) -> ((ItemStack) in[0].get(sc)).setAmount(in[1].getInt(sc)));
         MundusPlugin.scriptManager.registerFunction("item.hasname", (sc, in) -> {
@@ -73,14 +73,14 @@ public class ItemCommands {
                 return false;
             }
             return stack.getItemMeta().hasDisplayName();
-        });
+        }, "boolean");
         MundusPlugin.scriptManager.registerFunction("item.getname", (sc, in) -> {
             ItemStack stack = (ItemStack) in[0].get(sc);
             if(stack.getItemMeta() == null) {
                 return null;
             }
             return stack.getItemMeta().displayName();
-        });
+        }, "text");
         MundusPlugin.scriptManager.registerConsumer("item.setname", (sc, in) -> {
             ((ItemStack) in[0].get(sc))
                     .editMeta(meta -> meta.displayName((Component) in[1].get(sc)));
@@ -91,7 +91,7 @@ public class ItemCommands {
                 return new ArrayList<Component>();
             }
             return stack.getItemMeta().lore();
-        });
+        }, "list");
         MundusPlugin.scriptManager.registerConsumer("item.setlore", (sc, in) -> {
             ((ItemStack) in[0].get(sc))
                     .editMeta(meta -> meta.lore((List<Component>) in[1].get(sc)));
@@ -123,7 +123,7 @@ public class ItemCommands {
                     })
                     .sorted()
                     .collect(Collectors.toList());
-        });
+        }, "list");
         MundusPlugin.scriptManager.registerConsumer("item.addattribute", (sc, in) -> {
             ItemStack stack = (ItemStack) in[0].get(sc);
             stack.editMeta(meta -> {
@@ -176,7 +176,7 @@ public class ItemCommands {
                 return false;
             }
             return stack.getItemMeta().hasAttributeModifiers();
-        });
+        }, "boolean");
         MundusPlugin.scriptManager.registerConsumer("item.adddefaulttags", (sc, in) -> {
             ItemStack stack = (ItemStack) in[0].get(sc);
             stack.editMeta(meta -> {
@@ -189,20 +189,20 @@ public class ItemCommands {
             });
         });
         MundusPlugin.scriptManager.registerFunction("item.clone",
-                (sc, in) -> ((ItemStack) in[0].get(sc)).clone());
+                (sc, in) -> ((ItemStack) in[0].get(sc)).clone(), "itemstack");
         MundusPlugin.scriptManager.registerFunction("item.getmaxdamage", (sc, in) -> {
             ItemStack stack = (ItemStack) in[0].get(sc);
             return (double) stack.getType().getMaxDurability();
-        });
+        }, "number");
         MundusPlugin.scriptManager.registerFunction("item.isdamageable", (sc, in) -> {
             ItemStack stack = (ItemStack) in[0].get(sc);
             return stack.getItemMeta() instanceof Damageable;
-        });
+        }, "boolean");
         MundusPlugin.scriptManager.registerFunction("item.getdamage", (sc, in) -> {
             ItemStack stack = (ItemStack) in[0].get(sc);
             Damageable damage = (Damageable) stack.getItemMeta();
             return (double) damage.getDamage();
-        });
+        }, "number");
         MundusPlugin.scriptManager.registerConsumer("item.setdamage", (sc, in) -> {
             ItemStack stack = (ItemStack) in[0].get(sc);
             Damageable damage = (Damageable) stack.getItemMeta();

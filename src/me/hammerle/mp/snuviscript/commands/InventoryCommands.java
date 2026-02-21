@@ -14,14 +14,14 @@ import net.kyori.adventure.text.Component;
 public class InventoryCommands {
     public static void registerFunctions() {
         MundusPlugin.scriptManager.registerFunction("inv.new", (sc, in) -> SnuviInventoryHolder
-                .create(in[0].getString(sc), (Component) in[1].get(sc)));
+                .create(in[0].getString(sc), (Component) in[1].get(sc)), "object");
         MundusPlugin.scriptManager.registerFunction("inv.getid", (sc, in) -> {
             Inventory inv = (Inventory) in[0].get(sc);
             if(inv.getHolder() instanceof SnuviInventoryHolder) {
                 return (double) ((SnuviInventoryHolder) inv.getHolder()).getId();
             }
             return -1;
-        });
+        }, "number");
         MundusPlugin.scriptManager.registerConsumer("inv.setitem", (sc, in) -> {
             Inventory inv = (Inventory) in[0].get(sc);
             int index = in[1].getInt(sc);
@@ -35,9 +35,9 @@ public class InventoryCommands {
             inv.setItem(index, stack);
         });
         MundusPlugin.scriptManager.registerFunction("inv.getitem",
-                (sc, in) -> ((Inventory) in[0].get(sc)).getItem(in[1].getInt(sc)));
+                (sc, in) -> ((Inventory) in[0].get(sc)).getItem(in[1].getInt(sc)), "itemstack");
         MundusPlugin.scriptManager.registerFunction("inv.getsize",
-                (sc, in) -> (double) ((Inventory) in[0].get(sc)).getSize());
+                (sc, in) -> (double) ((Inventory) in[0].get(sc)).getSize(), "number");
         MundusPlugin.scriptManager.registerConsumer("inv.open", (sc, in) -> {
             ((Player) in[1].get(sc)).openInventory((Inventory) in[0].get(sc));
         });

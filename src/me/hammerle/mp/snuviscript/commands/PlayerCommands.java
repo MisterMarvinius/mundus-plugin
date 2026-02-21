@@ -74,7 +74,7 @@ public class PlayerCommands {
 
     public static void registerFunctions() {
         MundusPlugin.scriptManager.registerFunction("player.getitemamount", (sc,
-                in) -> (double) countItemStack((Player) in[0].get(sc), (ItemStack) in[1].get(sc)));
+                in) -> (double) countItemStack((Player) in[0].get(sc), (ItemStack) in[1].get(sc)), "number");
         MundusPlugin.scriptManager.registerFunction("player.removeitem", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             ItemStack stack = (ItemStack) in[1].get(sc);
@@ -84,7 +84,7 @@ public class PlayerCommands {
                 return 0.0;
             }
             return (double) (stack.getAmount() - count);
-        });
+        }, "number");
         MundusPlugin.scriptManager.registerFunction("player.giveitem", (sc, in) -> {
             ItemStack stack = (ItemStack) in[1].get(sc);
             Player p = (Player) in[0].get(sc);
@@ -94,7 +94,7 @@ public class PlayerCommands {
                 count += lStack.getAmount();
             }
             return (double) count;
-        });
+        }, "number");
         MundusPlugin.scriptManager.registerFunction("player.additem", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             ItemStack stack = (ItemStack) in[1].get(sc);
@@ -108,7 +108,7 @@ public class PlayerCommands {
                 p.getInventory().setContents(content);
             }
             return (double) count;
-        });
+        }, "number");
         MundusPlugin.scriptManager.registerConsumer("player.respawn",
                 (sc, in) -> ((Player) in[0].get(sc)).spigot().respawn());
         MundusPlugin.scriptManager.registerConsumer("player.setcompass", (sc, in) -> {
@@ -116,12 +116,12 @@ public class PlayerCommands {
             p.setCompassTarget((Location) in[1].get(sc));
         });
         MundusPlugin.scriptManager.registerFunction("player.gethunger",
-                (sc, in) -> (double) ((Player) in[0].get(sc)).getFoodLevel());
+                (sc, in) -> (double) ((Player) in[0].get(sc)).getFoodLevel(), "number");
         MundusPlugin.scriptManager.registerConsumer("player.sethunger", (sc, in) -> {
             ((Player) in[0].get(sc)).setFoodLevel(in[1].getInt(sc));
         });
         MundusPlugin.scriptManager.registerFunction("player.getsaturation",
-                (sc, in) -> (double) ((Player) in[0].get(sc)).getSaturation());
+                (sc, in) -> (double) ((Player) in[0].get(sc)).getSaturation(), "number");
         MundusPlugin.scriptManager.registerConsumer("player.setsaturation",
                 (sc, in) -> ((Player) in[0].get(sc)).setSaturation(in[1].getFloat(sc)));
         MundusPlugin.scriptManager.registerFunction("player.getname", (sc, in) -> {
@@ -134,7 +134,7 @@ public class PlayerCommands {
                 return null;
             }
             return op.getName();
-        });
+        }, "string");
         MundusPlugin.scriptManager.registerFunction("player.getuuid", (sc, in) -> {
             Object o = in[0].get(sc);
             if(o instanceof Player) {
@@ -145,34 +145,34 @@ public class PlayerCommands {
                 return null;
             }
             return op.getUniqueId();
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("player.getid",
-                (sc, in) -> (double) CommandUtils.getUUID(in[0].get(sc)).hashCode());
+                (sc, in) -> (double) CommandUtils.getUUID(in[0].get(sc)).hashCode(), "number");
         MundusPlugin.scriptManager.registerFunction("player.get",
-                (sc, in) -> Bukkit.getPlayer(CommandUtils.getUUID(in[0].get(sc))));
+                (sc, in) -> Bukkit.getPlayer(CommandUtils.getUUID(in[0].get(sc))), "player");
         MundusPlugin.scriptManager.registerFunction("player.getuuidfromid",
-                (sc, in) -> getUUIDFromId(in[0].getInt(sc)));
+                (sc, in) -> getUUIDFromId(in[0].getInt(sc)), "object");
         MundusPlugin.scriptManager.registerFunction("player.getnamefromid",
-                (sc, in) -> getNameFromId(in[0].getInt(sc)));
+                (sc, in) -> getNameFromId(in[0].getInt(sc)), "string");
         MundusPlugin.scriptManager.registerFunction("player.getip",
-                (sc, in) -> ((Player) in[0].get(sc)).spigot().getRawAddress().toString());
+                (sc, in) -> ((Player) in[0].get(sc)).spigot().getRawAddress().toString(), "string");
         MundusPlugin.scriptManager.registerFunction("player.iscreative",
-                (sc, in) -> ((Player) in[0].get(sc)).getGameMode() == GameMode.CREATIVE);
+                (sc, in) -> ((Player) in[0].get(sc)).getGameMode() == GameMode.CREATIVE, "boolean");
         MundusPlugin.scriptManager.registerFunction("player.isspectator",
-                (sc, in) -> ((Player) in[0].get(sc)).getGameMode() == GameMode.SPECTATOR);
+                (sc, in) -> ((Player) in[0].get(sc)).getGameMode() == GameMode.SPECTATOR, "boolean");
         MundusPlugin.scriptManager.registerFunction("player.issurvival",
-                (sc, in) -> ((Player) in[0].get(sc)).getGameMode() == GameMode.SURVIVAL);
+                (sc, in) -> ((Player) in[0].get(sc)).getGameMode() == GameMode.SURVIVAL, "boolean");
         MundusPlugin.scriptManager.registerFunction("player.isadventure",
-                (sc, in) -> ((Player) in[0].get(sc)).getGameMode() == GameMode.ADVENTURE);
+                (sc, in) -> ((Player) in[0].get(sc)).getGameMode() == GameMode.ADVENTURE, "boolean");
         MundusPlugin.scriptManager.registerConsumer("player.setfly", (sc, in) -> {
             Player p = ((Player) in[0].get(sc));
             boolean b = in[1].getBoolean(sc);
             p.setAllowFlight(b);
         });
         MundusPlugin.scriptManager.registerFunction("player.hasfly",
-                (sc, in) -> ((Player) in[0].get(sc)).getAllowFlight());
+                (sc, in) -> ((Player) in[0].get(sc)).getAllowFlight(), "boolean");
         MundusPlugin.scriptManager.registerFunction("player.isflying",
-                (sc, in) -> ((Player) in[0].get(sc)).isFlying());
+                (sc, in) -> ((Player) in[0].get(sc)).isFlying(), "boolean");
         MundusPlugin.scriptManager.registerConsumer("player.setgamemode", (sc, in) -> {
             ((Player) in[0].get(sc)).setGameMode(GameMode.valueOf(in[1].get(sc).toString()));
         });
@@ -195,11 +195,11 @@ public class PlayerCommands {
                 mode = FluidCollisionMode.ALWAYS;
             }
             return p.getTargetBlockExact(in[1].getInt(sc), mode);
-        });
+        }, "block");
         MundusPlugin.scriptManager.registerFunction("player.gettargetentity", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             return p.getTargetEntity(in[1].getInt(sc));
-        });
+        }, "entity");
         MundusPlugin.scriptManager.registerFunction("player.gettargetcitizen", (sc, in) -> {
             Player player = (Player) in[0].get(sc);
             Entity target = player.getTargetEntity(in[1].getInt(sc));
@@ -207,7 +207,7 @@ public class PlayerCommands {
                 return CitizensAPI.getNPCRegistry().getNPC(target);
             }
             return null;
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("player.action", (sc, in) -> {
             Component text = (Component) in[1].get(sc);
             CommandUtils.doForGroup(in[0].get(sc), sc, p -> ((Player) p).sendActionBar(text));
@@ -215,19 +215,19 @@ public class PlayerCommands {
         MundusPlugin.scriptManager.registerFunction("player.getspawn", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             return p.getRespawnLocation();
-        });
+        }, "location");
         MundusPlugin.scriptManager.registerFunction("player.getlastdeathlocation", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             return p.getLastDeathLocation();
-        });
+        }, "location");
         MundusPlugin.scriptManager.registerFunction("player.isblocking", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             return p.isBlocking();
-        });
+        }, "boolean");
         MundusPlugin.scriptManager.registerFunction("player.getspectatortarget", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             return p.getSpectatorTarget();
-        });
+        }, "entity");
         MundusPlugin.scriptManager.registerConsumer("player.setspectatortarget", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             Entity e = (Entity) in[1].get(sc);
@@ -262,12 +262,12 @@ public class PlayerCommands {
             ((Player) in[0].get(sc)).giveExp(in[1].getInt(sc));
         });
         MundusPlugin.scriptManager.registerFunction("player.getlevel",
-                (sc, in) -> (double) ((Player) in[0].get(sc)).getLevel());
+                (sc, in) -> (double) ((Player) in[0].get(sc)).getLevel(), "number");
         MundusPlugin.scriptManager.registerConsumer("player.setlevel", (sc, in) -> {
             ((Player) in[0].get(sc)).setLevel(in[1].getInt(sc));
         });
         MundusPlugin.scriptManager.registerFunction("player.getexp",
-                (sc, in) -> (double) ((Player) in[0].get(sc)).getExp());
+                (sc, in) -> (double) ((Player) in[0].get(sc)).getExp(), "number");
         MundusPlugin.scriptManager.registerConsumer("player.setexp",
                 (sc, in) -> ((Player) in[0].get(sc)).setExp(in[1].getFloat(sc)));
         MundusPlugin.scriptManager.registerConsumer("player.setexpcooldown",
@@ -286,11 +286,11 @@ public class PlayerCommands {
                     Bukkit.createProfile(CommandUtils.getUUID(in[0].get(sc)), in[1].getString(sc)));
             skull.setItemMeta(meta);
             return skull;
-        });
+        }, "itemstack");
         MundusPlugin.scriptManager.registerFunction("player.getinv",
-                (sc, in) -> ((Player) in[0].get(sc)).getInventory());
+                (sc, in) -> ((Player) in[0].get(sc)).getInventory(), "object");
         MundusPlugin.scriptManager.registerFunction("player.getenderinv",
-                (sc, in) -> ((Player) in[0].get(sc)).getEnderChest());
+                (sc, in) -> ((Player) in[0].get(sc)).getEnderChest(), "object");
         MundusPlugin.scriptManager.registerConsumer("player.setdisplayname", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             p.playerListName((Component) in[1].get(sc));
@@ -338,13 +338,13 @@ public class PlayerCommands {
             p.showPlayer(MundusPlugin.instance, p2);
         });
         MundusPlugin.scriptManager.registerFunction("players.getamount",
-                (sc, in) -> (double) Bukkit.getOnlinePlayers().size());
+                (sc, in) -> (double) Bukkit.getOnlinePlayers().size(), "number");
         MundusPlugin.scriptManager.registerFunction("players.tolist",
-                (sc, in) -> new ArrayList<>(Bukkit.getOnlinePlayers()));
+                (sc, in) -> new ArrayList<>(Bukkit.getOnlinePlayers()), "list");
         MundusPlugin.scriptManager.registerFunction("players.near", (sc, in) -> {
             Location l = (Location) in[0].get(sc);
             return l.getWorld().getNearbyPlayers(l, in[1].getDouble(sc));
-        });
+        }, "set");
         MundusPlugin.scriptManager.registerFunction("player.getnearest", (sc, in) -> {
             Location l = (Location) in[0].get(sc);
             double distance = 10.0;
@@ -359,11 +359,11 @@ public class PlayerCommands {
                 }
             }
             return closest;
-        });
+        }, "player");
         MundusPlugin.scriptManager.registerFunction("player.getping", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             return p.getPing();
-        });
+        }, "number");
         MundusPlugin.scriptManager.registerConsumer("player.setflyspeed", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             p.setFlySpeed(in[1].getFloat(sc));
@@ -375,11 +375,11 @@ public class PlayerCommands {
         MundusPlugin.scriptManager.registerFunction("player.issneaking", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             return p.isSneaking();
-        });
+        }, "boolean");
         MundusPlugin.scriptManager.registerFunction("player.issprinting", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             return p.isSprinting();
-        });
+        }, "boolean");
         MundusPlugin.scriptManager.registerConsumer("player.setslot", (sc, in) -> {
             Player p = (Player) in[0].get(sc);
             p.getInventory().setHeldItemSlot(in[1].getInt(sc));

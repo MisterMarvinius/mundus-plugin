@@ -30,14 +30,14 @@ public class CommandCommands {
         MundusPlugin.scriptManager.registerConsumer("command.remove",
                 (sc, in) -> CommandManager.removeCustom(in[0].getString(sc)));
         MundusPlugin.scriptManager.registerFunction("command.exists",
-                (sc, in) -> CommandManager.hasCustom(in[0].getString(sc)));
+                (sc, in) -> CommandManager.hasCustom(in[0].getString(sc)), "boolean");
         MundusPlugin.scriptManager.registerConsumer("command.clear",
                 (sc, in) -> CommandManager.clearCustom());
         //commandhelp creation
         MundusPlugin.scriptManager.registerFunction("command.newhelp", (sc, in) -> {
             final String perm = in[1].getString(sc);
             return new CommandAPICommand(in[0].getString(sc)).withPermission(perm);
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("command.addhelpargument", (sc, in) -> {
             CommandAPICommand cmd = (CommandAPICommand) in[0].get(sc);
             Argument<?> arg = (Argument<?>) in[1].get(sc);
@@ -68,7 +68,7 @@ public class CommandCommands {
                 arg.withPermission(perm);
             }
             return arg;
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("command.newhelpliteral", (sc, in) -> {
             String literal = in[0].getString(sc);
             Argument<?> arg = new LiteralArgument(literal)
@@ -78,7 +78,7 @@ public class CommandCommands {
                 arg.withPermission(perm);
             }
             return arg;
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("command.newhelpbool", (sc, in) -> {
             String name = in[0].getString(sc);
             Argument<?> arg = new BooleanArgument(name);
@@ -87,7 +87,7 @@ public class CommandCommands {
                 arg.withPermission(perm);
             }
             return arg;
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("command.newhelpfloat", (sc, in) -> {
             float min = in[1].getFloat(sc);
             float max = in[2].getFloat(sc);
@@ -98,7 +98,7 @@ public class CommandCommands {
                 arg.withPermission(perm);
             }
             return arg;
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("command.newhelpdouble", (sc, in) -> {
             double min = in[1].getDouble(sc);
             double max = in[2].getDouble(sc);
@@ -109,7 +109,7 @@ public class CommandCommands {
                 arg.withPermission(perm);
             }
             return arg;
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("command.newhelpint", (sc, in) -> {
             int min = in[1].getInt(sc);
             int max = in[2].getInt(sc);
@@ -120,7 +120,7 @@ public class CommandCommands {
                 arg.withPermission(perm);
             }
             return arg;
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("command.newhelpspecial", (sc, in) -> {
             Argument<?> arg = null;
             String type = in[0].getString(sc);
@@ -156,6 +156,6 @@ public class CommandCommands {
                 arg.withPermission(perm);
             }
             return arg;
-        });
+        }, "object");
     }
 }

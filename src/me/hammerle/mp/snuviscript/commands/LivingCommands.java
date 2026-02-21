@@ -49,7 +49,7 @@ public class LivingCommands {
                 if(instance == null)
                     return 0.0;
                 return instance.getBaseValue();
-            });
+            }, "number");
 
             MundusPlugin.scriptManager.registerConsumer(resetCmd, (sc, in) -> {
                 LivingEntity liv = (LivingEntity) in[0].get(sc);
@@ -73,9 +73,9 @@ public class LivingCommands {
                 l = ((LivingEntity) o).getLocation();
             }
             return l.getWorld().getNearbyLivingEntities(l, in[1].getDouble(sc));
-        });
+        }, "list");
         MundusPlugin.scriptManager.registerFunction("living.gethealth",
-                (sc, in) -> (double) ((LivingEntity) in[0].get(sc)).getHealth());
+                (sc, in) -> (double) ((LivingEntity) in[0].get(sc)).getHealth(), "number");
         MundusPlugin.scriptManager.registerConsumer("living.sethealth",
                 (sc, in) -> ((LivingEntity) in[0].get(sc)).setHealth(in[1].getDouble(sc)));
         MundusPlugin.scriptManager.registerConsumer("living.damage", (sc, in) -> {
@@ -110,7 +110,7 @@ public class LivingCommands {
             LivingEntity liv = (LivingEntity) in[0].get(sc);
             return liv.launchProjectile(
                     (Class<? extends Projectile>) Class.forName(in[1].getString(sc)));
-        });
+        }, "entity");
         MundusPlugin.scriptManager.registerConsumer("living.setequip", (sc, in) -> {
             LivingEntity liv = (LivingEntity) in[0].get(sc);
             liv.getEquipment().setItem((EquipmentSlot) in[1].get(sc), (ItemStack) in[2].get(sc));
@@ -118,7 +118,7 @@ public class LivingCommands {
         MundusPlugin.scriptManager.registerFunction("living.getequip", (sc, in) -> {
             LivingEntity liv = (LivingEntity) in[0].get(sc);
             return liv.getEquipment().getItem((EquipmentSlot) in[1].get(sc));
-        });
+        }, "itemstack");
         MundusPlugin.scriptManager.registerConsumer("living.setinvisible", (sc, in) -> {
             ((LivingEntity) in[0].get(sc)).setInvisible(in[1].getBoolean(sc));
         });
@@ -142,27 +142,27 @@ public class LivingCommands {
             PotionEffectType effectType = Registry.POTION_EFFECT_TYPE.get(key);
             PotionEffect effect = ((LivingEntity) in[0].get(sc)).getPotionEffect(effectType);
             return (double) (effect == null ? -1 : effect.getAmplifier());
-        });
+        }, "number");
         MundusPlugin.scriptManager.registerFunction("living.isgliding", (sc, in) -> {
             LivingEntity liv = (LivingEntity) in[0].get(sc);
             return liv.isGliding();
-        });
+        }, "boolean");
         MundusPlugin.scriptManager.registerFunction("living.isswimming", (sc, in) -> {
             LivingEntity liv = (LivingEntity) in[0].get(sc);
             return liv.isSwimming();
-        });
+        }, "boolean");
         MundusPlugin.scriptManager.registerFunction("living.isglowing", (sc, in) -> {
             LivingEntity liv = (LivingEntity) in[0].get(sc);
             return liv.isGlowing();
-        });
+        }, "boolean");
         MundusPlugin.scriptManager.registerFunction("living.issleeping", (sc, in) -> {
             LivingEntity liv = (LivingEntity) in[0].get(sc);
             return liv.isSleeping();
-        });
+        }, "boolean");
         MundusPlugin.scriptManager.registerFunction("living.isleashed", (sc, in) -> {
             LivingEntity liv = (LivingEntity) in[0].get(sc);
             return liv.isLeashed();
-        });
+        }, "boolean");
         MundusPlugin.scriptManager.registerFunction("living.getleashholder", (sc, in) -> {
             try {
                 LivingEntity liv = (LivingEntity) in[0].get(sc);
@@ -177,7 +177,7 @@ public class LivingCommands {
             } catch(Exception e) {
                 return null;
             }
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("living.setleashholder", (sc, in) -> {
             LivingEntity liv = (LivingEntity) in[0].get(sc);
             Object o = in[1].get(sc);
@@ -198,7 +198,7 @@ public class LivingCommands {
                 throw new IllegalArgumentException(
                         "Second argument must be an Entity or a Location.");
             }
-        });
+        }, "boolean");
         MundusPlugin.scriptManager.registerConsumer("living.unleash", (sc, in) -> {
             LivingEntity liv = (LivingEntity) in[0].get(sc);
             liv.setLeashHolder(null);

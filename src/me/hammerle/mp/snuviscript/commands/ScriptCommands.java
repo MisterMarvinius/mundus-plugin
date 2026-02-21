@@ -23,20 +23,20 @@ public class ScriptCommands {
                 names[i] = in[i].getString(sc);
             }
             return MundusPlugin.startLocalScript(null, names);
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("script.start", (sc, in) -> {
             String[] names = new String[in.length];
             for(int i = 0; i < in.length; i++) {
                 names[i] = in[i].getString(sc);
             }
             return MundusPlugin.startGlobalScript(null, names);
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("script.startnamed", (sc, in) -> {
             String[] names = new String[in.length - 1];
             for(int i = 0; i < names.length; i++) {
                 names[i] = in[i + 1].getString(sc);
             }
             return MundusPlugin.startGlobalScript(in[0].getString(sc), names);
-        });
+        }, "object");
     }
 }

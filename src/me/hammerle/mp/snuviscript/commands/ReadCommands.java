@@ -32,7 +32,7 @@ public class ReadCommands {
             } catch(Exception ex) {
                 return null;
             }
-        });
+        }, "itemstack");
         MundusPlugin.scriptManager.registerFunction("read.uuid", (sc, in) -> {
             String s = in[0].getString(sc);
             try {
@@ -40,7 +40,7 @@ public class ReadCommands {
             } catch(Exception ex) {
                 return null;
             }
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("read.slot", (sc, in) -> {
             String s = in[0].getString(sc);
             try {
@@ -48,7 +48,7 @@ public class ReadCommands {
             } catch(Exception ex) {
                 return null;
             }
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("read.blockdata", (sc, in) -> {
             String s = in[0].getString(sc);
             try {
@@ -56,6 +56,6 @@ public class ReadCommands {
             } catch(Exception ex) {
                 return null;
             }
-        });
+        }, "object");
     }
 }

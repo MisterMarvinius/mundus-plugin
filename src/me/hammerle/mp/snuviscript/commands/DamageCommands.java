@@ -13,27 +13,27 @@ public class DamageCommands {
         MundusPlugin.scriptManager.registerFunction("damage.get", (sc, in) -> {
             DamageType dt = parseDamageType(in[0].getString(sc));
             return DamageSource.builder(dt).build();
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("damage.gettype", (sc, in) -> {
             DamageSource d = (DamageSource) in[0].get(sc);
             return d.getDamageType().getTranslationKey();
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("damage.getimmediatesource", (sc, in) -> {
             DamageSource d = (DamageSource) in[0].get(sc);
             return d.getDirectEntity();
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("damage.gettruesource", (sc, in) -> {
             DamageSource d = (DamageSource) in[0].get(sc);
             return d.getCausingEntity();
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("damage.isindirect", (sc, in) -> {
             DamageSource d = (DamageSource) in[0].get(sc);
             return d.isIndirect();
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("damage.isdifficultyscaled", (sc, in) -> {
             DamageSource d = (DamageSource) in[0].get(sc);
             return d.scalesWithDifficulty();
-        });
+        }, "object");
     }
 
     public static DamageType parseDamageType(String name) {

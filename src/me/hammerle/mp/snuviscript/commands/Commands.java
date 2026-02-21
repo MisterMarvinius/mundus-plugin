@@ -16,18 +16,18 @@ public class Commands {
         });
         MundusPlugin.scriptManager.registerFunction("getmotd", (sc, in) -> {
             return org.bukkit.Bukkit.motd();
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("msg", (sc, in) -> {
             CommandUtils.sendMessageToGroup(in[0].get(sc), sc, (Component) in[1].get(sc));
         });
         MundusPlugin.scriptManager.registerFunction("isplayer", (sc, in) -> {
             Object o = in[0].get(sc);
             return o != null && o instanceof Player && !((Player) o).hasMetadata("NPC");
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("isliving", (sc, in) -> {
             Object o = in[0].get(sc);
             return o != null && o instanceof LivingEntity;
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("iscitizen", (sc, in) -> {
             Object o = in[0].get(sc);
             if(o == null) {
@@ -37,7 +37,7 @@ public class Commands {
                 return true;
             }
             return o instanceof Entity && ((Entity) o).hasMetadata("NPC");
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("config.saveasync", (sc, in) -> {
             SnuviConfig config = (SnuviConfig) in[0].get(sc);
             MundusPlugin.scheduleAsyncTask(() -> config.save(sc));
