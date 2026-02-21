@@ -12,9 +12,9 @@ public final class ScriptTypeRegistration {
     private ScriptTypeRegistration() {}
 
     public static void registerMinecraftTypes() {
-        registerType("entity", Entity.class::isInstance);
-        registerType("living", LivingEntity.class::isInstance, "entity");
-        registerType("player", Player.class::isInstance, "living", "entity");
+        //registerType("entity", Entity.class::isInstance);
+        //registerType("living", LivingEntity.class::isInstance, "entity");
+        //registerType("player", Player.class::isInstance, "living", "entity");
     }
 
     private static void registerType(String name, Predicate<Object> check, String... parents) {
