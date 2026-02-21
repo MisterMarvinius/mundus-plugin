@@ -20,7 +20,7 @@ public class ReadCommands {
                 }
             }
             return null;
-        });
+        }, "Player");
         MundusPlugin.scriptManager.registerFunction("read.item", (sc, in) -> {
             String s = in[0].getString(sc);
             if(s.contains("minecraft:air")) {
