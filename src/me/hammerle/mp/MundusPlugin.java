@@ -136,6 +136,7 @@ public class MundusPlugin extends JavaPlugin implements ISnuviScheduler {
         BossBarCommands.registerFunctions();
         Commands.registerFunctions();
         LuckPermsCommands.registerFunctions();
+        SkillsCommands.registerFunctions();
     }
 
     @Override
