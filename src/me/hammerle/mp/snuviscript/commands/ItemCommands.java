@@ -28,7 +28,7 @@ public class ItemCommands {
     @SuppressWarnings("unchecked")
     public static void registerFunctions() {
         MundusPlugin.scriptManager.registerFunction("material.get",
-                (sc, in) -> Material.matchMaterial(in[0].getString(sc)));
+                (sc, in) -> Material.matchMaterial(in[0].getString(sc)), "material");
         MundusPlugin.scriptManager.registerFunction("material.getall",
                 (sc, in) -> Material.values());
         MundusPlugin.scriptManager.registerConsumer("material.setcooldown", (sc, in) -> {
