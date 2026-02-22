@@ -1,7 +1,7 @@
 main: me.hammerle.mp.MundusPlugin
 name: MundusPlugin
-version: "1.0.6"
-api-version: "1.21.10"
+version: "1.0.7"
+api-version: "1.21.11"
 author: AUTHOR
 description: DESCRIPTION
 depend: [CommandAPI, Citizens, LuckPerms, WorldEdit, WorldGuard]
