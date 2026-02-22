@@ -14,16 +14,16 @@ public class EnchantmentCommands {
     public static void registerFunctions() {
         MundusPlugin.scriptManager.registerFunction("enchantment.get",
                 (sc, in) -> RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT)
-                        .get(NamespacedKey.fromString(in[0].getString(sc))));
+                        .get(NamespacedKey.fromString(in[0].getString(sc))), "object");
         MundusPlugin.scriptManager.registerFunction("enchantment.getmaxlevel",
-                (sc, in) -> (double) ((Enchantment) in[0].get(sc)).getMaxLevel());
+                (sc, in) -> (double) ((Enchantment) in[0].get(sc)).getMaxLevel(), "object");
         MundusPlugin.scriptManager.registerConsumer("enchantment.add", (sc, in) -> {
             ((ItemStack) in[1].get(sc)).addUnsafeEnchantment((Enchantment) in[0].get(sc),
                     in[2].getInt(sc));
         });
         MundusPlugin.scriptManager.registerFunction("enchantment.getlevel",
                 (sc, in) -> (double) ((ItemStack) in[1].get(sc))
-                        .getEnchantmentLevel((Enchantment) in[0].get(sc)));
+                        .getEnchantmentLevel((Enchantment) in[0].get(sc)), "object");
         MundusPlugin.scriptManager.registerFunction("enchantment.readfromitem", (sc, in) -> {
             ItemStack stack = (ItemStack) in[0].get(sc);
             HashMap<Enchantment, Double> map = new HashMap<>();
@@ -31,7 +31,7 @@ public class EnchantmentCommands {
                 map.put(e.getKey(), (double) e.getValue());
             }
             return map;
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("enchantment.writetoitem", (sc, in) -> {
             ItemStack stack = (ItemStack) in[1].get(sc);
             for(Enchantment e : stack.getEnchantments().keySet()) {

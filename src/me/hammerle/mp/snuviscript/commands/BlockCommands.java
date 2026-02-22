@@ -33,17 +33,17 @@ public class BlockCommands {
     public static void registerFunctions() {
         MundusPlugin.scriptManager.registerFunction("block.gettag",
                 (sc, in) -> Bukkit.getTag(Tag.REGISTRY_BLOCKS,
-                        NamespacedKey.fromString(in[0].getString(sc)), Material.class));
+                        NamespacedKey.fromString(in[0].getString(sc)), Material.class), "object");
         MundusPlugin.scriptManager.registerFunction("block.hastag", (sc,
-                in) -> ((Tag<Material>) in[1].get(sc)).isTagged(((Block) in[0].get(sc)).getType()));
+                in) -> ((Tag<Material>) in[1].get(sc)).isTagged(((Block) in[0].get(sc)).getType()), "boolean");
         MundusPlugin.scriptManager.registerFunction("block.gettype",
-                (sc, in) -> ((Block) in[0].get(sc)).getType());
+                (sc, in) -> ((Block) in[0].get(sc)).getType(), "material");
         MundusPlugin.scriptManager.registerFunction("block.getlocation",
-                (sc, in) -> ((Block) in[0].get(sc)).getLocation());
+                (sc, in) -> ((Block) in[0].get(sc)).getLocation(), "location");
         MundusPlugin.scriptManager.registerFunction("block.get",
-                (sc, in) -> ((Location) in[0].get(sc)).getBlock());
+                (sc, in) -> ((Location) in[0].get(sc)).getBlock(), "block");
         MundusPlugin.scriptManager.registerFunction("block.getdata",
-                (sc, in) -> ((Block) in[0].get(sc)).getBlockData());
+                (sc, in) -> ((Block) in[0].get(sc)).getBlockData(), "object");
         MundusPlugin.scriptManager.registerConsumer("block.clone", (sc, in) -> {
             Block fromBlock = (Block) in[0].get(sc);
             Location toLoc = (Location) in[1].get(sc);
@@ -103,7 +103,7 @@ public class BlockCommands {
             Sign sign = (Sign) b.getState();
             SignSide side = (SignSide) sign.getSide(Side.valueOf(in[1].getString(sc)));
             return side.line(in[2].getInt(sc));
-        });
+        }, "text");
         MundusPlugin.scriptManager.registerConsumer("block.signsetwaxed", (sc, in) -> {
             Block b = (Block) in[0].get(sc);
             Sign sign = (Sign) b.getState();
@@ -116,7 +116,7 @@ public class BlockCommands {
                 return ((Container) state).getInventory();
             }
             return null;
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("block.setopen", (sc, in) -> {
             Block b = (Block) in[0].get(sc);
             Openable o = (Openable) b.getBlockData();
@@ -127,9 +127,9 @@ public class BlockCommands {
             Block b = (Block) in[0].get(sc);
             Openable o = (Openable) b.getBlockData();
             return o.isOpen();
-        });
+        }, "boolean");
         MundusPlugin.scriptManager.registerFunction("block.isopenable",
-                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Openable);
+                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Openable, "boolean");
         MundusPlugin.scriptManager.registerConsumer("block.setdoorhinge", (sc, in) -> {
             Block b = (Block) in[0].get(sc);
             Door o = (Door) b.getBlockData();
@@ -140,9 +140,9 @@ public class BlockCommands {
             Block b = (Block) in[0].get(sc);
             Door o = (Door) b.getBlockData();
             return o.getHinge().toString();
-        });
+        }, "string");
         MundusPlugin.scriptManager.registerFunction("block.isdoor",
-                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Door);
+                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Door, "boolean");
         MundusPlugin.scriptManager.registerConsumer("block.setbisectedhalf", (sc, in) -> {
             Block b = (Block) in[0].get(sc);
             Bisected o = (Bisected) b.getBlockData();
@@ -153,9 +153,9 @@ public class BlockCommands {
             Block b = (Block) in[0].get(sc);
             Bisected o = (Bisected) b.getBlockData();
             return o.getHalf().toString();
-        });
+        }, "string");
         MundusPlugin.scriptManager.registerFunction("block.isbisected",
-                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Bisected);
+                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Bisected, "boolean");
         MundusPlugin.scriptManager.registerConsumer("block.setdirectionalface", (sc, in) -> {
             Block b = (Block) in[0].get(sc);
             Directional o = (Directional) b.getBlockData();
@@ -166,14 +166,14 @@ public class BlockCommands {
             Block b = (Block) in[0].get(sc);
             Directional o = (Directional) b.getBlockData();
             return o.getFacing().toString();
-        });
+        }, "string");
         MundusPlugin.scriptManager.registerFunction("block.getdirectionalfaces", (sc, in) -> {
             Block b = (Block) in[0].get(sc);
             Directional o = (Directional) b.getBlockData();
             return o.getFaces().stream().map(f -> f.toString()).collect(Collectors.toList());
-        });
+        }, "list");
         MundusPlugin.scriptManager.registerFunction("block.isdirectional",
-                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Directional);
+                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Directional, "boolean");
         MundusPlugin.scriptManager.registerConsumer("block.setpersistent", (sc, in) -> {
             Block b = (Block) in[0].get(sc);
             Leaves o = (Leaves) b.getBlockData();
@@ -184,11 +184,11 @@ public class BlockCommands {
             Block b = (Block) in[0].get(sc);
             Leaves o = (Leaves) b.getBlockData();
             return o.isPersistent();
-        });
+        }, "boolean");
         MundusPlugin.scriptManager.registerFunction("block.isleaves",
-                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Leaves);
+                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Leaves, "boolean");
         MundusPlugin.scriptManager.registerFunction("block.isbed",
-                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Bed);
+                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Bed, "boolean");
         MundusPlugin.scriptManager.registerConsumer("block.setbedpart", (sc, in) -> {
             Block b = (Block) in[0].get(sc);
             Bed o = (Bed) b.getBlockData();
@@ -199,14 +199,14 @@ public class BlockCommands {
             Block b = (Block) in[0].get(sc);
             Bed o = (Bed) b.getBlockData();
             return o.getPart().toString();
-        });
+        }, "string");
         MundusPlugin.scriptManager.registerFunction("block.canhavewater",
-                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Waterlogged);
+                (sc, in) -> ((Block) in[0].get(sc)).getBlockData() instanceof Waterlogged, "boolean");
         MundusPlugin.scriptManager.registerFunction("block.iswaterlogged", (sc, in) -> {
             Block b = (Block) in[0].get(sc);
             Waterlogged o = (Waterlogged) b.getBlockData();
             return o.isWaterlogged();
-        });
+        }, "boolean");
         MundusPlugin.scriptManager.registerConsumer("block.setwaterlogged", (sc, in) -> {
             Block b = (Block) in[0].get(sc);
             Waterlogged o = (Waterlogged) b.getBlockData();

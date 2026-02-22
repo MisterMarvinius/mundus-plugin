@@ -42,24 +42,24 @@ public class WorldGuardCommands {
         registerFlags();
         MundusPlugin.scriptManager.registerFunction("plot.get", (sc, in) -> {
             return getRegions((Location) in[0].get(sc));
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("plot.check", (sc, in) -> {
             Location l = (Location) in[0].get(sc);
             Player p = (Player) in[1].get(sc);
             int flags = in[2].getInt(sc);
             boolean empty = in[3].getBoolean(sc);
             return canDoSomething(l, p, flags, empty);
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("plot.setflags", (sc, in) -> {
             ProtectedRegion region = (ProtectedRegion) in[0].get(sc);
             setFlag(region, in[1].getInt(sc), in[2].getBoolean(sc));
         });
         MundusPlugin.scriptManager.registerFunction("plot.hasflags", (sc, in) -> {
             return hasFlags((ProtectedRegion) in[0].get(sc), in[1].getInt(sc));
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("plot.getflags", (sc, in) -> {
             return (double) getFlags((ProtectedRegion) in[0].get(sc));
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("plot.setflagsmask", (sc, in) -> {
             ProtectedRegion r = (ProtectedRegion) in[0].get(sc);
             r.setFlag(flagsFlag, in[1].getInt(sc));
@@ -82,7 +82,7 @@ public class WorldGuardCommands {
         });
         MundusPlugin.scriptManager.registerFunction("plot.getowners", (sc, in) -> {
             return new ArrayList<>(((ProtectedRegion) in[0].get(sc)).getOwners().getUniqueIds());
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("plot.add", (sc, in) -> {
             Location l1 = (Location) in[0].get(sc);
             Location l2 = (Location) in[1].get(sc);
@@ -93,40 +93,40 @@ public class WorldGuardCommands {
                 return addRegion(l1, l2, in[2].getInt(sc));
             }
             return addRegion(l1, l2, null);
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("plot.remove", (sc, in) -> {
             removeRegion((World) in[1].get(sc), (ProtectedRegion) in[0].get(sc));
         });
         MundusPlugin.scriptManager.registerFunction("plot.getname",
-                (sc, in) -> getName((ProtectedRegion) in[0].get(sc)));
+                (sc, in) -> getName((ProtectedRegion) in[0].get(sc)), "object");
         MundusPlugin.scriptManager.registerConsumer("plot.setname", (sc, in) -> {
             ((ProtectedRegion) in[0].get(sc)).setFlag(nameFlag, in[1].getString(sc));
         });
         MundusPlugin.scriptManager.registerFunction("plot.getid",
-                (sc, in) -> (double) getId((ProtectedRegion) in[0].get(sc)));
+                (sc, in) -> (double) getId((ProtectedRegion) in[0].get(sc)), "object");
         MundusPlugin.scriptManager.registerFunction("plot.iterator", (sc, in) -> {
             World w = (World) in[0].get(sc);
             if(in.length >= 2) {
                 return getIterator(w, CommandUtils.getUUID(in[1].get(sc)));
             }
             return getIterator(w);
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("plot.intersecting",
                 (sc, in) -> getIntersectingPlots((World) in[0].get(sc), in[1].getInt(sc),
                         in[2].getInt(sc), in[3].getInt(sc), in[4].getInt(sc), in[5].getInt(sc),
-                        in[6].getInt(sc)));
+                        in[6].getInt(sc)), "object");
         MundusPlugin.scriptManager.registerFunction("plot.getminx",
-                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMinimumPoint().x());
+                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMinimumPoint().x(), "object");
         MundusPlugin.scriptManager.registerFunction("plot.getminy",
-                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMinimumPoint().y());
+                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMinimumPoint().y(), "object");
         MundusPlugin.scriptManager.registerFunction("plot.getminz",
-                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMinimumPoint().z());
+                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMinimumPoint().z(), "object");
         MundusPlugin.scriptManager.registerFunction("plot.getmaxx",
-                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMaximumPoint().x());
+                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMaximumPoint().x(), "object");
         MundusPlugin.scriptManager.registerFunction("plot.getmaxy",
-                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMaximumPoint().y());
+                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMaximumPoint().y(), "object");
         MundusPlugin.scriptManager.registerFunction("plot.getmaxz",
-                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMaximumPoint().z());
+                (sc, in) -> (double) ((ProtectedRegion) in[0].get(sc)).getMaximumPoint().z(), "object");
         MundusPlugin.scriptManager.registerConsumer("plot.addblock", (sc, in) -> {
             addInteractBlock((Location) in[0].get(sc));
         });
@@ -135,20 +135,20 @@ public class WorldGuardCommands {
         });
         MundusPlugin.scriptManager.registerFunction("plot.hasblock", (sc, in) -> {
             return hasInteractBlock((Location) in[0].get(sc));
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("plot.blockiterator", (sc, in) -> {
             World w = (World) in[0].get(sc);
             return getBlockIterator(w);
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("plot.position.getx", (sc, in) -> {
             return (double) ((PlotMap.Position) in[0].get(sc)).getX();
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("plot.position.gety", (sc, in) -> {
             return (double) ((PlotMap.Position) in[0].get(sc)).getY();
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerFunction("plot.position.getz", (sc, in) -> {
             return (double) ((PlotMap.Position) in[0].get(sc)).getZ();
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("plot.saveplots", (sc, in) -> {
             savePlots((World) in[0].get(sc));
         });

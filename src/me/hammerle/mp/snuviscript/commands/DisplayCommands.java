@@ -34,7 +34,7 @@ public class DisplayCommands {
                 entity.text(text);
             });
             return d;
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("display.backgroundcolor", (sc, in) -> {
             TextDisplay d = (TextDisplay) in[0].get(sc);
             Color c = Color.fromARGB(in[1].getInt(sc), in[2].getInt(sc), in[3].getInt(sc),
@@ -76,7 +76,7 @@ public class DisplayCommands {
                 entity.setBlock(m.createBlockData());
             });
             return d;
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("display.setblock", (sc, in) -> {
             BlockDisplay b = (BlockDisplay) in[0].get(sc);
             Material m = (Material) in[1].get(sc);
@@ -92,7 +92,7 @@ public class DisplayCommands {
                 entity.setItemStack(stack);
             });
             return d;
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("display.setitem", (sc, in) -> {
             ItemDisplay d = (ItemDisplay) in[0].get(sc);
             ItemStack stack = (ItemStack) in[1].get(sc);
@@ -113,9 +113,9 @@ public class DisplayCommands {
         });
         MundusPlugin.scriptManager.registerFunction("vector.new",
                 (sc, in) -> new Vector3f(in[0].getFloat(sc), in[1].getFloat(sc),
-                        in[2].getFloat(sc)));
+                        in[2].getFloat(sc)), "object");
         MundusPlugin.scriptManager.registerFunction("rotation.new",
                 (sc, in) -> new Quaternionf(in[0].getFloat(sc), in[1].getFloat(sc),
-                        in[2].getFloat(sc), in[3].getFloat(sc)));
+                        in[2].getFloat(sc), in[3].getFloat(sc)), "object");
     }
 }

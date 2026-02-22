@@ -8,9 +8,9 @@ import me.hammerle.mp.MundusPlugin;
 public class ParticleCommands {
     public static void registerFunctions() {
         MundusPlugin.scriptManager.registerFunction("particle.getall",
-                (sc, in) -> Particle.values());
+                (sc, in) -> Particle.values(), "object");
         MundusPlugin.scriptManager.registerFunction("particle.get",
-                (sc, in) -> Particle.valueOf(in[0].getString(sc)));
+                (sc, in) -> Particle.valueOf(in[0].getString(sc)), "object");
         MundusPlugin.scriptManager.registerConsumer("particle.spawn", (sc, in) -> {
             Location l = ((Location) in[0].get(sc));
             Particle data = ((Particle) in[1].get(sc));

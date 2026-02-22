@@ -16,7 +16,7 @@ public class ItemEntityCommands {
                 return ((ThrowableProjectile) o).getItem();
             }
             return ((Item) o).getItemStack();
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("item.entity.set", (sc, in) -> {
             Object o = in[0].get(sc);
             ItemStack stack = (ItemStack) in[1].get(sc);

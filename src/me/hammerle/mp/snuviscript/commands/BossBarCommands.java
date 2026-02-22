@@ -13,7 +13,7 @@ public class BossBarCommands {
         MundusPlugin.scriptManager.registerFunction("boss.create", (sc, in) -> {
             return Bukkit.createBossBar(in[0].getString(sc), BarColor.valueOf(in[1].getString(sc)),
                     BarStyle.valueOf(in[2].getString(sc)));
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("boss.addplayer", (sc, in) -> {
             ((BossBar) in[0].get(sc)).addPlayer((Player) in[1].get(sc));
         });

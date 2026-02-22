@@ -35,7 +35,7 @@ public class EntityCommands {
         MundusPlugin.scriptManager.registerConsumer("entity.setburning",
                 (sc, in) -> ((Entity) in[0].get(sc)).setFireTicks(in[1].getInt(sc)));
         MundusPlugin.scriptManager.registerFunction("entity.isburning",
-                (sc, in) -> ((Entity) in[0].get(sc)).getFireTicks() > 0);
+                (sc, in) -> ((Entity) in[0].get(sc)).getFireTicks() > 0, "boolean");
         MundusPlugin.scriptManager.registerFunction("entity.getlook", (sc, in) -> {
             Object[] o = new Object[3];
             Vector v = ((Entity) in[0].get(sc)).getLocation().getDirection();
@@ -43,7 +43,7 @@ public class EntityCommands {
             o[1] = v.getY();
             o[2] = v.getZ();
             return o;
-        });
+        }, "array");
         MundusPlugin.scriptManager.registerConsumer("entity.setlook", (sc, in) -> {
             Entity e = (Entity) in[0].get(sc);
             Location l = e.getLocation();
@@ -58,9 +58,9 @@ public class EntityCommands {
             o[1] = v.getY();
             o[2] = v.getZ();
             return o;
-        });
+        }, "array");
         MundusPlugin.scriptManager.registerFunction("entity.getlocation",
-                (sc, in) -> ((Entity) in[0].get(sc)).getLocation());
+                (sc, in) -> ((Entity) in[0].get(sc)).getLocation(), "location");
         MundusPlugin.scriptManager.registerConsumer("entity.setname", (sc, in) -> {
             Entity ent = (Entity) in[0].get(sc);
             ent.customName((Component) in[1].get(sc));
@@ -71,7 +71,7 @@ public class EntityCommands {
             ent.setCustomNameVisible(false);
         });
         MundusPlugin.scriptManager.registerFunction("entity.getname",
-                (sc, in) -> ((Entity) in[0].get(sc)).customName());
+                (sc, in) -> ((Entity) in[0].get(sc)).customName(), "text");
         MundusPlugin.scriptManager.registerConsumer("entity.setmotion", (sc, in) -> {
             Entity ent = (Entity) in[0].get(sc);
             ent.setVelocity(
@@ -98,9 +98,9 @@ public class EntityCommands {
             ((Entity) in[0].get(sc)).setSilent(in[1].getBoolean(sc));
         });
         MundusPlugin.scriptManager.registerFunction("entity.getmount",
-                (sc, in) -> ((Entity) in[0].get(sc)).getVehicle());
+                (sc, in) -> ((Entity) in[0].get(sc)).getVehicle(), "entity");
         MundusPlugin.scriptManager.registerFunction("entity.getpassengers",
-                (sc, in) -> ((Entity) in[0].get(sc)).getPassengers());
+                (sc, in) -> ((Entity) in[0].get(sc)).getPassengers(), "list");
         MundusPlugin.scriptManager.registerConsumer("entity.mount", (sc, in) -> {
             ((Entity) in[1].get(sc)).addPassenger(((Entity) in[0].get(sc)));
         });
@@ -120,18 +120,18 @@ public class EntityCommands {
                 }
             }
             return minE;
-        });
+        }, "entity");
         MundusPlugin.scriptManager.registerFunction("entity.getpotiontype",
-                (sc, in) -> ((ThrownPotion) in[0].get(sc)).getItem());
+                (sc, in) -> ((ThrownPotion) in[0].get(sc)).getItem(), "itemstack");
         MundusPlugin.scriptManager.registerConsumer("entity.setgravity", (sc, in) -> {
             ((Entity) in[0].get(sc)).setGravity(in[1].getBoolean(sc));
         });
         MundusPlugin.scriptManager.registerFunction("entity.iswet",
-                (sc, in) -> ((Entity) in[0].get(sc)).isInWater());
+                (sc, in) -> ((Entity) in[0].get(sc)).isInWater(), "boolean");
         MundusPlugin.scriptManager.registerFunction("entity.spawn", (sc, in) -> {
             Location l = ((Location) in[0].get(sc));
             return l.getWorld().spawnEntity(l, EntityType.valueOf(in[1].getString(sc)));
-        });
+        }, "entity");
         MundusPlugin.scriptManager.registerFunction("entity.near", (sc, in) -> {
             Object o = in[0].get(sc);
             if(o instanceof Location) {
@@ -141,11 +141,11 @@ public class EntityCommands {
             Entity ent = (Entity) o;
             double radius = in[1].getDouble(sc);
             return ent.getNearbyEntities(radius, radius, radius);
-        });
+        }, "list");
         MundusPlugin.scriptManager.registerFunction("entity.getuuid", (sc, in) -> {
             Entity ent = (Entity) in[0].get(sc);
             return ent.getUniqueId();
-        });
+        }, "object");
         MundusPlugin.scriptManager.registerConsumer("entity.setgrowingage", (sc, in) -> {
             ((Ageable) in[0].get(sc)).setAge(in[1].getInt(sc));
         });
@@ -156,7 +156,7 @@ public class EntityCommands {
             ((Breedable) in[0].get(sc)).setBreed(in[1].getBoolean(sc));
         });
         MundusPlugin.scriptManager.registerFunction("entity.isbreedable",
-                (sc, in) -> ((Breedable) in[0].get(sc)).canBreed());
+                (sc, in) -> ((Breedable) in[0].get(sc)).canBreed(), "boolean");
         MundusPlugin.scriptManager.registerConsumer("entity.setadult", (sc, in) -> {
             ((Ageable) in[0].get(sc)).setAdult();
         });
@@ -164,13 +164,13 @@ public class EntityCommands {
             ((Ageable) in[0].get(sc)).setBaby();
         });
         MundusPlugin.scriptManager.registerFunction("entity.isadult",
-                (sc, in) -> ((Ageable) in[0].get(sc)).isAdult());
+                (sc, in) -> ((Ageable) in[0].get(sc)).isAdult(), "boolean");
         MundusPlugin.scriptManager.registerFunction("entity.gettype",
-                (sc, in) -> ((Entity) in[0].get(sc)).getType().toString().toLowerCase());
+                (sc, in) -> ((Entity) in[0].get(sc)).getType().toString().toLowerCase(), "string");
         MundusPlugin.scriptManager.registerFunction("sheep.issheared",
-                (sc, in) -> ((Sheep) in[0].get(sc)).isSheared());
+                (sc, in) -> ((Sheep) in[0].get(sc)).isSheared(), "boolean");
         MundusPlugin.scriptManager.registerFunction("sheep.getcolor",
-                (sc, in) -> ((Sheep) in[0].get(sc)).getColor().toString());
+                (sc, in) -> ((Sheep) in[0].get(sc)).getColor().toString(), "string");
         MundusPlugin.scriptManager.registerConsumer("creeper.explode",
                 (sc, in) -> ((Creeper) in[0].get(sc)).ignite());
         MundusPlugin.scriptManager.registerFunction("rabbit.spawnkillerbunny", (sc, in) -> {
@@ -178,10 +178,10 @@ public class EntityCommands {
             Rabbit r = (Rabbit) l.getWorld().spawnEntity(l, EntityType.RABBIT);
             r.setRabbitType(Type.THE_KILLER_BUNNY);
             return r;
-        });
+        }, "entity");
         MundusPlugin.scriptManager.registerFunction("pet.istamed", (sc, in) -> {
             return ((Tameable) in[0].get(sc)).isTamed();
-        });
+        }, "boolean");
         MundusPlugin.scriptManager.registerConsumer("pet.settamed", (sc, in) -> {
             Tameable t = (Tameable) in[0].get(sc);
             t.setTamed(in[1].getBoolean(sc));
@@ -192,7 +192,7 @@ public class EntityCommands {
         MundusPlugin.scriptManager.registerFunction("pet.getowner", (sc, in) -> {
             Tameable t = (Tameable) in[0].get(sc);
             return t.getOwner();
-        });
+        }, "entity");
         MundusPlugin.scriptManager.registerFunction("entity.spawnseat", (sc, in) -> {
             Location l = ((Location) in[0].get(sc));
             ItemFrame frame = l.getWorld().spawn(l, ItemFrame.class);
@@ -200,7 +200,7 @@ public class EntityCommands {
             frame.setVisible(false);
             frame.setFacingDirection(BlockFace.UP);
             return (ItemFrame) frame;
-        });
+        }, "entity");
         MundusPlugin.scriptManager.registerConsumer("entity.frame.hide", (sc, in) -> {
             ItemFrame frame = (ItemFrame) in[0].get(sc);
             frame.setVisible(false);
@@ -225,11 +225,11 @@ public class EntityCommands {
             frame.setItem((ItemStack) in[2].get(sc));
         });
         MundusPlugin.scriptManager.registerFunction("entity.frame.getitem",
-                (sc, in) -> ((ItemFrame) in[0].get(sc)).getItem());
+                (sc, in) -> ((ItemFrame) in[0].get(sc)).getItem(), "itemstack");
         MundusPlugin.scriptManager.registerFunction("slime.getsize", (sc, in) -> {
             Slime s = (Slime) in[0].get(sc);
             return (double) s.getSize();
-        });
+        }, "number");
         MundusPlugin.scriptManager.registerConsumer("slime.setsize", (sc, in) -> {
             Slime s = (Slime) in[0].get(sc);
             s.setSize(in[1].getInt(sc));
